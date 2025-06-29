@@ -1,0 +1,67 @@
+.card {
+  width: 350px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-family: sans-serif;
+  padding: 1rem;
+  background: #fff;
+  text-align: center;
+}
+
+.profile-img {
+  width: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.name {
+  font-size: 1.5rem;
+  margin-top: 1rem;
+}
+
+.bio {
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.highlight {
+  background-color: #a8d0ff;
+  padding: 0 4px;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.tag.blue {
+  background-color: #007bff;
+}
+
+.tag.yellow {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.tag.green {
+  background-color: #28a745;
+}
+
+.tag.red {
+  background-color: #dc3545;
+}
+
+.tag.orange {
+  background-color: #fd7e14;
+}
