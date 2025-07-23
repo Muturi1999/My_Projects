@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "780798754483",
+    "project_id": "social-auth-app-443f1",
+    "storage_bucket": "social-auth-app-443f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780798754483:android:a39b94d13ca9c95ee47ac6",
+        "android_client_info": {
+          "package_name": "com.example.social_auth_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMn0sjhYs3cLxRz867Khs0ClruhmiScu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
