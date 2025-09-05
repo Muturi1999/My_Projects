@@ -1,0 +1,11 @@
+[db]
+path = "file:/var/lib/surrealdb/data.db"
+
+[net]
+bind = "0.0.0.0:8000"
+
+[auth]
+enabled = true
+username = "root"
+password = "root"
+

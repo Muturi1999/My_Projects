@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -7,7 +9,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+  
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
+  
   runApp(MyApp());
 }
 
@@ -25,6 +38,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
 class AuthWrapper extends StatelessWidget {
   @override
@@ -353,14 +367,14 @@ class _LoginPageState extends State<LoginPage> {
                   // Google Sign In
                   ElevatedButton.icon(
                     onPressed: _isLoading ? null : _signInWithGoogle,
-                    icon: Image.asset(
-                      'assets/google_logo.png', // You'll need to add this asset
-                      height: 20,
-                      width: 20,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(Icons.g_mobiledata, color: Colors.red);
-                      },
-                    ),
+                    // icon: Image.asset(
+                    //   'assets/google_logo.png', // You'll need to add this asset
+                    //   height: 20,
+                    //   width: 20,
+                    //   errorBuilder: (context, error, stackTrace) {
+                    //     return Icon(Icons.g_mobiledata, color: Colors.red);
+                    //   },
+                    // ),
                     label: Text('Continue with Google'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
