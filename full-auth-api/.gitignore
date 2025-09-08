@@ -3,3 +3,19 @@ venv/
 *.pyc
 __pycache__/
 
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment variables
+.env.local
+.env
