@@ -1,4 +1,6 @@
 import 'package:backend/core/models/branch.dart' show Branch;
+import 'package:backend/core/models/platform_integration.dart';
+
 
 class Restaurant {
   final String id;
@@ -38,4 +40,6 @@ class Restaurant {
     createdAt: DateTime.parse(json['created_at']),
     updatedAt: DateTime.parse(json['updated_at']),
   );
+
+  Future<Restaurant?> copyWith({required List<Branch> branches}) async {}
 }

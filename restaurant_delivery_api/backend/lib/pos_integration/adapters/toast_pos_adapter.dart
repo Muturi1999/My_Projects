@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:backend/core/models/order.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
 import 'package:backend/pos_integration/abstractions/pos_adapter.dart';
 import 'package:backend/pos_integration/models/pos_models.dart';
+import 'package:backend/shared/exceptions/app_exceptions.dart';
 
 
 

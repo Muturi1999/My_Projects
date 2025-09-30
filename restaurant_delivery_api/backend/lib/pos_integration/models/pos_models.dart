@@ -1,3 +1,5 @@
+import 'package:backend/platforms/uber_eats/services/uber_menu_service.dart';
+
 class PosInjectionResult {
   final bool success;
   final String? posOrderId;

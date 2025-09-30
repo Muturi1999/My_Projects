@@ -1,4 +1,6 @@
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
+import 'package:logging/logging.dart' hide Logger; // or define your own Logger
+import 'package:backend/core/models/order.dart' hide OrderStatus;
 
 class NotificationService {
   final Logger logger;

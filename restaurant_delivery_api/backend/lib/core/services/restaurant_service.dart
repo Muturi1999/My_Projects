@@ -1,6 +1,9 @@
 import 'package:backend/core/models/branch.dart';
-import 'package:backend/core/models/order.dart';
+import 'package:backend/core/models/order.dart' hide CoreServiceException;
 import 'package:backend/core/models/restaurant.dart';
+import 'package:backend/core/repositories/branch_repository.dart';
+import 'package:backend/core/repositories/restaurant_repository.dart';
+import 'package:backend/core/services/notification_service.dart' hide ValidationException;
 import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
 
 class CoreRestaurantService {

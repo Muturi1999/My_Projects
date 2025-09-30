@@ -1,6 +1,9 @@
 import 'package:backend/core/models/branch.dart';
-import 'package:backend/core/services/notification_service.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/core/models/order.dart';
+import 'package:backend/core/models/order_events.dart' hide OrderEvent;
+import 'package:backend/core/repositories/branch_repository.dart';
+import 'package:backend/core/repositories/order_repository.dart';
+import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide OrderStatus, Order;
 
 class CoreOrderService {
   final OrderRepository orderRepository;

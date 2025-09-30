@@ -337,25 +337,28 @@ class UberStore {
       externalStoreId: json['external_store_id'] ?? '',
       location: UberStoreLocation.fromJson(json['location']),
       status: json['status'] ?? 'OFFLINE',
-      regularHours: json['hours'] != null ? UberStoreHours.fromJson(json['hours']) : null,
+      regularHours: json['hours'] != null
+          ? UberStoreHours.fromJson(json['hours'])
+          : null,
       holidayHours: (json['holiday_hours'] as List? ?? [])
-          .map((h) => UberHolidayHours.fromJson(h)).toList(),
-      posIntegration: json['pos_integration'] != null 
-          ? UberPosIntegration.fromJson(json['pos_integration']) 
+          .map((h) => UberHolidayHours.fromJson(h))
+          .toList(),
+      posIntegration: json['pos_integration'] != null
+          ? UberPosIntegration.fromJson(json['pos_integration'])
           : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'external_store_id': externalStoreId,
-    'location': location.toJson(),
-    'status': status,
-    'hours': regularHours?.toJson(),
-    'holiday_hours': holidayHours.map((h) => h.toJson()).toList(),
-    'pos_integration': posIntegration?.toJson(),
-  };
+        'id': id,
+        'name': name,
+        'external_store_id': externalStoreId,
+        'location': location.toJson(),
+        'status': status,
+        'hours': regularHours?.toJson(),
+        'holiday_hours': holidayHours.map((h) => h.toJson()).toList(),
+        'pos_integration': posIntegration?.toJson(),
+      };
 }
 
 class UberStoreLocation {
@@ -390,14 +393,14 @@ class UberStoreLocation {
   }
 
   Map<String, dynamic> toJson() => {
-    'address': address,
-    'city': city,
-    'state': state,
-    'postal_code': postalCode,
-    'country': country,
-    'latitude': latitude,
-    'longitude': longitude,
-  };
+        'address': address,
+        'city': city,
+        'state': state,
+        'postal_code': postalCode,
+        'country': country,
+        'latitude': latitude,
+        'longitude': longitude,
+      };
 }
 
 class UberHolidayHours {
@@ -423,11 +426,11 @@ class UberHolidayHours {
   }
 
   Map<String, dynamic> toJson() => {
-    'date': date,
-    'open_time': openTime,
-    'close_time': closeTime,
-    'is_closed': isClosed,
-  };
+        'date': date,
+        'open_time': openTime,
+        'close_time': closeTime,
+        'is_closed': isClosed,
+      };
 }
 
 class UberPosIntegration {
@@ -456,10 +459,88 @@ class UberPosIntegration {
   }
 
   Map<String, dynamic> toJson() => {
-    'integrator_store_id': integratorStoreId,
-    'merchant_store_id': merchantStoreId,
-    'is_order_manager': isOrderManager,
-    'integration_enabled': integrationEnabled,
-    'store_configuration_data': storeConfigurationData,
-  };
+        'integrator_store_id': integratorStoreId,
+        'merchant_store_id': merchantStoreId,
+        'is_order_manager': isOrderManager,
+        'integration_enabled': integrationEnabled,
+        'store_configuration_data': storeConfigurationData,
+      };
+}
+
+/// ✅ New class added
+class UberStoreHours {
+  final Map<String, UberDayHours> weeklyHours;
+
+  UberStoreHours({required this.weeklyHours});
+
+  factory UberStoreHours.fromJson(Map<String, dynamic> json) {
+    return UberStoreHours(
+      weeklyHours: (json['weekly_hours'] as Map<String, dynamic>).map(
+        (day, hours) => MapEntry(day, UberDayHours.fromJson(hours)),
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'weekly_hours': weeklyHours.map((day, hours) => MapEntry(day, hours.toJson())),
+      };
+
+  UberStoreHours copyWith({Map<String, UberDayHours>? weeklyHours}) {
+    return UberStoreHours(
+      weeklyHours: weeklyHours ?? this.weeklyHours,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UberStoreHours &&
+          runtimeType == other.runtimeType &&
+          weeklyHours == other.weeklyHours;
+
+  @override
+  int get hashCode => weeklyHours.hashCode;
+}
+
+/// ✅ New class added
+class UberDayHours {
+  final String? openTime;
+  final String? closeTime;
+  final bool isClosed;
+
+  UberDayHours({this.openTime, this.closeTime, this.isClosed = false});
+
+  factory UberDayHours.fromJson(Map<String, dynamic> json) {
+    return UberDayHours(
+      openTime: json['open_time'],
+      closeTime: json['close_time'],
+      isClosed: json['is_closed'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'open_time': openTime,
+        'close_time': closeTime,
+        'is_closed': isClosed,
+      };
+
+  UberDayHours copyWith({String? openTime, String? closeTime, bool? isClosed}) {
+    return UberDayHours(
+      openTime: openTime ?? this.openTime,
+      closeTime: closeTime ?? this.closeTime,
+      isClosed: isClosed ?? this.isClosed,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UberDayHours &&
+          runtimeType == other.runtimeType &&
+          openTime == other.openTime &&
+          closeTime == other.closeTime &&
+          isClosed == other.isClosed;
+
+  @override
+  int get hashCode => Object.hash(openTime, closeTime, isClosed);
 }

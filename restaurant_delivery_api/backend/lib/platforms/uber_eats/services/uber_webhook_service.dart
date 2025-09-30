@@ -405,7 +405,13 @@ class UberMenuService {
 }
 
 // Placeholder order-related classes
-class Order {}
+class Order {
+  get platformOrderId => null;
+
+  get platform => null;
+
+  get platformData => null;
+}
 class Customer {
   final String id;
   final String? name;

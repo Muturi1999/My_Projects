@@ -1,5 +1,6 @@
 import 'package:backend/core/models/order.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
+import 'package:backend/pos_integration/models/pos_models.dart';
 
 abstract class PosAdapter {
   String get posSystemName;

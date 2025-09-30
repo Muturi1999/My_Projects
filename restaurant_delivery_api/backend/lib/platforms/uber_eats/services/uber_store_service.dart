@@ -369,6 +369,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:backend/core/exceptions/core_exceptions.dart';
 import 'package:backend/core/models/order.dart';
 import 'package:backend/platforms/uber_eats/models/uber_store.dart';
 import 'package:backend/platforms/uber_eats/services/uber_auth_service.dart';
@@ -697,6 +698,11 @@ class UberStoreService {
         return 'PAUSED';
       case StoreStatus.OFFLINE:
         return 'OFFLINE';
+      case StoreStatus.ACTIVE: 
+        return 'ONLINE'; 
+      case StoreStatus.active:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 
