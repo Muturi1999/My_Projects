@@ -300,13 +300,9 @@
 //     if (classifications != null) 'classifications': classifications!.toJson(),
 //   };
 // }
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:backend/core/exceptions/core_exceptions.dart';
 import 'package:backend/platforms/uber_eats/services/uber_auth_service.dart';
-import 'package:backend/platforms/uber_eats/services/uber_order_service.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Logger;
 import 'package:logging/logging.dart';
 
 class UberMenuService {

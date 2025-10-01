@@ -1,6 +1,9 @@
+import 'package:backend/core/utils/logger.dart' hide Logger;
 import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
-import 'package:logging/logging.dart' hide Logger; // or define your own Logger
-import 'package:backend/core/models/order.dart' hide OrderStatus;
+import 'package:backend/core/models/order.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
+
+
 
 class NotificationService {
   final Logger logger;
@@ -20,12 +23,12 @@ class NotificationService {
         try {
           await channel.send(notification);
         } catch (e) {
-          logger.error('Failed to send notification via ${channel.name}: $e');
+          logger.error('Failed to send notification via ${channel.name}: $e', error: "");
         }
       }
       
     } catch (e) {
-      logger.error('Failed to build order notification: $e');
+      logger.error('Failed to build order notification: $e', error: "");
     }
   }
 
@@ -43,7 +46,7 @@ class NotificationService {
         try {
           await channel.sendAlert(alert);
         } catch (e) {
-          logger.error('Failed to send alert via ${channel.name}: $e');
+          logger.error('Failed to send alert via ${channel.name}: $e', error: "");
         }
       }
     }
@@ -131,23 +134,23 @@ class OrderEvent {
   });
 }
 
-class OrderStatusLog {
-  final String orderId;
-  final OrderStatus previousStatus;
-  final OrderStatus newStatus;
-  final String? reason;
-  final Map<String, dynamic>? metadata;
-  final DateTime timestamp;
+// class OrderStatusLog {
+//   final String orderId;
+//   final OrderStatus previousStatus;
+//   final OrderStatus newStatus;
+//   final String? reason;
+//   final Map<String, dynamic>? metadata;
+//   final DateTime timestamp;
 
-  OrderStatusLog({
-    required this.orderId,
-    required this.previousStatus,
-    required this.newStatus,
-    this.reason,
-    this.metadata,
-    required this.timestamp,
-  });
-}
+//   OrderStatusLog({
+//     required this.orderId,
+//     required this.previousStatus,
+//     required this.newStatus,
+//     this.reason,
+//     this.metadata,
+//     required this.timestamp,
+//   });
+// }
 
 class Notification {
   final String id;

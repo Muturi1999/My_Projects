@@ -3,7 +3,9 @@ class Logger {
     print("[INFO] $message");
   }
 
-  void error(String message) {
+  void error(String message, {required Object error, required StackTrace stackTrace}) {
     print("[ERROR] $message");
   }
+
+  void warning(String s) {}
 }

@@ -1,10 +1,12 @@
 import 'dart:convert';
-
 import 'package:backend/core/models/order.dart';
 import 'package:backend/core/services/restaurant_service.dart';
 import 'package:backend/platforms/uber_eats/services/uber_store_service.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
-import 'package:http/http.dart';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
+
+
 
 class StoreController {
   final CoreRestaurantService restaurantService;
@@ -30,7 +32,7 @@ class StoreController {
       );
 
     } catch (e) {
-      logger.error('Failed to get restaurants: $e');
+      logger.error('Failed to get restaurants: $e', error: "");
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to retrieve restaurants'}),
       );
@@ -69,7 +71,7 @@ class StoreController {
           }
           // Add other platforms as needed
         } catch (e) {
-          logger.error('Failed to update status on $platform: $e');
+          logger.error('Failed to update status on $platform: $e', error: "");
         }
       }
 
@@ -82,7 +84,7 @@ class StoreController {
       );
 
     } catch (e) {
-      logger.error('Failed to update branch status: $e');
+      logger.error('Failed to update branch status: $e', error: "");
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to update branch status'}),
       );
@@ -126,7 +128,7 @@ class StoreController {
           }
           // Add other platforms as needed
         } catch (e) {
-          logger.error('Failed to set holiday hours on $platform: $e');
+          logger.error('Failed to set holiday hours on $platform: $e', error: "");
         }
       }
 
@@ -136,7 +138,7 @@ class StoreController {
       );
 
     } catch (e) {
-      logger.error('Failed to set holiday hours: $e');
+      logger.error('Failed to set holiday hours: $e', error: "");
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to set holiday hours'}),
       );

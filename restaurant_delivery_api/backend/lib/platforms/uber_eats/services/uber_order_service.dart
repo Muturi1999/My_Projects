@@ -308,6 +308,8 @@
 // Enhanced Uber Eats Order Service (v2 APIs)
 
 import 'dart:convert';
+import 'package:backend/core/logger.dart';
+import 'package:backend/platforms/uber_eats/services/uber_auth_service.dart';
 import 'package:http/http.dart' as http;
 import '../models/uber_order.dart';
 
@@ -315,7 +317,7 @@ class UberOrderService {
   final String baseUrl = 'https://api.uber.com/v1/delivery';
   final String accessToken;
 
-  UberOrderService(this.accessToken);
+  UberOrderService(this.accessToken, {required Logger logger, required UberAuthService authService});
 
   Future<Map<String, dynamic>> _post(
       String endpoint, Map<String, dynamic> body) async {

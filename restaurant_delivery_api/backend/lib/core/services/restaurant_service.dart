@@ -4,7 +4,8 @@ import 'package:backend/core/models/restaurant.dart';
 import 'package:backend/core/repositories/branch_repository.dart';
 import 'package:backend/core/repositories/restaurant_repository.dart';
 import 'package:backend/core/services/notification_service.dart' hide ValidationException;
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
+
 
 class CoreRestaurantService {
   final RestaurantRepository restaurantRepository;
@@ -33,7 +34,7 @@ class CoreRestaurantService {
       return savedRestaurant;
       
     } catch (e) {
-      logger.error('Failed to create restaurant: $e');
+      logger.error('Failed to create restaurant: $e', error: "");
       throw CoreServiceException('Failed to create restaurant: $e');
     }
   }
@@ -56,7 +57,7 @@ class CoreRestaurantService {
       return savedBranch;
       
     } catch (e) {
-      logger.error('Failed to add branch: $e');
+      logger.error('Failed to add branch: $e', error: "");
       throw CoreServiceException('Failed to add branch: $e');
     }
   }
@@ -87,7 +88,7 @@ class CoreRestaurantService {
       return updatedBranch;
       
     } catch (e) {
-      logger.error('Failed to update platform integration: $e');
+      logger.error('Failed to update platform integration: $e', error: "");
       throw CoreServiceException('Failed to update platform integration: $e');
     }
   }
@@ -118,7 +119,7 @@ class CoreRestaurantService {
       return updatedBranch;
       
     } catch (e) {
-      logger.error('Failed to update POS integration: $e');
+      logger.error('Failed to update POS integration: $e', error: "");
       throw CoreServiceException('Failed to update POS integration: $e');
     }
   }
@@ -152,7 +153,7 @@ class CoreRestaurantService {
       return updatedBranch;
       
     } catch (e) {
-      logger.error('Failed to update branch status: $e');
+      logger.error('Failed to update branch status: $e', error: "");
       throw CoreServiceException('Failed to update branch status: $e');
     }
   }

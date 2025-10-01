@@ -18,7 +18,7 @@ class Restaurant {
     required this.branches,
     required this.platformIntegrations,
     required this.createdAt,
-    required this.updatedAt,
+    required this.updatedAt, String? description,
   });
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +40,8 @@ class Restaurant {
     createdAt: DateTime.parse(json['created_at']),
     updatedAt: DateTime.parse(json['updated_at']),
   );
+
+  get description => null;
 
   Future<Restaurant?> copyWith({required List<Branch> branches}) async {}
 }

@@ -1,7 +1,11 @@
 import 'dart:convert';
-
+// ignore: unused_import
+import 'package:backend/core/utils/logger.dart' hide Logger;
 import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
-import 'package:http/http.dart';
+import 'package:shelf/shelf.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
+
+
 
 class WebhookController {
   final UberWebhookService uberWebhookService;
@@ -37,7 +41,7 @@ class WebhookController {
           );
       }
     } catch (e, stackTrace) {
-      logger.error('Webhook processing failed: $e', error: e, stackTrace: stackTrace);
+      logger.error('Webhook processing failed: $e', error: e);
       return Response.internalServerError(
         body: jsonEncode({'error': 'Internal server error'}),
         headers: {'Content-Type': 'application/json'},

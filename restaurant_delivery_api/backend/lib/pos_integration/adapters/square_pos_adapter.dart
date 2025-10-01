@@ -244,6 +244,7 @@ import 'dart:io';
 
 import 'package:backend/core/models/order.dart' as core;
 import 'package:backend/core/models/order.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
 import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
 import 'package:backend/pos_integration/abstractions/pos_adapter.dart';
 import 'package:backend/pos_integration/models/pos_models.dart';
@@ -419,7 +420,7 @@ class SquarePosAdapter implements PosAdapter {
   Map<String, dynamic> _convertOrderToSquareFormat(core.Order order) {
     return {
       'order': {
-        'location_id': order.branch.id,
+        'location_id': order.branchId,
         'reference_id': order.platformOrderId,
         'source': {
           'name': order.platform.toUpperCase(),
@@ -513,4 +514,14 @@ class SquarePosAdapter implements PosAdapter {
         return PosOrderStatus.pending;
     }
   }
+}
+
+class DeliveryType {
+  static Object get pickup => "";
+}
+
+extension on String {
+  get name => null;
+  
+  get price => null;
 }

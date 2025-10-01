@@ -84,6 +84,12 @@ class Order {
             : null,
         platformData: Map<String, dynamic>.from(json['platform_data'] ?? {}),
       );
+
+  get updatedAt => null;
+
+  copyWith({required OrderStatus status, required DateTime updatedAt}) {}
+
+  static Future<Order?> fromMap(first) async {}
 }
 
 // ------------------- Enums -------------------
@@ -132,6 +138,8 @@ class Customer {
         email: json['email'],
         address: Address.fromJson(json['address']),
       );
+
+  get phone => null;
 }
 
 class OrderItem {
@@ -168,6 +176,8 @@ class OrderItem {
         totalPrice: (json['total_price'] as num).toDouble(),
         modifiers: (json['modifiers'] as List? ?? []).cast<String>(),
       );
+
+  get price => null;
 }
 
 class PaymentInfo {
@@ -438,6 +448,10 @@ class OrderStatusLog {
             : null,
         timestamp: DateTime.parse(json['timestamp']),
       );
+
+  get createdAt => null;
+
+  get oldStatus => null;
 }
 
 // ------------------- Platform Helpers -------------------

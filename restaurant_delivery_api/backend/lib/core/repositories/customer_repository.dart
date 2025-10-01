@@ -1,5 +1,4 @@
-import 'package:backend/core/models/customer.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/core/models/order.dart';
 
 /// Repository contract for customers.
 abstract class CustomerRepository {

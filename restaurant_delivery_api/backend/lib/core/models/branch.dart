@@ -185,5 +185,9 @@ class Branch {
       businessHours.hashCode ^
       createdAt.hashCode ^
       updatedAt.hashCode;
+
+  get platform => null;
+
+  static Future<Branch?> fromMap(first) async {}
 }
 

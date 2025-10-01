@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:backend/core/models/order.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
 import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart' hide Order;
 import 'package:backend/pos_integration/abstractions/pos_adapter.dart';
 import 'package:backend/pos_integration/models/pos_models.dart';
@@ -252,5 +252,11 @@ class ToastPosAdapter implements PosAdapter {
     // This assumes you have a PosMenu.fromJson or similar constructor
     return PosMenu.fromJson(toastMenu);
   }
+}
+
+extension on String {
+  get name => null;
+  
+  get price => null;
 }
 

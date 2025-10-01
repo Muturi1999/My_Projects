@@ -106,8 +106,10 @@
 // }
 
 import 'dart:convert';
+import 'package:backend/pos_integration/services/pos_integration_service.dart';
 import 'package:shelf/shelf.dart';
-import 'package:backend/platforms/uber_eats/services/uber_webhook_service.dart';
+import 'package:backend/core/logger.dart'; // ✅ Added correct logger import
+
 
 class HealthController {
   final PosIntegrationService posIntegrationService;
@@ -175,7 +177,7 @@ class HealthController {
         headers: {'Content-Type': 'application/json'},
       );
     } catch (e, stack) {
-      logger.error('Failed to get metrics: $e\n$stack');
+      logger.error('Failed to get metrics: $e\n$stack', error: "");
       return Response(
         500,
         body: jsonEncode({'error': 'Failed to retrieve metrics'}),
