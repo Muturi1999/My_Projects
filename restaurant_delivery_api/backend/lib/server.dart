@@ -1423,7 +1423,6 @@ import 'package:backend/core/repositories/postgres/postgres_order_repository.dar
 import 'package:backend/core/repositories/postgres/postgres_branch_repository.dart';
 import 'package:backend/core/repositories/postgres/postgres_restaurant_repository.dart';
 
-import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';

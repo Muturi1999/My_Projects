@@ -271,3 +271,69 @@ restaurant_delivery_api/
 2. Implement rate limiting and caching
 3. Add monitoring and logging
 
+Folder Roles Explained
+core/
+
+Models: Defines the canonical domain models (e.g., Order, Restaurant, MenuItem) used consistently across all platforms.
+
+Repositories: Data access logic (queries, persistence). They translate business operations into database interactions.
+
+Services: Encapsulate business rules (order creation, inventory checks, notifications). Keep controllers and routes lean.
+
+platforms/
+
+Houses platform-specific implementations (Uber, Glovo, Bolt, etc.).
+
+Each has:
+
+Models: How the platform defines its data.
+
+Adapters: Converts between core and platform-specific data structures.
+
+Services: API calls (auth, order sync, menus).
+
+Controllers: Expose endpoints externally.
+
+Middleware: Enforce auth/validation at the request level.
+
+pos_integration/
+
+Acts as the bridge to local POS systems.
+
+Syncs orders, updates menus, handles reconciliations.
+
+Uses adapters to keep data format consistent with core models.
+
+api/
+
+The delivery API entry point.
+
+Routes map incoming HTTP requests → controllers → services.
+
+Middlewares enforce security, logging, rate limiting.
+
+Handlers centralize error and response management.
+
+shared/
+
+Database: Manages connections, migrations, seeds.
+
+Config: Central place for .env variables and platform configs.
+
+Utils: Common helpers (e.g., logger, validators).
+
+Exceptions: Application-wide exception types.
+
+server.dart
+
+Bootstraps the whole app:
+
+Loads environment variables.
+
+Initializes DB + repositories.
+
+Wires services + controllers.
+
+Registers routes.
+
+Starts the server.
