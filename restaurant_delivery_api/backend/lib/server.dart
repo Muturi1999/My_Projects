@@ -34,6 +34,9 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 
+import 'package:backend/repositories/webhook_repository.dart';
+
+
 // =====================================================
 // Main Server Class
 // =====================================================
@@ -66,12 +69,16 @@ class PosApiServer {
   Future<void> _initializeDependencies() async {
     logger.info('Initializing dependencies...');
     print('Loaded env vars: ${EnvConfig.get("SKIP_WEBHOOK_SIGNATURE_VERIFICATION")}');
-    print('DEBUG: SKIP_WEBHOOK_SIGNATURE_VERIFICATION=${Platform.environment['SKIP_WEBHOOK_SIGNATURE_VERIFICATION']}');
+    // print('DEBUG: SKIP_WEBHOOK_SIGNATURE_VERIFICATION=${Platform.environment['SKIP_WEBHOOK_SIGNATURE_VERIFICATION']}');
+      print('DEBUG: SKIP_WEBHOOK_SIGNATURE_VERIFICATION=${EnvConfig.skipWebhookSignatureVerification}');
+
 
     // Database connection
     final dbConfig = DatabaseConfigLoader.fromEnv();
     final database = await DatabaseConnection.create(dbConfig);
     final dbConnection = database.connection;
+    final webhookRepo = WebhookRepository(dbConnection, logger);
+
 
     // Concrete repository implementations (stubs for now)
     final orderRepository = PostgresOrderRepository(dbConnection);
@@ -141,7 +148,11 @@ class PosApiServer {
      logger: logger,
      environment: config.uberEatsConfig.environment,
     //  skipSignatureVerification: Platform.environment['SKIP_WEBHOOK_SIGNATURE_VERIFICATION'] == 'true',
-    skipSignatureVerification: EnvConfig.getBool('SKIP_WEBHOOK_SIGNATURE_VERIFICATION', defaultValue: false),
+    //  skipSignatureVerification: EnvConfig.getBool('SKIP_WEBHOOK_SIGNATURE_VERIFICATION', defaultValue: false),
+      skipSignatureVerification: EnvConfig.skipWebhookSignatureVerification, // ✅ Use the getter
+
+     webhookRepo: webhookRepo, // ✅ inject repository
+
     );
 
 
