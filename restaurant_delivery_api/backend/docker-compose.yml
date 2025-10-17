@@ -1,0 +1,74 @@
+# # version: '3.8'
+
+# # services:
+# #   api:
+# #     build: .
+# #     ports:
+# #       - "8080:8080"
+# #     env_file:
+# #       - .env
+# #     environment:
+# #       # Override DB_HOST to point to the db service
+# #       - DB_HOST=db
+# #     restart: unless-stopped
+# #     depends_on:
+# #       db:
+# #         condition: service_healthy
+
+# #   db:
+# #     image: postgres:15-alpine
+# #     environment:
+# #       - POSTGRES_DB=${DB_NAME:-pos_bridge}
+# #       - POSTGRES_USER=${DB_USER:-bridgeapiadmin}
+# #       - POSTGRES_PASSWORD=${DB_PASSWORD}
+# #     ports:
+# #       - "5432:5432"
+# #     volumes:
+# #       - postgres_data:/var/lib/postgresql/data
+# #     healthcheck:
+# #       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bridgeapiadmin}"]
+# #       interval: 5s
+# #       timeout: 5s
+# #       retries: 5
+# #     restart: unless-stopped
+
+# # volumes:
+# #   postgres_data:
+
+# version: '3.8'
+
+# services:
+#   api:
+#     build: .
+#     ports:
+#       - "8080:8080"
+#     env_file:
+#       - .env
+#     environment:
+#       # The API should talk to the db service through Docker’s internal network
+#       - DB_HOST=db
+#       - DB_PORT=5432     # Internal port inside Docker (don’t change this)
+#     restart: unless-stopped
+#     depends_on:
+#       db:
+#         condition: service_healthy
+
+#   db:
+#     image: postgres:15-alpine
+#     environment:
+#       - POSTGRES_DB=${DB_NAME:-pos_bridge}
+#       - POSTGRES_USER=${DB_USER:-bridgeapiadmin}
+#       - POSTGRES_PASSWORD=${DB_PASSWORD}
+#     ports:
+#       - "5433:5432"   # 👈 changed host port to 5433
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bridgeapiadmin} -d ${DB_NAME:-pos_bridge}"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+#     restart: unless-stopped
+
+# volumes:
+#   postgres_data:
