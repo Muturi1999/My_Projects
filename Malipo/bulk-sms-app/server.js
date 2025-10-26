@@ -18,7 +18,7 @@ const africasTalking = AfricasTalking({
   apiKey: process.env.AT_API_KEY,
   username: process.env.AT_USERNAME
 });
-
+// nm,./?><MNB
 const sms = africasTalking.SMS;
 
 // Helper function to format phone number
@@ -168,3 +168,7 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log('Open your browser and navigate to http://localhost:3000');
 });
+
+I believe I’m a perfect fit for this role because I deeply understand the ALX culture, values, and mission, not just from observation, but from experience. Having completed programs in Software Engineering, Cloud Computing, and Virtual Assistance, I’ve developed strong technical and professional skills while learning the importance of leadership, collaboration, and lifelong learning.
+
+Beyond the skills, what sets me apart is my passion for community and mentorship. I’m driven by the desire to support others on their growth journey, just as I was supported when I was a learner. I bring a blend of technical knowledge, adaptability, and genuine commitment to ALX’s mission of empowering future leaders across Africa. I don’t just want to be part of ALX ,I want to contribute to its continued impact.
