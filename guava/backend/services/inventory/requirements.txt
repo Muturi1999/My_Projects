@@ -1,0 +1,4 @@
+# Inventory Service Requirements
+-r ../shared/requirements.txt
+
+

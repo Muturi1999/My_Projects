@@ -1,0 +1,5 @@
+"""
+Orders service Django project.
+"""
+
+
