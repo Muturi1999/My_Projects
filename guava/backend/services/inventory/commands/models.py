@@ -32,7 +32,7 @@ class Stock(BaseModel):
     Stock model for product inventory.
     """
     product_id = models.UUIDField(db_index=True)  # Reference to products service
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='stocks')
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='stocks', null=True, blank=True)
     quantity = models.IntegerField(default=0, db_index=True)
     reserved_quantity = models.IntegerField(default=0)  # Reserved for orders
     low_stock_threshold = models.IntegerField(default=10)  # Alert when stock is below this

@@ -11,8 +11,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from shared.common.viewsets import BaseCommandViewSet
 from shared.exceptions.exceptions import ValidationException
-from .models import Category, Brand, CategoryBrand
-from .serializers import CategoryWriteSerializer, BrandWriteSerializer, CategoryBrandSerializer
+from .models import Category, Brand, CategoryBrand, Supplier
+from .serializers import CategoryWriteSerializer, BrandWriteSerializer, CategoryBrandSerializer, SupplierWriteSerializer
 
 
 class CategoryCommandViewSet(BaseCommandViewSet):
@@ -51,6 +51,23 @@ class BrandCommandViewSet(BaseCommandViewSet):
         
         brand = serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class SupplierCommandViewSet(BaseCommandViewSet):
+    """ViewSet for supplier command operations"""
+    queryset = Supplier.objects.filter(is_active=True)
+    serializer_class = SupplierWriteSerializer
+    lookup_field = 'id'
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        if Supplier.objects.filter(slug=serializer.validated_data['slug']).exists():
+            raise ValidationException(f"Supplier with slug '{serializer.validated_data['slug']}' already exists")
+        
+        supplier = serializer.save()
+        return Response(self.get_serializer(supplier).data, status=status.HTTP_201_CREATED)
 
 
 class CategoryBrandCommandViewSet(BaseCommandViewSet):

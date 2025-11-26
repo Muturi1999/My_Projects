@@ -14,12 +14,16 @@ import {
   Bars3BottomLeftIcon,
   GlobeAltIcon,
   DocumentTextIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: Squares2X2Icon },
   { label: "CMS", href: "/admin/cms", icon: DocumentTextIcon },
-  { label: "Catalog", href: "/admin/catalog", icon: CubeIcon },
+  { label: "Products", href: "/admin/products", icon: CubeIcon },
+  { label: "Catalog", href: "/admin/catalog", icon: TagIcon },
+  { label: "Suppliers", href: "/admin/suppliers", icon: GlobeAltIcon },
+  { label: "Customers", href: "/admin/customers", icon: UsersIcon },
   { label: "Promotions", href: "/admin/promotions", icon: TagIcon },
   { label: "Taxonomy & SEO", href: "/admin/taxonomy", icon: GlobeAltIcon },
   { label: "Inventory", href: "/admin/inventory", icon: ArchiveBoxIcon },
@@ -63,12 +67,18 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
-                isActive ? "text-[#A7E059] bg-[#F3FCE1]" : "text-gray-600 hover:text-gray-900"
+              className={`group flex items-center gap-3 px-5 py-3 text-base font-semibold mx-1 transition-all ${
+                isActive
+                  ? "bg-[#98C243] text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/60"
               }`}
             >
-              <Icon className="h-5 w-5" />
-              {isOpen && <span>{item.label}</span>}
+              <Icon
+                className={`h-5 w-5 ${
+                  isActive ? "text-white" : "text-gray-500 group-hover:text-gray-900"
+                }`}
+              />
+              {isOpen && <span className="leading-tight">{item.label}</span>}
             </Link>
           );
         })}

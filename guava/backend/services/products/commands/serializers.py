@@ -42,7 +42,9 @@ class ProductWriteSerializer(BaseWriteSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'description', 'price', 'original_price',
-            'discount', 'image', 'images', 'category_slug', 'brand_slug',
+            'discount', 'image', 'images', 'category_slug', 'subcategory_slug',
+            'brand_slug', 'supplier_id', 'supplier_name', 'tags', 'feature_list',
+            'condition', 'sections', 'campaigns', 'extra_attributes',
             'hot', 'featured', 'rating', 'rating_count', 'stock_quantity',
             'specifications', 'images', 'created_at', 'updated_at', 'is_active'
         ]

@@ -58,6 +58,27 @@ class Brand(BaseModel):
         return self.name
 
 
+class Supplier(BaseModel):
+    """
+    Supplier / vendor model stored in catalog service so other services can reference suppliers
+    """
+    name = models.CharField(max_length=255, db_index=True)
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+    contact_name = models.CharField(max_length=255, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    location = models.CharField(max_length=255, blank=True)
+    tags = models.JSONField(default=list, blank=True)
+    notes = models.TextField(blank=True)
+    
+    class Meta:
+        db_table = 'catalog_supplier'
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+
 class CategoryBrand(BaseModel):
     """
     Many-to-many relationship between categories and brands.

@@ -40,8 +40,9 @@ class ProductListSerializer(BaseReadSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'price', 'original_price', 'discount_percentage',
-            'image', 'category_slug', 'brand_slug', 'hot', 'rating', 'rating_count',
-            'stock_quantity', 'created_at'
+            'image', 'category_slug', 'subcategory_slug', 'brand_slug',
+            'supplier_id', 'supplier_name', 'hot', 'rating', 'rating_count',
+            'stock_quantity', 'condition', 'created_at'
         ]
 
 
@@ -57,7 +58,9 @@ class ProductDetailSerializer(BaseReadSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'description', 'price', 'original_price',
-            'discount_percentage', 'image', 'images', 'category_slug', 'brand_slug',
+            'discount_percentage', 'image', 'images', 'category_slug', 'subcategory_slug',
+            'brand_slug', 'supplier_id', 'supplier_name', 'tags', 'feature_list',
+            'sections', 'campaigns', 'condition', 'extra_attributes',
             'hot', 'featured', 'rating', 'rating_count', 'stock_quantity',
             'specifications', 'product_images', 'created_at', 'updated_at'
         ]

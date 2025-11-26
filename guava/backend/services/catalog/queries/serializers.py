@@ -9,7 +9,7 @@ sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
 
 from rest_framework import serializers
 from shared.common.serializers import BaseReadSerializer
-from .models import Category, Brand, CategoryBrand
+from .models import Category, Brand, CategoryBrand, Supplier
 
 
 class SubcategorySerializer(serializers.ModelSerializer):
@@ -72,5 +72,16 @@ class BrandDetailSerializer(BaseReadSerializer):
         category_ids = CategoryBrand.objects.filter(brand=obj, is_active=True).values_list('category_id', flat=True)
         categories = Category.objects.filter(id__in=category_ids, is_active=True)
         return CategoryListSerializer(categories, many=True).data
+
+
+class SupplierSerializer(BaseReadSerializer):
+    """Serializer for suppliers"""
+    
+    class Meta:
+        model = Supplier
+        fields = [
+            'id', 'name', 'slug', 'contact_name', 'email', 'phone',
+            'location', 'tags', 'notes', 'is_active', 'created_at'
+        ]
 
 

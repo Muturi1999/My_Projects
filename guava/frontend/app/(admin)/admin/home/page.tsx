@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryCardForm } from "@/components/admin/homepage/CategoryCardForm";
 import { FeaturedTileForm } from "@/components/admin/homepage/FeaturedTileForm";
 import { ProductHighlightForm } from "@/components/admin/homepage/ProductHighlightForm";
+import { formatKES } from "@/lib/utils/format";
 import Link from "next/link";
 
 type SectionKey =
@@ -272,7 +273,7 @@ export default function AdminHomePage() {
           <div>
             <p className="text-sm font-semibold text-gray-900">{deal.title}</p>
             <p className="text-xs text-gray-500">{deal.subtitle}</p>
-            <p className="text-xs text-gray-400">Price: KSh {deal.price.toLocaleString()}</p>
+            <p className="text-xs text-gray-400">Price: {formatKES(deal.price)}</p>
           </div>
         )}
         onEditItem={(item) => openModal("featuredDeals", item as FeaturedTile)}
@@ -286,7 +287,7 @@ export default function AdminHomePage() {
             <p className="text-sm font-semibold text-gray-900">{product.name}</p>
             <p className="text-xs text-gray-500">Slug: {product.slug}</p>
             <p className="text-xs text-gray-400">
-              KSh {product.price.toLocaleString()} ({product.badge || "no badge"})
+              {formatKES(product.price)} ({product.badge || "no badge"})
             </p>
           </div>
         )}

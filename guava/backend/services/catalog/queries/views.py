@@ -10,10 +10,11 @@ sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from shared.common.viewsets import BaseQueryViewSet
-from .models import Category, Brand
+from .models import Category, Brand, Supplier
 from .serializers import (
     CategoryListSerializer, CategoryDetailSerializer,
-    BrandListSerializer, BrandDetailSerializer
+    BrandListSerializer, BrandDetailSerializer,
+    SupplierSerializer
 )
 
 
@@ -55,5 +56,12 @@ class BrandQueryViewSet(BaseQueryViewSet):
         if self.action == 'retrieve':
             return BrandDetailSerializer
         return BrandListSerializer
+
+
+class SupplierQueryViewSet(BaseQueryViewSet):
+    """ViewSet for supplier query operations"""
+    queryset = Supplier.objects.filter(is_active=True)
+    serializer_class = SupplierSerializer
+    lookup_field = 'id'
 
 

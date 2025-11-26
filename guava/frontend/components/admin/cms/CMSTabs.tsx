@@ -35,7 +35,7 @@ export function CMSTabs({ activeTab }: CMSTabsProps) {
   return (
     <div className="border-b border-gray-200 bg-white">
       <div className="overflow-x-auto">
-        <nav className="flex space-x-1 px-4 sm:px-6 lg:px-8" aria-label="Tabs">
+        <nav className="flex space-x-2 px-4 sm:px-6 lg:px-8" aria-label="Tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -44,17 +44,17 @@ export function CMSTabs({ activeTab }: CMSTabsProps) {
                 key={tab.id}
                 href={tab.href}
                 className={`
-                  flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 text-sm font-medium whitespace-nowrap
-                  border-b-2 transition-colors
+                  flex items-center gap-2 px-4 sm:px-5 py-3 sm:py-4 text-base font-semibold whitespace-nowrap
+                  border-2 border-b-0 transition-all duration-200
                   ${
                     isActive
-                      ? "border-[#A7E059] text-[#A7E059]"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      ? "bg-[#98C243] border-[#98C243] text-white shadow-sm"
+                      : "border-transparent border-b-2 border-b-gray-200 bg-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100/70"
                   }
                 `}
               >
-                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                <span className="hidden sm:inline leading-tight">{tab.label}</span>
               </Link>
             );
           })}

@@ -31,11 +31,17 @@ class Product(BaseModel):
     
     # Category and Brand
     category_slug = models.CharField(max_length=100, db_index=True)  # Reference to catalog service
+    subcategory_slug = models.CharField(max_length=100, db_index=True, blank=True, null=True)
     brand_slug = models.CharField(max_length=100, db_index=True, blank=True, null=True)
+    supplier_id = models.UUIDField(null=True, blank=True, db_index=True)
+    supplier_name = models.CharField(max_length=255, blank=True)
     
     # Product flags
     hot = models.BooleanField(default=False, db_index=True)
     featured = models.BooleanField(default=False, db_index=True)
+    sections = models.JSONField(default=dict, blank=True)
+    campaigns = models.JSONField(default=dict, blank=True)
+    condition = models.CharField(max_length=20, default='new')
     
     # Ratings
     rating = models.IntegerField(default=0)  # 0-5
@@ -43,6 +49,9 @@ class Product(BaseModel):
     
     # Stock (reference to inventory service)
     stock_quantity = models.IntegerField(default=0, db_index=True)
+    tags = models.JSONField(default=list, blank=True)
+    feature_list = models.JSONField(default=list, blank=True)
+    extra_attributes = models.JSONField(default=dict, blank=True)
     
     class Meta:
         db_table = 'products_product'

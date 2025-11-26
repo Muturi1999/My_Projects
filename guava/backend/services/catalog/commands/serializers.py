@@ -9,7 +9,7 @@ sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
 
 from rest_framework import serializers
 from shared.common.serializers import BaseWriteSerializer
-from .models import Category, Brand, CategoryBrand
+from .models import Category, Brand, CategoryBrand, Supplier
 
 
 class CategoryWriteSerializer(BaseWriteSerializer):
@@ -32,6 +32,18 @@ class BrandWriteSerializer(BaseWriteSerializer):
         fields = [
             'id', 'name', 'slug', 'logo', 'image', 'color',
             'description', 'discount', 'created_at', 'updated_at', 'is_active'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class SupplierWriteSerializer(BaseWriteSerializer):
+    """Serializer for creating and updating suppliers"""
+    
+    class Meta:
+        model = Supplier
+        fields = [
+            'id', 'name', 'slug', 'contact_name', 'email', 'phone',
+            'location', 'tags', 'notes', 'created_at', 'updated_at', 'is_active'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
