@@ -53,6 +53,16 @@ class Product(BaseModel):
     feature_list = models.JSONField(default=list, blank=True)
     extra_attributes = models.JSONField(default=dict, blank=True)
     
+    # Enhanced product fields for detail page
+    sku = models.CharField(max_length=100, blank=True, db_index=True)  # Stock Keeping Unit
+    model = models.CharField(max_length=255, blank=True)  # Product model name
+    long_description = models.TextField(blank=True)  # Extended description
+    description_blocks = models.JSONField(default=list, blank=True)  # Structured description blocks
+    service_info = models.JSONField(default=dict, blank=True)  # Delivery, returns, warranty info
+    spec_groups = models.JSONField(default=list, blank=True)  # Grouped technical specifications
+    addons = models.JSONField(default=list, blank=True)  # Related add-ons/accessories
+    similar_product_ids = models.JSONField(default=list, blank=True)  # IDs of similar products
+    
     class Meta:
         db_table = 'products_product'
         indexes = [

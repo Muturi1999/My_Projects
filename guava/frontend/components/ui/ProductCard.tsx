@@ -7,16 +7,18 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { EyeIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { EyeIcon } from "@heroicons/react/24/outline";
 import { Product } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
+import { WishlistIcon } from "@/components/ui/WishlistIcon";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
 
 export interface ProductCardProps {
   product: Product;
   index?: number;
   variant?: "default" | "compact" | "detailed" | "hot-deal";
   showSpecs?: boolean;
-  showWishlist?: boolean;
+  showWishlist?: boolean; // when undefined, defaults to true
   showViewButton?: boolean;
   isInWishlist?: boolean;
   onWishlistToggle?: (productId: string, e: React.MouseEvent) => void;
@@ -31,21 +33,40 @@ export function ProductCard({
   index = 0,
   variant = "default",
   showSpecs = false,
-  showWishlist = false,
+  showWishlist,
   showViewButton = false,
-  isInWishlist = false,
+  isInWishlist,
   onWishlistToggle,
   onCardClick,
   className,
   imageHeight = "h-48",
   badgePosition = "top-left",
 }: ProductCardProps) {
+  const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
+
   const discountPercentage = Math.round(
     ((product.originalPrice - product.price) / product.originalPrice) * 100
   );
   
   // Determine if card is wrapped in Link (to avoid nested links)
   const isCardWrappedInLink = !onCardClick;
+
+  // Wishlist behaviour: if parent doesn't provide handler, use global wishlist
+  const managedByParent = typeof onWishlistToggle === "function";
+  const effectiveShowWishlist = showWishlist ?? true;
+  const effectiveIsInWishlist = managedByParent
+    ? !!isInWishlist
+    : wishlistIds.includes(product.id);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (managedByParent && onWishlistToggle) {
+      onWishlistToggle(product.id, e);
+    } else {
+      e.preventDefault();
+      toggleWishlist(product.id);
+    }
+  };
 
   const specs = showSpecs
     ? [
@@ -96,8 +117,7 @@ export function ProductCard({
     >
       <Card
         className={cn(
-          "h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 rounded-none",
-          variant === "hot-deal" && "group cursor-pointer"
+          "group cursor-pointer h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 rounded-none"
         )}
         onClick={onCardClick}
       >
@@ -151,7 +171,7 @@ export function ProductCard({
             )}
 
             {/* Hover Actions */}
-            {(showViewButton || showWishlist) && (
+            {(showViewButton || effectiveShowWishlist) && (
               <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 {showViewButton && (
                   <button
@@ -164,18 +184,11 @@ export function ProductCard({
                     <EyeIcon className="h-5 w-5 text-gray-700" />
                   </button>
                 )}
-                {showWishlist && onWishlistToggle && (
-                  <button
-                    onClick={(e) => onWishlistToggle(product.id, e)}
-                    className={cn(
-                      "rounded-full p-3 shadow-lg transition-colors",
-                      isInWishlist
-                        ? "bg-red-500 text-white hover:bg-red-600"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    )}
-                  >
-                    <HeartIcon className={cn("h-5 w-5", isInWishlist && "fill-current")} />
-                  </button>
+                {effectiveShowWishlist && (
+                  <WishlistIcon
+                    isActive={effectiveIsInWishlist}
+                    onClick={handleWishlistClick}
+                  />
                 )}
               </div>
             )}
@@ -322,6 +335,7 @@ export function ProductCard({
 
           {/* Add to Cart Button */}
           <AddToCartButton
+            product={product}
             className={cn(
               "mt-auto",
               variant === "hot-deal" && "mt-3 sm:mt-4",
@@ -330,7 +344,6 @@ export function ProductCard({
             size={variant === "compact" ? "sm" : "default"}
             onClick={(e) => {
               e.stopPropagation();
-              onCardClick?.();
             }}
           />
         </div>

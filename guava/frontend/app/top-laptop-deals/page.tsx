@@ -10,32 +10,14 @@ import { Card } from "@/components/ui/card";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
 import { Badge } from "@/components/ui/badge";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { EyeIcon, HeartIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
+import { WishlistIcon } from "@/components/ui/WishlistIcon";
 
 export default function TopLaptopDealsPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+  const { ids: wishlistIds, toggle } = useWishlist();
   const itemsPerPage = 12;
-
-  // Load wishlist from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("wishlist");
-    if (stored) {
-      setWishlist(JSON.parse(stored));
-    }
-  }, []);
-
-  const toggleWishlist = (productId: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setWishlist((prev) => {
-      const newWishlist = prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId];
-      localStorage.setItem("wishlist", JSON.stringify(newWishlist));
-      return newWishlist;
-    });
-  };
 
   const totalPages = Math.ceil(laptopDeals.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -79,7 +61,7 @@ export default function TopLaptopDealsPage() {
         <div className="section-wrapper">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {currentProducts.map((product) => {
-              const isInWishlist = wishlist.includes(product.id);
+              const isInWishlist = wishlistIds.includes(product.id);
               const discountPercentage = Math.round(
                 ((product.originalPrice - product.price) / product.originalPrice) * 100
               );
@@ -94,7 +76,7 @@ export default function TopLaptopDealsPage() {
                       </span>
                     </div>
 
-                    {/* Image Container */}
+                    {/* Image Container + Hover Overlay */}
                     <div className="relative p-4 border-b border-gray-200">
                       <div className="relative bg-white w-full h-48 md:h-52 overflow-hidden border border-gray-200">
                         <Image
@@ -105,31 +87,26 @@ export default function TopLaptopDealsPage() {
                           className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                    </div>
 
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
-                        <Link
-                          href={`/product/${product.id}`}
+                        <button
                           className="bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
                         >
                           <EyeIcon className="h-5 w-5 text-gray-700" />
-                        </Link>
-                        <button
-                          onClick={(e) => toggleWishlist(product.id, e)}
-                          className={`rounded-full p-3 shadow-lg transition-colors ${
-                            isInWishlist
-                              ? "bg-red-500 text-white"
-                              : "bg-white text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          <HeartIcon
-                            className={`h-5 w-5 ${
-                              isInWishlist ? "fill-current" : ""
-                            }`}
-                          />
                         </button>
+                        <WishlistIcon
+                          isActive={isInWishlist}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggle(product.id);
+                          }}
+                        />
                       </div>
                     </div>
 
@@ -212,10 +189,11 @@ export default function TopLaptopDealsPage() {
 
                       {/* Add to Cart Button */}
                       <AddToCartButton
+                        product={product}
                         className="mt-auto"
                         onClick={(e) => {
                           e.preventDefault();
-                          window.location.href = `/product/${product.id}`;
+                          e.stopPropagation();
                         }}
                       />
                     </div>

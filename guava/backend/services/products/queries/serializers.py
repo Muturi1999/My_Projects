@@ -42,7 +42,7 @@ class ProductListSerializer(BaseReadSerializer):
             'id', 'name', 'slug', 'price', 'original_price', 'discount_percentage',
             'image', 'category_slug', 'subcategory_slug', 'brand_slug',
             'supplier_id', 'supplier_name', 'hot', 'rating', 'rating_count',
-            'stock_quantity', 'condition', 'created_at'
+            'stock_quantity', 'condition', 'sku', 'model', 'created_at'
         ]
 
 
@@ -53,15 +53,22 @@ class ProductDetailSerializer(BaseReadSerializer):
     specifications = ProductSpecificationReadSerializer(source='specifications', read_only=True)
     product_images = ProductImageReadSerializer(many=True, read_only=True)
     discount_percentage = serializers.IntegerField(read_only=True)
+    long_description = serializers.CharField(source='long_description', read_only=True)
+    description_blocks = serializers.JSONField(source='description_blocks', read_only=True)
+    service_info = serializers.JSONField(source='service_info', read_only=True)
+    spec_groups = serializers.JSONField(source='spec_groups', read_only=True)
+    addons = serializers.JSONField(source='addons', read_only=True)
+    similar_product_ids = serializers.JSONField(source='similar_product_ids', read_only=True)
     
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'description', 'price', 'original_price',
-            'discount_percentage', 'image', 'images', 'category_slug', 'subcategory_slug',
-            'brand_slug', 'supplier_id', 'supplier_name', 'tags', 'feature_list',
-            'sections', 'campaigns', 'condition', 'extra_attributes',
+            'id', 'name', 'slug', 'description', 'long_description', 'description_blocks',
+            'price', 'original_price', 'discount_percentage', 'image', 'images',
+            'category_slug', 'subcategory_slug', 'brand_slug', 'supplier_id', 'supplier_name',
+            'tags', 'feature_list', 'sections', 'campaigns', 'condition', 'extra_attributes',
             'hot', 'featured', 'rating', 'rating_count', 'stock_quantity',
+            'sku', 'model', 'service_info', 'spec_groups', 'addons', 'similar_product_ids',
             'specifications', 'product_images', 'created_at', 'updated_at'
         ]
 

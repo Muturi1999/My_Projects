@@ -16,6 +16,10 @@ import { AddToCartButton } from "@/components/ui/AddToCartButton";
 import { shopCategories } from "@/lib/data/categories";
 import { categoryProducts } from "@/lib/data/categoryProducts";
 import { laptopDeals, Product } from "@/lib/data/products";
+import { WishlistIcon } from "@/components/ui/WishlistIcon";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
+import { useToast } from "@/lib/hooks/useToast";
+import { ToastContainer } from "@/components/admin/ToastContainer";
 import { useRouter } from "next/navigation";
 import { generateStableProducts } from "@/lib/data/admin/mockProducts";
 
@@ -34,7 +38,22 @@ const sortOptions = [
   "Best Sellers",
 ];
 
-function ProductCard({ product, viewMode }: { product: Product & { type?: string; cpuManufacturer?: string; cpuSpeed?: string; graphics?: string }; viewMode: "grid" | "list" }) {
+function ProductCard({
+  product,
+  viewMode,
+  isInWishlist,
+  onWishlistToggle,
+}: {
+  product: Product & {
+    type?: string;
+    cpuManufacturer?: string;
+    cpuSpeed?: string;
+    graphics?: string;
+  };
+  viewMode: "grid" | "list";
+  isInWishlist: boolean;
+  onWishlistToggle: (id: string, e: React.MouseEvent) => void;
+}) {
   const router = useRouter();
   const discountPercentage = Math.round(
     ((product.originalPrice - product.price) / product.originalPrice) * 100
@@ -42,7 +61,7 @@ function ProductCard({ product, viewMode }: { product: Product & { type?: string
 
   if (viewMode === "list") {
     return (
-      <Card className="p-4 hover:shadow-lg transition-all border border-gray-200 rounded-none">
+      <Card className="group p-4 hover:shadow-lg transition-all border border-gray-200 rounded-none">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative w-full md:w-48 h-48 bg-white border border-gray-200 flex items-center justify-center">
             <Image
@@ -51,6 +70,12 @@ function ProductCard({ product, viewMode }: { product: Product & { type?: string
               fill
               sizes="(max-width: 768px) 100vw, 200px"
               className="object-contain p-4"
+            />
+            {/* Wishlist Hover Icon */}
+            <WishlistIcon
+              isActive={isInWishlist}
+              onClick={(e) => onWishlistToggle(product.id, e)}
+              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
             />
           </div>
           <div className="flex-1">
@@ -106,7 +131,10 @@ function ProductCard({ product, viewMode }: { product: Product & { type?: string
   }
 
   return (
-    <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 cursor-pointer rounded-none" onClick={() => router.push(`/product/${product.id}`)}>
+    <Card
+      className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 cursor-pointer rounded-none"
+      onClick={() => router.push(`/product/${product.id}`)}
+    >
       <div className="px-4 pt-4 flex flex-col gap-2 items-start">
         <span className="inline-flex items-center bg-[#A7E059] text-black px-2.5 py-1 rounded-full text-xs font-semibold">
           {discountPercentage}% OFF
@@ -126,6 +154,12 @@ function ProductCard({ product, viewMode }: { product: Product & { type?: string
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             className="object-contain p-4"
           />
+           {/* Wishlist Hover Icon */}
+           <WishlistIcon
+             isActive={isInWishlist}
+             onClick={(e) => onWishlistToggle(product.id, e)}
+             className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+           />
         </div>
       </div>
       <div className="p-4 flex-1 flex flex-col">
@@ -191,10 +225,10 @@ function ProductCard({ product, viewMode }: { product: Product & { type?: string
           </div>
         </div>
         <AddToCartButton
+          product={product}
           className="mt-auto"
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/product/${product.id}`);
           }}
         />
       </div>
@@ -213,6 +247,8 @@ export default function CategoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [filters, setFilters] = useState<any>({});
+  const { ids: wishlistIds, toggle } = useWishlist();
+  const toast = useToast();
 
   const productsPerPage = 12;
 
@@ -630,10 +666,30 @@ export default function CategoryPage() {
                           : "space-y-4 mb-8"
                       }
                     >
-                      {paginatedProducts.map((product) => (
-                        <ProductCard key={product.id} product={product} viewMode={viewMode} />
-                      ))}
-                    </div>
+            {paginatedProducts.map((product) => {
+              const isInWishlist = wishlistIds.includes(product.id);
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  viewMode={viewMode}
+                  isInWishlist={isInWishlist}
+                  onWishlistToggle={(id, e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const willAdd = !wishlistIds.includes(id);
+                    toggle(id);
+                    if (willAdd) {
+                      toast.success("Added to wishlist");
+                    } else {
+                      toast.info("Removed from wishlist");
+                    }
+                  }}
+                />
+              );
+            })}
+      </div>
+      <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
                     {/* Pagination */}
                     {totalPages > 1 && (

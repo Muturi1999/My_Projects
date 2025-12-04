@@ -54,7 +54,7 @@ export const homepageCMSData: HomepageCMSData = {
         badge: "Top pick",
         image: "https://images.unsplash.com/photo-1593642532973-d31b6557fa68?auto=format&fit=crop&w=700&q=80",
         ctaLabel: "Buy now",
-        ctaHref: "/product/hp-omen-elite",
+        ctaHref: "/checkout?productId=hp-omen-elite",
       },
     ],
   },

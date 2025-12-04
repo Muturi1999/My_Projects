@@ -9,7 +9,7 @@ sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
 
 from rest_framework import serializers
 from shared.common.serializers import BaseReadSerializer
-from .models import Order, OrderItem, Cart, CartItem
+from .models import Order, OrderItem, Cart, CartItem, Wishlist
 
 
 class OrderItemReadSerializer(serializers.ModelSerializer):
@@ -66,5 +66,14 @@ class CartReadSerializer(BaseReadSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'session_id', 'user_id', 'items', 'created_at', 'updated_at']
+
+
+class WishlistReadSerializer(serializers.ModelSerializer):
+    """Serializer for wishlist items (read)"""
+    
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'session_id', 'user_id', 'product_id', 'created_at', 'updated_at']
+        read_only = True
 
 

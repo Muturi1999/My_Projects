@@ -11,11 +11,25 @@ import Image from "next/image";
 import { categorySubcategoryProducts } from "@/lib/data/products";
 import { popularCategories } from "@/lib/data/categories";
 import { useRouter } from "next/navigation";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
+import { useToast } from "@/lib/hooks/useToast";
+import { ToastContainer } from "@/components/admin/ToastContainer";
+import { WishlistIcon } from "@/components/ui/WishlistIcon";
 
-const storageCategory = popularCategories.find(cat => cat.slug === "drives-storage");
+const storageCategory = popularCategories.find(
+  (cat) => cat.slug === "drives-storage"
+);
 const subcategories = storageCategory?.subCategories || [];
 
-function ProductCard({ product }: { product: any }) {
+function ProductCard({
+  product,
+  isInWishlist,
+  onWishlistToggle,
+}: {
+  product: any;
+  isInWishlist: boolean;
+  onWishlistToggle: (id: string, e: React.MouseEvent) => void;
+}) {
   const router = useRouter();
   
   return (
@@ -26,7 +40,7 @@ function ProductCard({ product }: { product: any }) {
       onClick={() => router.push(`/product/${product.id}`)}
       className="cursor-pointer"
     >
-      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 rounded-none">
+      <Card className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 rounded-none">
         <div className="relative p-4 border-b border-gray-200">
           <div className="relative w-full bg-white border border-gray-200 h-32 md:h-36 flex items-center justify-center overflow-hidden">
             <Image
@@ -35,6 +49,11 @@ function ProductCard({ product }: { product: any }) {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               className="object-contain p-2 md:p-3"
+            />
+            <WishlistIcon
+              isActive={isInWishlist}
+              onClick={(e) => onWishlistToggle(product.id, e)}
+              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100"
             />
           </div>
         </div>
@@ -66,11 +85,11 @@ function ProductCard({ product }: { product: any }) {
             </span>
           </div>
           <AddToCartButton
+            product={product}
             className="mt-auto"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/product/${product.id}`);
             }}
           />
         </div>
@@ -81,6 +100,8 @@ function ProductCard({ product }: { product: any }) {
 
 export default function DrivesStoragePage() {
   const products = categorySubcategoryProducts["drives-storage"] || {};
+  const { ids: wishlistIds, toggle } = useWishlist();
+  const toast = useToast();
 
   return (
     <main className="min-h-screen">
@@ -137,9 +158,27 @@ export default function DrivesStoragePage() {
             <div className="section-wrapper">
               <h2 className="section-heading mb-8">{subcategory}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {subcategoryProducts.slice(0, 4).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+                {subcategoryProducts.slice(0, 4).map((product) => {
+                  const isInWishlist = wishlistIds.includes(product.id);
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      isInWishlist={isInWishlist}
+                      onWishlistToggle={(id, e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const willAdd = !wishlistIds.includes(id);
+                        toggle(id);
+                        if (willAdd) {
+                          toast.success("Added to wishlist");
+                        } else {
+                          toast.info("Removed from wishlist");
+                        }
+                      }}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -147,6 +186,7 @@ export default function DrivesStoragePage() {
       })}
 
       <Footer />
+      <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
     </main>
   );
 }

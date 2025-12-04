@@ -94,7 +94,7 @@ function AccessoryCard({ product, index }: { product: Product; index: number }) 
             </div>
 
             {/* Add to Cart Button */}
-            <AddToCartButton className="mt-auto" />
+            <AddToCartButton product={product} className="mt-auto" />
           </div>
         </Card>
       </Link>

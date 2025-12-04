@@ -2541,6 +2541,8 @@ export interface FeaturedDeal {
   saving: number;
   image: string;
   badge?: string;
+  // Optional: link this promo to a real product in the catalog
+  productId?: string;
 }
 
 export const featuredDeals: FeaturedDeal[] = [
@@ -2559,6 +2561,7 @@ export const featuredDeals: FeaturedDeal[] = [
     saving: 15000,
     image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
     badge: "NEW RELEASE",
+    productId: "hp-1",
   },
   {
     id: "featured-2",
@@ -2574,6 +2577,7 @@ export const featuredDeals: FeaturedDeal[] = [
     originalPrice: 209999,
     saving: 35000,
     image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80",
+    productId: "hp-1",
   },
 ];
 

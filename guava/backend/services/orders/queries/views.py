@@ -11,8 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from shared.common.viewsets import BaseQueryViewSet
 from shared.common.pagination import StandardResultsSetPagination
-from .models import Order, Cart
-from .serializers import OrderListSerializer, OrderDetailSerializer, CartReadSerializer
+from .models import Order, Cart, Wishlist
+from .serializers import OrderListSerializer, OrderDetailSerializer, CartReadSerializer, WishlistReadSerializer
 
 
 class OrderQueryViewSet(BaseQueryViewSet):
@@ -54,5 +54,28 @@ class CartQueryViewSet(BaseQueryViewSet):
             return Response({'error': 'Cart not found'}, status=404)
         serializer = self.get_serializer(cart)
         return Response(serializer.data)
+
+
+class WishlistQueryViewSet(BaseQueryViewSet):
+    """ViewSet for wishlist query operations (GET only)"""
+    queryset = Wishlist.objects.filter(is_active=True)
+    serializer_class = WishlistReadSerializer
+    lookup_field = 'id'
+    
+    @action(detail=False, methods=['get'], url_path='by-session/(?P<session_id>[^/.]+)')
+    def by_session(self, request, session_id=None):
+        """Get wishlist items by session ID"""
+        wishlist_items = self.queryset.filter(session_id=session_id)
+        serializer = self.get_serializer(wishlist_items, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='product-ids/(?P<session_id>[^/.]+)')
+    def product_ids(self, request, session_id=None):
+        """Get list of product IDs in wishlist for a session"""
+        product_ids = list(
+            self.queryset.filter(session_id=session_id, is_active=True)
+            .values_list('product_id', flat=True)
+        )
+        return Response({'product_ids': product_ids})
 
 

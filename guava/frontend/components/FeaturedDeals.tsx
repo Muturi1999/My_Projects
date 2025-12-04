@@ -63,7 +63,10 @@ export function FeaturedDeals() {
                       </span>
                     </div>
                   </div>
-                  <Link href={`/product/${deal.id}`} className="mt-2">
+                  <Link
+                    href={`/checkout?productId=${deal.productId ?? deal.id}`}
+                    className="mt-2"
+                  >
                     <Button
                       variant="destructive"
                       size="lg"

@@ -158,6 +158,7 @@ export interface CustomSection {
   id: string;
   type: string;
   title?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 }
 

@@ -94,7 +94,7 @@ function AudioCard({ product, index }: { product: Product; index: number }) {
             </div>
 
             {/* Add to Cart Button */}
-            <AddToCartButton className="mt-auto" size="sm" />
+            <AddToCartButton product={product} className="mt-auto" size="sm" />
           </div>
         </Card>
       </Link>

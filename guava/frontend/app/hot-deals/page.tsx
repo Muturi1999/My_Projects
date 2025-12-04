@@ -104,7 +104,7 @@ export default function HotDealsPage() {
                   </div>
 
                   <div className="p-4 pt-0">
-                    <AddToCartButton />
+                    <AddToCartButton product={product} />
                   </div>
                 </div>
               ))}
