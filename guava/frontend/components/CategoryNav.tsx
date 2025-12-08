@@ -3,8 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { categoryDropdowns } from "@/lib/data/categories";
+import { ChevronDownIcon, Bars3Icon } from "@heroicons/react/24/outline";
+import {
+  categoryDropdowns,
+  popularCategories,
+  shopCategories,
+} from "@/lib/data/categories";
 
 const categories = [
   "Laptops & Computers",
@@ -16,159 +20,12 @@ const categories = [
   "Gaming",
 ];
 
-// All Categories dropdown structure based on electronics store
-const allCategoriesDropdown = {
-  "Computers & Tablets": {
-    links: [
-      "Laptops & Desktops",
-      "Tablets",
-      "Monitors",
-      "Laptops",
-      "Accessories",
-      "Computer Component",
-      "PC Gaming",
-      "Chromebook",
-      "Macbook",
-      "iMac",
-      "Windows Laptops",
-      "Printers & Ink",
-      "Restored Computers",
-    ],
-  },
-  "Cell Phone": {
-    links: [
-      "Smartphone",
-      "iPhone",
-      "Samsung Galaxy",
-      "Prepaid Phones",
-      "Unlocked Phones",
-      "AT&T",
-      "Verizon",
-    ],
-  },
-  "TV & Home Theater": {
-    links: [
-      "Television",
-      "55\" TVs",
-      "65\" TVs",
-      "OLED TVs",
-      "QLED TVs",
-      "Home Theater Systems",
-    ],
-  },
-  "Audio": {
-    links: [
-      "Headphones",
-      "AirPods",
-      "Gaming Headsets",
-      "Kids' Headphones",
-      "Wireless Earbuds",
-      "Bluetooth Speakers",
-      "Portable Speakers",
-      "Professional Speakers",
-      "Waterproof Speakers",
-      "Speakers",
-    ],
-  },
-  "Camera & Video": {
-    links: [
-      "Camera",
-      "Accessories",
-      "Camera & Lenses",
-      "Drones",
-      "Security Cameras",
-      "Camcorders",
-    ],
-  },
-  "Video Games": {
-    links: [
-      "Xbox Series",
-      "Playstation 4",
-      "Playstation 5",
-      "Gaming Headsets",
-      "Accessories",
-      "PC Gaming",
-      "Games",
-    ],
-  },
-  "Smart Home": {
-    links: [
-      "Smart Home",
-      "Security Cameras",
-      "Smart Devices",
-      "Home Automation",
-    ],
-  },
-  "Wearables": {
-    links: [
-      "Smartwatches",
-      "Apple Watch",
-      "Fitness Trackers",
-      "Smart Bands",
-    ],
-  },
-  "Storage & Drives": {
-    links: [
-      "External Hard Drives",
-      "SSD Hard Drives",
-      "Internal Hard Drives",
-      "USB Flash Drives",
-      "Memory Cards",
-      "Network Attached Storage (NAS)",
-      "Servers",
-    ],
-  },
-  "Networking": {
-    links: [
-      "WiFi & Networking",
-      "Routers",
-      "Modems",
-      "Network Switches",
-      "Cables & Adapters",
-    ],
-  },
-  "Accessories": {
-    links: [
-      "Laptop Bags & Cases",
-      "Keyboards & Mouse",
-      "Webcams",
-      "Batteries & Cables",
-      "Chargers",
-      "Cables & Adapters",
-      "Docking Stations",
-    ],
-  },
-  "Gaming": {
-    links: [
-      "Gaming Laptops",
-      "Gaming Desktops",
-      "Gaming Monitors",
-      "Gaming Keyboards",
-      "Gaming Mouse",
-      "Gaming Chairs",
-      "Gaming Accessories",
-    ],
-  },
-  "Kid Electronics": {
-    links: [
-      "Kids' Tablets",
-      "Kids' Headphones",
-      "Educational Electronics",
-      "Kid-Friendly Devices",
-    ],
-  },
-  "Tech Gifts": {
-    links: [
-      "Gift Cards",
-      "Tech Bundles",
-      "Special Offers",
-    ],
-  },
-};
-
 export function CategoryNav() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAllCategoriesDropdown, setShowAllCategoriesDropdown] = useState(false);
+  const [activeAllCategorySlug, setActiveAllCategorySlug] = useState<string>(
+    shopCategories[0]?.slug ?? ""
+  );
 
   const handleMouseEnter = (category: string) => {
     if (categoryDropdowns[category]) {
@@ -182,7 +39,7 @@ export function CategoryNav() {
 
   return (
     <nav
-      className="bg-white border-b border-gray-200 relative z-40"
+      className="sticky top-[80px] bg-white border-b border-gray-200 z-40"
       onMouseLeave={handleMouseLeave}
     >
       <div className="section-wrapper">
@@ -194,21 +51,25 @@ export function CategoryNav() {
               onMouseEnter={() => setShowAllCategoriesDropdown(true)}
               onMouseLeave={() => setShowAllCategoriesDropdown(false)}
             >
-              <Link
-                href="#"
-                className={`flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap ${
+              <button
+                type="button"
+                onClick={() =>
+                  setShowAllCategoriesDropdown((prev) => !prev)
+                }
+                className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap border border-gray-200 rounded-none ${
                   showAllCategoriesDropdown
-                    ? "text-[#A7E059]"
-                    : "text-gray-700 hover:text-[#A7E059]"
+                    ? "bg-gray-100 text-[#A7E059]"
+                    : "bg-white text-gray-700 hover:text-[#A7E059]"
                 }`}
               >
+                <Bars3Icon className="h-4 w-4" />
                 All Categories
                 <ChevronDownIcon
                   className={`h-4 w-4 transition-transform ${
                     showAllCategoriesDropdown ? "rotate-180" : ""
                   }`}
                 />
-              </Link>
+              </button>
               {/* All Categories Dropdown */}
               <AnimatePresence>
                 {showAllCategoriesDropdown && (
@@ -219,27 +80,92 @@ export function CategoryNav() {
                     transition={{ duration: 0.2 }}
                     className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[800px] max-h-[600px] overflow-y-auto"
                   >
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {Object.entries(allCategoriesDropdown).map(([category, data]) => (
-                          <div key={category} className="space-y-3">
-                            <h3 className="font-bold text-gray-900 text-base border-b border-gray-200 pb-2">
-                              {category}
-                            </h3>
-                            <ul className="space-y-2">
-                              {data.links.map((link, index) => (
-                                <li key={index}>
-                                  <Link
-                                    href={`/category/${link.toLowerCase().replace(/\s+/g, "-").replace(/[&'"]/g, "")}`}
-                                    className="text-sm text-gray-600 hover:text-[#A7E059] transition-colors block"
-                                  >
-                                    {link}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                    <div className="flex">
+                      {/* Left rail: main categories (dynamic) */}
+                      <div className="w-56 border-r border-gray-200 bg-gray-50">
+                        {shopCategories.map((cat) => {
+                          if (!cat.slug) return null;
+                          const isActive = cat.slug === activeAllCategorySlug;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setActiveAllCategorySlug(cat.slug)}
+                              className={`w-full text-left px-4 py-2 text-sm ${
+                                isActive
+                                  ? "bg-white text-gray-900 font-semibold"
+                                  : "text-gray-700 hover:bg-white"
+                              }`}
+                            >
+                              {cat.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Middle: subcategories or info for active category */}
+                      <div className="flex-1 p-5">
+                        {(() => {
+                          const activeShop =
+                            shopCategories.find(
+                              (c) => c.slug === activeAllCategorySlug
+                            ) ?? shopCategories[0];
+
+                          const activePopular = popularCategories.find(
+                            (c) => c.slug === activeAllCategorySlug
+                          );
+
+                          if (activePopular) {
+                            return (
+                              <>
+                                <h3 className="font-semibold text-gray-900 mb-3 text-base">
+                                  {activePopular.name}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                  {activePopular.subCategories.map((sub) => {
+                                    const hash = sub
+                                      .toLowerCase()
+                                      .replace(/\s+/g, "-");
+                                    return (
+                                      <Link
+                                        key={sub}
+                                        href={`/category/${activePopular.slug}#${hash}`}
+                                        className="text-sm text-gray-700 hover:text-[#A7E059] transition-colors"
+                                        onClick={() =>
+                                          setShowAllCategoriesDropdown(false)
+                                        }
+                                      >
+                                        {sub}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              </>
+                            );
+                          }
+
+                          // Fallback for categories without defined subCategories
+                          return (
+                            <div className="space-y-3">
+                              <h3 className="font-semibold text-gray-900 text-base">
+                                {activeShop.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                Browse all products in{" "}
+                                <Link
+                                  href={`/category/${activeShop.slug}`}
+                                  className="text-red-600 hover:underline"
+                                  onClick={() =>
+                                    setShowAllCategoriesDropdown(false)
+                                  }
+                                >
+                                  {activeShop.name}
+                                </Link>
+                                .
+                              </p>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </motion.div>

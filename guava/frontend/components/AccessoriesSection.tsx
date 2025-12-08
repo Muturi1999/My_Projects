@@ -19,14 +19,19 @@ export function AccessoriesSection() {
 
   return (
     <>
-      <section className="py-10 bg-white">
-        <div className="section-wrapper px-8 sm:px-12 lg:px-16 xl:px-20">
+      <section className="py-8 sm:py-10 md:py-12 bg-white">
+        <div className="section-wrapper flex flex-col">
           <SectionHeader
             title="Computer Accessories Deals"
             viewAllLink="/computer-accessories"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4">
+          {/* Layout: responsive banner + products 
+             - phones: 1 column
+             - small tablets: banner + products stacked with tighter gaps
+             - md/lg: 4 columns (banner + 3 products)
+          */}
+          <div className="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
             {/* Promotional Banner */}
             <PromotionalBanner
               title="tp-link"
@@ -39,7 +44,7 @@ export function AccessoriesSection() {
             />
 
             {/* Product Cards */}
-            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {productCards.map((product, index) => {
                 const isInWishlist = wishlistIds.includes(product.id);
                 return (
@@ -48,9 +53,8 @@ export function AccessoriesSection() {
                     product={product}
                     index={index}
                     variant="compact"
-                    imageHeight="h-32 md:h-36"
-                    badgePosition="inline"
-                    className="max-w-[280px] mx-auto"
+                    imageHeight="h-40 md:h-44"
+                    className="h-full"
                     showWishlist
                     isInWishlist={isInWishlist}
                     onWishlistToggle={(id, e) => {

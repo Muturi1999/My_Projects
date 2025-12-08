@@ -19,6 +19,7 @@ import {
 import { categoryProducts } from "@/lib/data/categoryProducts";
 import { useCart } from "@/lib/hooks/use-cart";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useOrders, type OrderRecord, type OrderActivityEntry } from "@/lib/hooks/use-orders";
 
 const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
 const categorySubcategoryList: Product[] = Object.values(
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { items: cartItems, clear: clearCart } = useCart();
+  const { addOrder } = useOrders();
 
   const [fullName, setFullName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -115,23 +117,74 @@ export default function CheckoutPage() {
   const handlePlaceOrder = () => {
     if (!acceptTerms || lines.length === 0) return;
 
-    // In a real app this would call your backend checkout API.
-    // For now we just simulate success and clear the cart for cart-based orders.
+    // In a real app this would call your backend checkout API and only redirect
+    // after payment confirmation. For now we create a local order record,
+    // clear the cart for cart-based orders, and navigate to the success page.
+
+    const totalItems = lines.reduce((sum, l) => sum + l.quantity, 0);
+    const now = new Date();
+    const orderId = crypto.randomUUID();
+    const orderNumber = `#${Math.floor(100000 + Math.random() * 900000)}`;
+    const expected = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+    const activities: OrderActivityEntry[] = [
+      {
+        id: "delivered",
+        label: "Your order has been delivered.",
+        description: "Thank you for shopping with Guavastores!",
+        timestamp: now.toISOString(),
+        icon: "check",
+      },
+      {
+        id: "on-road",
+        label: "Our delivery team has picked up your order for delivery.",
+        description: "",
+        timestamp: now.toISOString(),
+        icon: "info",
+      },
+      {
+        id: "hub",
+        label: "Your order has reached the last mile hub.",
+        description: "",
+        timestamp: now.toISOString(),
+        icon: "info",
+      },
+      {
+        id: "verified",
+        label: "Your order is successfully verified.",
+        description: "",
+        timestamp: now.toISOString(),
+        icon: "check",
+      },
+    ];
+
+    const orderRecord: OrderRecord = {
+      id: orderId,
+      orderNumber,
+      placedAt: now.toISOString(),
+      expectedDelivery: expected.toISOString(),
+      status: "packaging",
+      total: totals.total,
+      itemsCount: totalItems,
+      items: lines.map((line) => ({
+        productId: line.product.id,
+        name: line.product.name,
+        quantity: line.quantity,
+        price: line.product.price,
+        image: line.product.image,
+      })),
+      activities,
+    };
+
+    addOrder(orderRecord);
+
     if (!buyNowProductId) {
       clearCart();
     }
-    setOrderPlaced(true);
+    router.push(`/checkout/success?orderId=${orderId}`);
   };
 
-  // After successful order, optionally redirect after a short delay
-  useEffect(() => {
-    if (orderPlaced) {
-      const id = window.setTimeout(() => {
-        router.push("/");
-      }, 3000);
-      return () => window.clearTimeout(id);
-    }
-  }, [orderPlaced, router]);
+  // orderPlaced is kept for potential future use with real backend integration
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">

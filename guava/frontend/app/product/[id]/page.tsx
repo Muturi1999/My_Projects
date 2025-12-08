@@ -30,11 +30,19 @@ import {
   categorySubcategoryProducts,
   type Product,
 } from "@/lib/data/products";
+import { categoryProducts } from "@/lib/data/categoryProducts";
 import { ProductDetailWishlistButton } from "./ProductDetailWishlistButton";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
+
+// Build a unified catalog of all products used across sections, categories and brands
+// so that any product ID clicked in the UI can be resolved on the detail page.
+const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
+const categorySubcategoryList: Product[] = Object.values(
+  categorySubcategoryProducts
+).flatMap((group) => Object.values(group).flat());
 
 const catalogProducts: Product[] = [
   ...hotDeals,
@@ -43,6 +51,8 @@ const catalogProducts: Product[] = [
   ...accessoriesDeals,
   ...audioDeals,
   ...Object.values(brandLaptops).flat(),
+  ...categoryProductsList,
+  ...categorySubcategoryList,
 ];
 
 function getFallbackAddons(product: Product) {
@@ -71,28 +81,38 @@ function getFallbackAddons(product: Product) {
     .filter(([sub]) => sub.toLowerCase().includes("accessories"))
     .flatMap(([, products]) => products);
 
-  // Generic pool if nothing else matches
-  const genericPool: Product[] = [
-    ...accessoriesDeals,
-    ...computerAccessories,
+  // Software pool from full catalog (e.g. Office, antivirus, OS licences)
+  const softwareProducts: Product[] = catalogProducts.filter((p) =>
+    (p.category || "").toLowerCase().includes("software")
+  );
+
+  // Generic pools
+  const genericPool: Product[] = [...accessoriesDeals, ...computerAccessories];
+  const allAccessoriesPool: Product[] = [
+    ...genericPool,
+    ...tvAudioAccessories,
+    ...storageAccessories,
+    ...cctvAccessories,
   ];
 
   let source: Product[] = genericPool;
 
+  const categoryLower = (product.category || "").toLowerCase();
+
   if (product.category === "Laptops") {
     // Laptop add-ons: bags, hubs, mice, keyboards, cables, storage, etc.
-    source =
-      computerAccessories.length > 0
-        ? computerAccessories
-        : genericPool.filter((item) =>
-            /bag|backpack|mouse|keyboard|hub|dock|charger|cable|stand|ssd|hdd|usb/i.test(
-              item.name
-            )
-          );
+    source = computerAccessories.length > 0 ? computerAccessories : [];
+    if (!source.length) {
+      source = allAccessoriesPool.filter((item) =>
+        /bag|backpack|case|sleeve|mouse|keyboard|hub|dock|charger|cable|stand|cooling pad|ssd|hdd|usb/i.test(
+          item.name
+        )
+      );
+    }
   } else if (product.category === "Smartphones") {
     // Phone add-ons: cases, protectors, earbuds, chargers, power banks, cables
-    source = genericPool.filter((item) =>
-      /case|cover|protector|earbud|earphone|headphone|power bank|charger|cable/i.test(
+    source = allAccessoriesPool.filter((item) =>
+      /case|cover|protector|earbud|earphone|headphone|power bank|charger|cable|adapter|car charger/i.test(
         item.name
       )
     );
@@ -102,48 +122,96 @@ function getFallbackAddons(product: Product) {
       /ink|cartridge|paper|spare|accessor/i.test(item.name)
     );
     if (!source.length) {
-      source = genericPool;
+      source = allAccessoriesPool.filter((item) =>
+        /usb cable|printer cable|surge|ups|rack|stand/i.test(item.name)
+      );
     }
   } else if (product.category === "TV, Audio & Video" || product.category === "Audio") {
     // TV & audio add-ons: soundbars, speakers, HDMI cables, mounts
     source =
       tvAudioAccessories.length > 0
         ? tvAudioAccessories
-        : genericPool.filter((item) =>
-            /soundbar|speaker|hdmi|mount|bracket|subwoofer/i.test(item.name)
+        : allAccessoriesPool.filter((item) =>
+            /soundbar|speaker|hdmi|mount|bracket|subwoofer|audio cable|aux/i.test(
+              item.name
+            )
           );
   } else if (product.category === "Drives & Storage") {
     // Storage add-ons: extra drives, enclosures, USB sticks
-    source =
-      storageAccessories.length > 0
-        ? storageAccessories
-        : genericPool.filter((item) =>
-            /ssd|hdd|drive|usb|enclosure|nas/i.test(item.name)
-          );
+    source = storageAccessories.length > 0 ? storageAccessories : [];
+    if (!source.length) {
+      source = allAccessoriesPool.filter((item) =>
+        /ssd|hdd|drive|usb|enclosure|nas|backup|dock/i.test(item.name)
+      );
+    }
   } else if (product.category === "CCTV & Security") {
     // CCTV add-ons: cables, brackets, power supplies, housings
-    source =
-      cctvAccessories.length > 0
-        ? cctvAccessories
-        : genericPool.filter((item) =>
-            /cable|bracket|mount|housing|power supply|adapter/i.test(item.name)
-          );
+    source = cctvAccessories.length > 0 ? cctvAccessories : [];
+    if (!source.length) {
+      source = allAccessoriesPool.filter((item) =>
+        /cable|bracket|mount|housing|power supply|adapter|surge/i.test(
+          item.name
+        )
+      );
+    }
+  } else if (categoryLower.includes("software")) {
+    // Software add-ons: other suites, antivirus, operating systems, utilities
+    source = softwareProducts.filter(
+      (item) =>
+        item.id !== product.id &&
+        /office|365|windows|antivirus|security|kaspersky|mcafee|norton|license|licence|utility/i.test(
+          item.name
+        )
+    );
+    // If still empty, fall back to any other software items
+    if (!source.length) {
+      source = softwareProducts.filter((item) => item.id !== product.id);
+    }
+  } else if (
+    categoryLower.includes("audio") ||
+    categoryLower.includes("headphone")
+  ) {
+    // Audio add-ons: headphones, speakers, stands, audio cables
+    source = allAccessoriesPool.filter((item) =>
+      /headphone|earbud|earphone|speaker|soundbar|stand|audio cable|aux/i.test(
+        item.name
+      )
+    );
   }
 
   if (!source.length) {
-    source = genericPool;
+    // Last-resort: use a generic accessory pool that excludes obviously unrelated
+    // heavy items by preferring smaller accessories.
+    source = allAccessoriesPool.filter((item) =>
+      /bag|backpack|case|sleeve|mouse|keyboard|hub|dock|charger|cable|stand|earbud|earphone|headphone|power bank|ssd|hdd|usb/i.test(
+        item.name
+      )
+    );
+
+    if (!source.length) {
+      source = genericPool;
+    }
   }
 
-  return source.slice(0, 5).map((item) => ({
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    originalPrice: item.originalPrice,
-    image:
-      item.image ||
-      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
-    discount: item.discount,
-  }));
+  // Remove the current product from addons and limit to distinct items
+  const unique: Record<string, Product> = {};
+  for (const item of source) {
+    if (!item || item.id === product.id) continue;
+    if (!unique[item.id]) unique[item.id] = item;
+  }
+
+  return Object.values(unique)
+    .slice(0, 5)
+    .map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      originalPrice: item.originalPrice,
+      image:
+        item.image ||
+        "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+      discount: item.discount,
+    }));
 }
 
 function getFeatureHighlights(product: Product) {
@@ -355,8 +423,11 @@ function getSimilarProductsFrontend(
     if (result.length >= max) return result;
   }
 
-  // 5) Hot deals fallback
-  const hotMatches = nonCurrent.filter((p) => p.hot);
+  // 5) Hot deals fallback – but keep within the same category to avoid
+  // suggesting completely unrelated products (e.g. phones on a software page).
+  const hotMatches = nonCurrent.filter(
+    (p) => p.hot && p.category === current.category
+  );
   hotMatches.forEach(add);
 
   return result.slice(0, max);

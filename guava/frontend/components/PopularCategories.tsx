@@ -11,9 +11,9 @@ export function PopularCategories() {
   const router = useRouter();
   
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="section-wrapper px-8 sm:px-12 lg:px-16 xl:px-20">
-        <div className="flex items-center justify-between mb-8">
+    <section className="py-8 sm:py-10 md:py-12 bg-gray-50">
+      <div className="section-wrapper">
+        <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
           <h2 className="section-heading">Popular categories</h2>
           <Link
             href="/popular-categories"
@@ -22,7 +22,7 @@ export function PopularCategories() {
             View all →
           </Link>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {popularCategories.map((category, index) => {
             const categoryUrl = category.slug === "computer-accessories" 
               ? "/computer-accessories" 

@@ -96,8 +96,9 @@ class ProductQueryViewSet(BaseQueryViewSet):
         if len(results) >= limit:
             return results
 
-        # 5) Hot deals / featured as final fallback
-        hot_qs = candidates.filter(hot=True)
+        # 5) Hot deals / featured as final fallback – stay within same category
+        # so that, for example, software pages don't suggest phones or monitors.
+        hot_qs = candidates.filter(hot=True, category_slug=product.category_slug)
         add_from(hot_qs.order_by("-rating", "-created_at"))
 
         return results

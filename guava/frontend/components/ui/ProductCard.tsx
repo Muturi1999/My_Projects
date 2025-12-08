@@ -142,28 +142,18 @@ export function ProductCard({
               )}
             />
 
-            {/* Badges */}
+            {/* Badges - unified style like Today's Hot Deals */}
             {badgePosition === "top-left" && (
               <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
                 {discountPercentage > 0 && (
                   <Badge
-                    variant={variant === "hot-deal" ? "default" : "destructive"}
-                    className={cn(
-                      "text-xs font-semibold",
-                      variant === "hot-deal" && "bg-[#A7E059] text-white rounded-full px-3 py-1"
-                    )}
+                    className="text-xs font-semibold bg-[#A7E059] text-black rounded-full px-3 py-1 border-none"
                   >
                     {discountPercentage}% OFF
                   </Badge>
                 )}
                 {product.hot && (
-                  <Badge
-                    variant="destructive"
-                    className={cn(
-                      "text-xs font-semibold",
-                      variant === "hot-deal" && "bg-red-500 text-white rounded-full px-3 py-1"
-                    )}
-                  >
+                  <Badge className="text-xs font-semibold bg-red-500 text-white rounded-full px-3 py-1 border-none">
                     HOT
                   </Badge>
                 )}

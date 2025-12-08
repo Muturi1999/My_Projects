@@ -1,30 +1,65 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import {
+  Bars3Icon,
+  XMarkIcon,
   HeartIcon,
   ArrowsRightLeftIcon,
   ShoppingCartIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
+  UserIcon, HomeIcon,
 } from "@heroicons/react/24/outline";
 import { CategoryNav } from "./CategoryNav";
 import { shopCategories } from "@/lib/data/categories";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
+import {
+  type Product,
+  hotDeals,
+  laptopDeals,
+  printerDeals,
+  accessoriesDeals,
+  audioDeals,
+  brandLaptops,
+  categorySubcategoryProducts,
+} from "@/lib/data/products";
+import { categoryProducts } from "@/lib/data/categoryProducts";
+
+const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
+const categorySubcategoryList: Product[] = Object.values(
+  categorySubcategoryProducts
+).flatMap((group) => Object.values(group).flat());
+
+const allCatalogProducts: Product[] = [
+  ...hotDeals,
+  ...laptopDeals,
+  ...printerDeals,
+  ...accessoriesDeals,
+  ...audioDeals,
+  ...Object.values(brandLaptops).flat(),
+  ...categoryProductsList,
+  ...categorySubcategoryList,
+];
 
 export function Header() {
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [searchScope, setSearchScope] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showMobileScopeDropdown, setShowMobileScopeDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { count: wishlistCount } = useWishlist();
   const { count: cartCount } = useCart();
 
-  useScrollHideHeader();
+  // Removed useScrollHideHeader() to keep header sticky at all times
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,18 +77,241 @@ export function Header() {
     };
   }, [showCategoryDropdown]);
 
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = searchTerm.trim();
+
+    // Decide where to route based on scope
+    if (searchScope === "all") {
+      if (!trimmed) return;
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+    } else {
+      const base = `/category/${searchScope}`;
+      if (trimmed) {
+        router.push(`${base}?q=${encodeURIComponent(trimmed)}`);
+      } else {
+        router.push(base);
+      }
+    }
+
+    setIsMobileSearchOpen(false);
+  };
+
+  const suggestions = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term.length < 1) return [];
+
+    let pool = allCatalogProducts;
+    if (searchScope !== "all") {
+      const categoryName =
+        shopCategories.find((c) => c.slug === searchScope)?.name ?? "";
+      const catLower = categoryName.toLowerCase().trim();
+      if (catLower) {
+        pool = pool.filter((p) =>
+          (p.category || "").toLowerCase().includes(catLower)
+        );
+      }
+    }
+
+    const unique: Record<string, Product> = {};
+    for (const p of pool) {
+      if (!p) continue;
+      if (!p.name.toLowerCase().includes(term)) continue;
+      if (!unique[p.id]) {
+        unique[p.id] = p;
+      }
+    }
+
+    return Object.values(unique).slice(0, 8);
+  }, [searchTerm, searchScope]);
+
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm transition-transform duration-200">
-      <div className="bg-black text-white">
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
+      {/* Mobile / tablet / small-desktop header (all screens below xl) */}
+      <div className="bg-black text-white xl:hidden">
+        <div className="px-4 py-3 flex items-center justify-between">
+          {/* Left: Hamburger */}
+          <div className="flex items-center">
+            <button
+              type="button"
+              aria-label="Open menu"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Center: Logo */}
+          <Link href="/" className="text-xl font-bold text-white flex items-center gap-2">
+            <HomeIcon className="h-6 w-6 text-white" /> GUAVASTORES
+          </Link>
+
+          {/* Right: Icons */}
+          <div className="flex items-center gap-4">
+            {/* Search toggle */}
+            {!isMobileSearchOpen ? (
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={() => setIsMobileSearchOpen(true)}
+              >
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                aria-label="Close search"
+                onClick={() => setIsMobileSearchOpen(false)}
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            )}
+
+            {/* Wishlist */}
+            <button
+              type="button"
+              onClick={() => router.push("/wishlist")}
+              className="relative"
+              aria-label="Wishlist"
+            >
+              <HeartIcon className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {wishlistCount > 9 ? "9+" : wishlistCount}
+                </span>
+              )}
+            </button>
+
+            {/* User icon (placeholder route for future auth) */}
+            <button
+              type="button"
+              aria-label="Account"
+              onClick={() => router.push("/account")}
+            >
+              <UserIcon className="h-6 w-6" />
+            </button>
+
+            {/* Cart */}
+            <button
+              type="button"
+              onClick={() => router.push("/cart")}
+              className="relative"
+              aria-label="Cart"
+            >
+              <ShoppingCartIcon className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile / tablet search bar (expands under header when open) */}
+        {isMobileSearchOpen && (
+          <div className="px-3 pb-3">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="bg-[#1f2937] rounded-none px-0 py-0 flex items-stretch shadow-md h-11 sm:h-12"
+            >
+              {/* Scope dropdown on the left */}
+              <div className="relative flex items-stretch">
+                <button
+                  type="button"
+                  onClick={() => setShowMobileScopeDropdown((prev) => !prev)}
+                  className="h-full flex items-center gap-1 px-3 bg-[#111827] text-gray-100 text-[11px] sm:text-xs border-r border-gray-700"
+                >
+                  <span>
+                    {searchScope === "all"
+                      ? "All"
+                      : shopCategories.find((c) => c.slug === searchScope)?.name ??
+                        "All"}
+                  </span>
+                  <ChevronDownIcon className="h-3 w-3" />
+                </button>
+                {showMobileScopeDropdown && (
+                  <div className="absolute left-0 mt-1 w-40 bg-white text-gray-800 rounded-md shadow-lg border border-gray-200 z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchScope("all");
+                        setShowMobileScopeDropdown(false);
+                      }}
+                      className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                    >
+                      All
+                    </button>
+                    {shopCategories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => {
+                          if (category.slug) setSearchScope(category.slug);
+                          setShowMobileScopeDropdown(false);
+                        }}
+                        className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Search input */}
+              <Input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search for products, brands and more..."
+                className="flex-1 border-0 focus-visible:ring-0 bg-white text-gray-900 placeholder:text-gray-500 text-sm rounded-none px-3"
+              />
+
+              {/* Search button on the right */}
+              <button
+                type="submit"
+                className="h-full bg-red-600 hover:bg-red-700 text-white px-4 flex items-center justify-center"
+                aria-label="Search"
+              >
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </button>
+            </form>
+
+            {/* Typeahead suggestions (mobile / tablet) */}
+            {suggestions.length > 0 && (
+              <div className="mt-1 bg-white rounded-md shadow-lg border border-gray-200 text-sm max-h-64 overflow-y-auto">
+                {suggestions.map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                    onClick={() => {
+                      setIsMobileSearchOpen(false);
+                      setSearchTerm("");
+                      router.push(`/product/${product.id}`);
+                    }}
+                  >
+                    {product.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop header (extra-large screens and up) */}
+      <div className="bg-black text-white hidden xl:block">
         <div className="section-wrapper py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Logo */}
-            <Link href="/" className="text-2xl font-bold text-white ml-4 md:ml-0">
-              GUAVASTORES
+            <Link href="/" className="text-2xl font-bold text-white ml-4 md:ml-0 flex items-center gap-2">
+              <HomeIcon className="h-6 w-6 text-white" /> GUAVASTORES
             </Link>
 
             {/* Search */}
-            <div className="flex-1 w-full md:max-w-2xl md:mx-4 order-3 md:order-2">
+            <div className="flex-1 w-full md:max-w-2xl md:mx-4 order-3 md:order-2 relative">
               <div className="flex items-center bg-white rounded-md overflow-hidden">
                 {/* Category Dropdown */}
                 <div className="relative" ref={dropdownRef}>
@@ -61,7 +319,11 @@ export function Header() {
                     onClick={() => setShowCategoryDropdown((prev) => !prev)}
                     className="flex items-center gap-1 px-2 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 border-r border-gray-300 hover:bg-gray-50 transition-colors"
                   >
-                    <span className="hidden sm:inline">{selectedCategory}</span>
+                    <span className="hidden sm:inline">
+                      {searchScope === "all"
+                        ? "All"
+                        : selectedCategory}
+                    </span>
                     <span className="sm:hidden">All</span>
                     <ChevronDownIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
@@ -69,18 +331,22 @@ export function Header() {
                     <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto min-w-[200px]">
                       <button
                         onClick={() => {
-                          setSelectedCategory("All Categories");
+                          setSelectedCategory("All");
+                          setSearchScope("all");
                           setShowCategoryDropdown(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        All Categories
+                        All
                       </button>
                       {shopCategories.map((category) => (
                         <button
                           key={category.id}
                           onClick={() => {
                             setSelectedCategory(category.name);
+                            if (category.slug) {
+                              setSearchScope(category.slug);
+                            }
                             setShowCategoryDropdown(false);
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -95,18 +361,41 @@ export function Header() {
                 {/* Search Input */}
                 <Input
                   type="search"
-                  placeholder="Search for products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search for products, brands and more..."
                   className="flex-1 border-0 focus-visible:ring-0 bg-transparent text-gray-900 placeholder:text-gray-500 text-sm sm:text-base placeholder:text-xs sm:placeholder:text-sm"
                 />
 
                 {/* Search Button */}
                 <button
+                  type="button"
+                  onClick={() => handleSearchSubmit()}
                   className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 transition-colors"
                   aria-label="Search"
                 >
                   <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
+
+              {/* Typeahead suggestions (desktop) */}
+              {suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200 text-sm max-h-72 overflow-y-auto z-50">
+                  {suggestions.map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                      onClick={() => {
+                        setSearchTerm("");
+                        router.push(`/product/${product.id}`);
+                      }}
+                    >
+                      {product.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Icons */}
@@ -140,6 +429,19 @@ export function Header() {
                 </span>
               </button>
 
+              {/* User / Account */}
+              <button
+                type="button"
+                onClick={() => router.push("/account")}
+                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors"
+                aria-label="Account"
+              >
+                <UserIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+                <span className="text-[10px] sm:text-xs hidden sm:inline">
+                  Account
+                </span>
+              </button>
+
               {/* Cart */}
               <button
                 type="button"
@@ -159,7 +461,74 @@ export function Header() {
           </div>
         </div>
       </div>
-      <CategoryNav />
+
+      {/* Desktop category navigation */}
+      <div className="hidden xl:block">
+        <CategoryNav />
+      </div>
+
+      {/* Mobile menu panel */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute inset-x-0 top-full bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200">
+            <span className="text-sm font-semibold text-gray-900">
+              Menu
+            </span>
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <XMarkIcon className="h-5 w-5 text-gray-700" />
+            </button>
+          </div>
+          <nav className="px-4 py-3 space-y-2 text-sm text-gray-800">
+            <Link
+              href="/"
+              className="block py-1 hover:text-red-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              href="/popular-categories"
+              className="block py-1 hover:text-red-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Popular Categories
+            </Link>
+            <Link
+              href="/popular-brands"
+              className="block py-1 hover:text-red-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Popular Brands
+            </Link>
+            <Link
+              href="/hot-deals"
+              className="block py-1 hover:text-red-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Today&apos;s Hot Deals
+            </Link>
+            <div className="pt-2 mt-1 border-t border-gray-200">
+              <p className="text-[11px] font-semibold text-gray-500 mb-1">
+                Shop by category
+              </p>
+              {shopCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={category.slug ? `/category/${category.slug}` : "/"}
+                  className="block py-1.5 hover:text-red-600"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

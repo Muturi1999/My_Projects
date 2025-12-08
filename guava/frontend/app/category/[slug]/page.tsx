@@ -21,9 +21,9 @@ import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
 import { useRouter } from "next/navigation";
-import { generateStableProducts } from "@/lib/data/admin/mockProducts";
 
-// Combine all laptop products
+// Combine all laptop products from static datasets so product IDs
+// always resolve correctly on the product detail page.
 const allLaptopProducts = [
   ...laptopDeals,
   ...(categoryProducts["laptops-computers"] || []),
@@ -252,56 +252,19 @@ export default function CategoryPage() {
 
   const productsPerPage = 12;
 
-  // Generate products for each category
+  // Generate products for each category (using only real catalog data
+  // so that every product ID links correctly to the product detail page)
   const generateCategoryProducts = useMemo(() => {
     const baseProducts = categoryProducts[slug] || [];
-    const count = slug === "laptops-computers" ? 1000 : 200; // Generate more products for each category
-    
+
     if (slug === "laptops-computers") {
-      return [...allLaptopProducts, ...generateStableProducts(slug, count, allLaptopProducts)];
+      // Laptops: use all known laptop products from our catalog data
+      return allLaptopProducts;
     }
-    
-    // Generate products for other categories
-    const brands = {
-      "computer-accessories": ["logitech", "microsoft", "hp", "dell", "corsair", "razer"],
-      "monitors": ["samsung", "lg", "dell", "hp", "asus", "acer"],
-      "smartphones": ["samsung", "apple", "xiaomi", "tecno", "infinix", "oppo"],
-      "tablets-ipads": ["apple", "samsung", "lenovo", "microsoft", "huawei"],
-      "printers-scanners": ["hp", "canon", "epson", "brother", "xerox"],
-      "desktops": ["hp", "dell", "lenovo", "apple", "asus", "acer"],
-      "audio-headphones": ["sony", "apple", "samsung", "jbl", "bose", "xiaomi"],
-      "wifi-networking": ["tp-link", "netgear", "asus", "d-link", "linksys"],
-      "software": ["microsoft", "adobe", "autodesk", "norton", "mcafee"],
-      "drives-storage": ["seagate", "western-digital", "samsung", "toshiba", "sandisk"],
-      "gaming": ["sony", "microsoft", "nintendo", "asus", "razer", "corsair"],
-    };
-    
-    const categoryBrands = brands[slug as keyof typeof brands] || ["generic"];
-    const images = {
-      "computer-accessories": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
-      "monitors": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=600&q=80",
-      "smartphones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
-      "tablets-ipads": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=600&q=80",
-      "printers-scanners": "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?auto=format&fit=crop&w=600&q=80",
-      "desktops": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=600&q=80",
-      "audio-headphones": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-      "wifi-networking": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80",
-      "software": "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=600&q=80",
-      "drives-storage": "https://images.unsplash.com/photo-1591488320449-11f2e2e2d08f?auto=format&fit=crop&w=600&q=80",
-      "gaming": "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=600&q=80",
-    };
-    
-    const generated = generateStableProducts(slug, count, baseProducts).map((product) => ({
-      ...product,
-      image: images[slug as keyof typeof images] || product.image,
-      images: [
-        images[slug as keyof typeof images] ||
-          product.images?.[0] ||
-          "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
-      ],
-    }));
-    
-    return [...baseProducts, ...generated];
+
+    // Other categories: use only the configured categoryProducts
+    // so product IDs match the shared catalog and product detail page.
+    return baseProducts;
   }, [slug]);
 
   // Get products for this category

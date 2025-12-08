@@ -4,9 +4,12 @@ Uses pydantic for type-safe configuration management.
 """
 import os
 from typing import Optional
-from pydantic import BaseSettings, Field
+# from pydantic import BaseSettings, Field
+from pydantic_settings import BaseSettings
+from pydantic import Field
 from functools import lru_cache
 from pathlib import Path
+
 
 # Load .env file from project root
 ENV_FILE = Path(__file__).parent.parent.parent.parent / ".env"
@@ -109,11 +112,16 @@ def get_database_config(service_name: str) -> DatabaseConfig:
     
     # Create a custom config class with prefixed environment variables
     class ServiceDatabaseConfig(BaseSettings):
-        host: str = Field(..., env=f"{prefix}_DB_HOST")
+        """
+        Per-service database config.
+        In local development we provide safe defaults so that the service can
+        start even when per-service env vars are not defined.
+        """
+        host: str = Field("localhost", env=f"{prefix}_DB_HOST")
         port: int = Field(5432, env=f"{prefix}_DB_PORT")
-        name: str = Field(..., env=f"{prefix}_DB_NAME")
-        user: str = Field(..., env=f"{prefix}_DB_USER")
-        password: str = Field(..., env=f"{prefix}_DB_PASSWORD")
+        name: str = Field(f"{prefix.lower()}_db", env=f"{prefix}_DB_NAME")
+        user: str = Field(os.getenv("DB_USER", "mike"), env=f"{prefix}_DB_USER")
+        password: str = Field(os.getenv("DB_PASSWORD", ""), env=f"{prefix}_DB_PASSWORD")
         
         @property
         def url(self) -> str:

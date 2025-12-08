@@ -20,7 +20,7 @@ export function FeaturedDeals() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
               whileHover={{ scale: 1.02, y: -4 }}
-              className="bg-[#A7E059] rounded-none text-white relative overflow-hidden shadow-lg border border-gray-200 w-full max-w-full md:max-w-[646px] min-h-[280px]"
+              className="bg-[#A7E059] rounded-none text-white relative overflow-hidden shadow-lg border border-gray-200 w-full md:flex-1 min-h-[320px]"
             >
               {deal.badge && (
                 <Badge
@@ -78,7 +78,7 @@ export function FeaturedDeals() {
                   </Link>
                 </div>
                 {/* Right Image Section */}
-                <div className="flex items-center justify-center relative z-10 w-full md:w-48 lg:w-64 flex-shrink-0 h-48 md:h-auto">
+                <div className="flex items-center justify-center relative z-10 w-full md:w-48 lg:w-64 flex-shrink-0 h-52 md:h-auto">
                   <div className="relative w-full h-full flex items-center justify-center">
                     <Image
                       src={deal.image}

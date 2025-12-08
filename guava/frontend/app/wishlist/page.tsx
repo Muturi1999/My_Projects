@@ -91,7 +91,7 @@ export default function WishlistPage() {
 
         {/* Wishlist content */}
         <section className="py-6 sm:py-10 bg-white flex-1">
-          <div className="section-wrapper">
+          <div className="section-wrapper px-4 sm:px-6 lg:px-8">
             <div className="mb-6 sm:mb-8">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
                 Wishlist
@@ -114,25 +114,151 @@ export default function WishlistPage() {
                 </Link>
               </div>
             ) : (
-              <div className="bg-white border border-gray-200 rounded-none overflow-x-auto">
-                <table className="w-full min-w-[720px] text-xs sm:text-sm">
-                <thead className="bg-gray-100 border-b border-gray-200">
-                  <tr>
-                    <th className="text-left font-semibold text-gray-700 px-4 py-3">
-                      Products
-                    </th>
-                    <th className="text-left font-semibold text-gray-700 px-4 py-3">
-                      Price
-                    </th>
-                    <th className="text-left font-semibold text-gray-700 px-4 py-3">
-                      Stock status
-                    </th>
-                    <th className="text-left font-semibold text-gray-700 px-4 py-3">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block bg-white border border-gray-200 rounded-none overflow-x-auto">
+                  <table className="w-full text-sm">
+                  <thead className="bg-gray-100 border-b border-gray-200">
+                    <tr>
+                      <th className="text-left font-semibold text-gray-700 px-4 py-3">
+                        Products
+                      </th>
+                      <th className="text-left font-semibold text-gray-700 px-4 py-3">
+                        Price
+                      </th>
+                      <th className="text-left font-semibold text-gray-700 px-4 py-3">
+                        Stock status
+                      </th>
+                      <th className="text-left font-semibold text-gray-700 px-4 py-3">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {wishlistProducts
+                      .slice(
+                        (currentPage - 1) * ITEMS_PER_PAGE,
+                        currentPage * ITEMS_PER_PAGE
+                      )
+                      .map((product) => {
+                      const inStock = (product.stock ?? 0) > 0;
+
+                      return (
+                        <tr
+                          key={product.id}
+                          className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
+                        >
+                          {/* Product cell */}
+                          <td className="px-4 py-3">
+                            <button
+                              type="button"
+                              onClick={() => router.push(`/product/${product.id}`)}
+                              className="w-full flex items-center gap-3 text-left"
+                            >
+                              <div className="relative w-16 h-16 border border-gray-200 bg-white flex-shrink-0">
+                                <Image
+                                  src={product.image}
+                                  alt={product.name}
+                                  fill
+                                  className="object-contain p-1.5"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900 line-clamp-2">
+                                  {product.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {product.category}
+                                  {product.brand && ` • ${product.brand.toUpperCase()}`}
+                                </p>
+                              </div>
+                            </button>
+                          </td>
+
+                          {/* Price */}
+                          <td className="px-4 py-3 align-top">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-900">
+                                KSh {product.price.toLocaleString()}
+                              </span>
+                              <span className="text-xs text-gray-500 line-through">
+                                KSh {product.originalPrice.toLocaleString()}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Stock status */}
+                          <td className="px-4 py-3 align-top">
+                            {inStock ? (
+                              <span className="text-xs font-semibold text-green-600">
+                                IN STOCK
+                              </span>
+                            ) : (
+                              <span className="text-xs font-semibold text-gray-400">
+                                OUT OF STOCK
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-3 align-top">
+                            <div className="flex flex-row items-center gap-2">
+                              {/* View (Eye) */}
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/product/${product.id}`)}
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100"
+                                aria-label="View product details"
+                              >
+                                <EyeIcon className="h-4 w-4" />
+                              </button>
+
+                              {/* Add to Cart */}
+                              <AddToCartButton
+                                product={product}
+                                size="sm"
+                                variant={inStock ? "destructive" : "outline"}
+                                className={
+                                  inStock
+                                    ? "rounded-none"
+                                    : "rounded-none bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed hover:bg-gray-200 hover:text-gray-500"
+                                }
+                                disabled={!inStock}
+                                onClick={() => inStock && handleRemove(product.id)}
+                                fullWidth={false}
+                              />
+
+                              {/* Buy Now */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  router.push(`/checkout?productId=${product.id}`)
+                                }
+                                className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-none border border-red-500 text-red-600 hover:bg-red-50"
+                              >
+                                BUY NOW
+                              </button>
+
+                              {/* Remove (Trash) */}
+                              <button
+                                type="button"
+                                onClick={() => handleRemove(product.id)}
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100"
+                                aria-label="Remove from wishlist"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile/Tablet Card View */}
+                <div className="md:hidden space-y-4">
                   {wishlistProducts
                     .slice(
                       (currentPage - 1) * ITEMS_PER_PAGE,
@@ -142,145 +268,138 @@ export default function WishlistPage() {
                     const inStock = (product.stock ?? 0) > 0;
 
                     return (
-                      <tr
+                      <div
                         key={product.id}
-                        className="border-t border-gray-200 hover:bg-gray-50 transition-colors"
+                        className="bg-white border border-gray-200 rounded-none p-4"
                       >
-                        {/* Product cell */}
-                        <td className="px-4 py-3">
-                          <button
-                            type="button"
-                            onClick={() => router.push(`/product/${product.id}`)}
-                            className="w-full flex items-center gap-3 text-left"
-                          >
-                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 border border-gray-200 bg-white flex-shrink-0">
-                              <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-contain p-1.5"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900 line-clamp-2">
-                                {product.name}
-                              </p>
-                              <p className="text-[11px] sm:text-xs text-gray-500">
-                                {product.category}
-                                {product.brand && ` • ${product.brand.toUpperCase()}`}
-                              </p>
-                            </div>
-                          </button>
-                        </td>
+                        {/* Product Info */}
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/product/${product.id}`)}
+                          className="w-full flex items-start gap-3 mb-4 text-left"
+                        >
+                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 border border-gray-200 bg-white flex-shrink-0">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-contain p-2"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-gray-900 line-clamp-2 mb-1">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {product.category}
+                              {product.brand && ` • ${product.brand.toUpperCase()}`}
+                            </p>
+                          </div>
+                        </button>
 
-                        {/* Price */}
-                        <td className="px-4 py-3 align-top">
+                        {/* Price and Stock Row */}
+                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-gray-900">
+                            <span className="font-semibold text-base text-gray-900">
                               KSh {product.price.toLocaleString()}
                             </span>
-                            <span className="text-[11px] text-gray-500 line-through">
+                            <span className="text-xs text-gray-500 line-through">
                               KSh {product.originalPrice.toLocaleString()}
                             </span>
                           </div>
-                        </td>
-
-                        {/* Stock status */}
-                        <td className="px-4 py-3 align-top">
                           {inStock ? (
-                            <span className="text-xs font-semibold text-green-600">
+                            <span className="text-xs font-semibold text-green-600 px-2 py-1 bg-green-50 rounded">
                               IN STOCK
                             </span>
                           ) : (
-                            <span className="text-xs font-semibold text-gray-400">
+                            <span className="text-xs font-semibold text-gray-400 px-2 py-1 bg-gray-50 rounded">
                               OUT OF STOCK
                             </span>
                           )}
-                        </td>
+                        </div>
 
                         {/* Actions */}
-                        <td className="px-4 py-3 align-top">
-                          <div className="flex flex-wrap sm:flex-row sm:items-center gap-2">
-                            {/* View (Eye) */}
-                            <button
-                              type="button"
-                              onClick={() => router.push(`/product/${product.id}`)}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100"
-                              aria-label="View product details"
-                            >
-                              <EyeIcon className="h-4 w-4" />
-                            </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {/* View (Eye) */}
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/product/${product.id}`)}
+                            className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100"
+                            aria-label="View product details"
+                          >
+                            <EyeIcon className="h-5 w-5" />
+                          </button>
 
-                            {/* Add to Cart */}
-                            <AddToCartButton
-                              product={product}
-                              size="sm"
-                              variant={inStock ? "destructive" : "outline"}
-                              className={
-                                inStock
-                                  ? "rounded-none"
-                                  : "rounded-none bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed hover:bg-gray-200 hover:text-gray-500"
-                              }
-                              disabled={!inStock}
-                              onClick={() => inStock && handleRemove(product.id)}
-                              fullWidth={false}
-                            />
+                          {/* Add to Cart */}
+                          <AddToCartButton
+                            product={product}
+                            size="sm"
+                            variant={inStock ? "destructive" : "outline"}
+                            className={
+                              inStock
+                                ? "rounded-none flex-1 min-w-[120px]"
+                                : "rounded-none bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed hover:bg-gray-200 hover:text-gray-500 flex-1 min-w-[120px]"
+                            }
+                            disabled={!inStock}
+                            onClick={() => inStock && handleRemove(product.id)}
+                            fullWidth={false}
+                          />
 
-                            {/* Buy Now */}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                router.push(`/checkout?productId=${product.id}`)
-                              }
-                              className="inline-flex items-center justify-center px-3 py-1.5 text-[11px] sm:text-xs font-semibold rounded-none border border-red-500 text-red-600 hover:bg-red-50"
-                            >
-                              BUY NOW
-                            </button>
+                          {/* Buy Now */}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              router.push(`/checkout?productId=${product.id}`)
+                            }
+                            className="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-none border border-red-500 text-red-600 hover:bg-red-50 flex-1 min-w-[100px]"
+                          >
+                            BUY NOW
+                          </button>
 
-                            {/* Remove (Trash) */}
-                            <button
-                              type="button"
-                              onClick={() => handleRemove(product.id)}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100"
-                              aria-label="Remove from wishlist"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                          {/* Remove (Trash) */}
+                          <button
+                            type="button"
+                            onClick={() => handleRemove(product.id)}
+                            className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100"
+                            aria-label="Remove from wishlist"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </div>
                     );
                   })}
-                  </tbody>
-                </table>
+                </div>
                 {/* Pagination */}
                 {wishlistProducts.length > ITEMS_PER_PAGE && (
-                  <div className="flex items-center justify-center gap-2 mt-4 px-4 pb-4">
+                  <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6 px-4 pb-4">
                     <button
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1.5 text-xs border border-gray-300 rounded-none text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 rounded-none text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
                     >
                       Prev
                     </button>
-                    {Array.from({ length: totalPages }).map((_, index) => {
-                      const page = index + 1;
-                      return (
-                        <button
-                          key={page}
-                          type="button"
-                          onClick={() => setCurrentPage(page)}
-                          className={`px-3 py-1.5 text-xs border rounded-none ${
-                            currentPage === page
-                              ? "bg-red-600 text-white border-red-600"
-                              : "border-gray-300 text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
+                    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+                      {Array.from({ length: totalPages }).map((_, index) => {
+                        const page = index + 1;
+                        return (
+                          <button
+                            key={page}
+                            type="button"
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm border rounded-none min-w-[36px] sm:min-w-[40px] ${
+                              currentPage === page
+                                ? "bg-red-600 text-white border-red-600"
+                                : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                            } transition-colors`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
+                    </div>
                     <button
                       type="button"
                       onClick={() =>
@@ -289,13 +408,13 @@ export default function WishlistPage() {
                         )
                       }
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 text-xs border border-gray-300 rounded-none text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 rounded-none text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
                     >
                       Next
                     </button>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         </section>

@@ -18,14 +18,14 @@ export function PrinterScannerSection({ products }: PrinterScannerSectionProps) 
 
   return (
     <>
-      <section className="py-10 bg-white">
-        <div className="section-wrapper px-8 sm:px-12 lg:px-16 xl:px-20">
+      <section className="py-8 sm:py-10 md:py-12 bg-white">
+        <div className="section-wrapper flex flex-col">
           <SectionHeader
             title="Printer & Scanner Deals"
             viewAllLink="/printers-scanners"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+          <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
             {displayedProducts.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (

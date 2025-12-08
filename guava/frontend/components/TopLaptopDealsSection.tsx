@@ -22,12 +22,9 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
 
   return (
     <>
-      <section
-        className="bg-white"
-        style={{ minHeight: "854.95px", paddingTop: "72px", paddingBottom: "72px" }}
-      >
-        <div className="section-wrapper flex flex-col items-center">
-          <div className="w-full max-w-[1320px] flex items-center justify-between mb-12">
+      <section className="py-8 sm:py-10 md:py-12 bg-white">
+        <div className="section-wrapper flex flex-col">
+          <div className="w-full flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="section-heading">Top Laptop Deals</h2>
             <Link
               href="/top-laptop-deals"
@@ -37,10 +34,7 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
             </Link>
           </div>
 
-          <div
-            className="w-full max-w-[1320px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            style={{ minHeight: "710.95px" }}
-          >
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {displayProducts.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (
@@ -65,8 +59,8 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
                     }
                   }}
                   onCardClick={() => router.push(`/product/${product.id}`)}
-                  imageHeight="h-[276px]"
-                  className="w-[312px] mx-auto"
+                  imageHeight="h-[260px]"
+                  className="h-full"
                 />
               );
             })}

@@ -110,4 +110,23 @@ class CartItem(BaseModel):
     def __str__(self):
         return f"CartItem {self.product_id} x{self.quantity}"
 
+class Wishlist(BaseModel):
+    """
+    Wishlist model (session-based or user-based).
+    Stores a single product per row for a given session/user.
+    """
+    session_id = models.CharField(max_length=255, db_index=True)
+    user_id = models.UUIDField(null=True, blank=True)  # If user is logged in
+    product_id = models.UUIDField()  # Reference to products service
+    
+    class Meta:
+        db_table = 'orders_wishlist'
+        unique_together = ['session_id', 'product_id']
+        indexes = [
+            models.Index(fields=['session_id', 'is_active']),
+            models.Index(fields=['user_id', 'is_active']),
+        ]
+    
+    def __str__(self):
+        return f"Wishlist {self.session_id} - Product {self.product_id}"
 
