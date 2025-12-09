@@ -19,6 +19,7 @@ import { shopCategories } from "@/lib/data/categories";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
 import { useCompare } from "@/lib/hooks/use-compare";
+import { CartPopup } from "./CartPopup";
 import {
   type Product,
   hotDeals,
@@ -60,6 +61,7 @@ export function Header() {
   const { count: wishlistCount } = useWishlist();
   const { count: cartCount } = useCart();
   const { count: compareCount } = useCompare();
+  const [showCartPopup, setShowCartPopup] = useState(false);
 
   // Removed useScrollHideHeader() to keep header sticky at all times
 
@@ -209,19 +211,29 @@ export function Header() {
             </button>
 
             {/* Cart */}
-            <button
-              type="button"
-              onClick={() => router.push("/cart")}
+            <div
               className="relative"
-              aria-label="Cart"
+              onMouseEnter={() => setShowCartPopup(true)}
+              onMouseLeave={() => setShowCartPopup(false)}
             >
-              <ShoppingCartIcon className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                  {cartCount > 9 ? "9+" : cartCount}
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => router.push("/cart")}
+                className="relative"
+                aria-label="Cart"
+              >
+                <ShoppingCartIcon className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
+              </button>
+              <CartPopup
+                isOpen={showCartPopup}
+                onClose={() => setShowCartPopup(false)}
+              />
+            </div>
           </div>
         </div>
 
@@ -467,20 +479,30 @@ export function Header() {
               </button>
 
               {/* Cart */}
-              <button
-                type="button"
-                onClick={() => router.push("/cart")}
-                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors relative"
-                aria-label="Cart"
+              <div
+                className="relative"
+                onMouseEnter={() => setShowCartPopup(true)}
+                onMouseLeave={() => setShowCartPopup(false)}
               >
-                <ShoppingCartIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                <span className="text-[10px] sm:text-xs hidden sm:inline">Cart</span>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/cart")}
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors relative"
+                  aria-label="Cart"
+                >
+                  <ShoppingCartIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span className="text-[10px] sm:text-xs hidden sm:inline">Cart</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
+                </button>
+                <CartPopup
+                  isOpen={showCartPopup}
+                  onClose={() => setShowCartPopup(false)}
+                />
+              </div>
             </div>
           </div>
         </div>
