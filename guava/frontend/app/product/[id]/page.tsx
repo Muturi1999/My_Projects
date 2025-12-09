@@ -32,6 +32,7 @@ import {
 } from "@/lib/data/products";
 import { categoryProducts } from "@/lib/data/categoryProducts";
 import { ProductDetailWishlistButton } from "./ProductDetailWishlistButton";
+import { ProductDetailCompareButton } from "./ProductDetailCompareButton";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -739,13 +740,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {/* Wishlist / Compare / Share */}
                   <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-gray-700">
                     <ProductDetailWishlistButton productId={product.id} />
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 hover:text-[#A7E059] transition-colors"
-                    >
-                      <Squares2X2Icon className="h-4 w-4" />
-                      <span>Add to Compare</span>
-                    </button>
+                    <ProductDetailCompareButton productId={product.id} />
                     <div className="flex items-center gap-2 ml-auto">
                       <span className="text-gray-500">Share:</span>
                       {/* Copy link */}

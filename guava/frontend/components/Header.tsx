@@ -18,6 +18,7 @@ import { CategoryNav } from "./CategoryNav";
 import { shopCategories } from "@/lib/data/categories";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
+import { useCompare } from "@/lib/hooks/use-compare";
 import {
   type Product,
   hotDeals,
@@ -58,6 +59,7 @@ export function Header() {
   const router = useRouter();
   const { count: wishlistCount } = useWishlist();
   const { count: cartCount } = useCart();
+  const { count: compareCount } = useCompare();
 
   // Removed useScrollHideHeader() to keep header sticky at all times
 
@@ -178,6 +180,21 @@ export function Header() {
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
+                </span>
+              )}
+            </button>
+
+            {/* Compare */}
+            <button
+              type="button"
+              onClick={() => router.push("/compare")}
+              className="relative"
+              aria-label="Compare"
+            >
+              <ArrowsRightLeftIcon className="h-5 w-5" />
+              {compareCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {compareCount > 9 ? "9+" : compareCount}
                 </span>
               )}
             </button>
@@ -418,15 +435,22 @@ export function Header() {
                 )}
               </button>
 
-              {/* Compare (placeholder) */}
+              {/* Compare */}
               <button
-                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors"
+                type="button"
+                onClick={() => router.push("/compare")}
+                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors relative"
                 aria-label="Compare"
               >
                 <ArrowsRightLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span className="text-[10px] sm:text-xs hidden sm:inline">
                   Compare
                 </span>
+                {compareCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                    {compareCount > 9 ? "9+" : compareCount}
+                  </span>
+                )}
               </button>
 
               {/* User / Account */}
