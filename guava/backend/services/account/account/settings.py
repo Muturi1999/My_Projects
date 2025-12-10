@@ -153,9 +153,11 @@ CACHES = {
     }
 }
 
-# CORS settings
+# CORS settings - uses centralized domain configuration
+from config.env import get_app_config
+app_config = get_app_config()
 CORS_ALLOWED_ORIGINS = [
-    os.getenv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000'),
+    app_config.frontend_url,
 ]
 
 CORS_ALLOW_CREDENTIALS = True

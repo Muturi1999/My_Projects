@@ -32,6 +32,28 @@ class CategoryCommandViewSet(BaseCommandViewSet):
         
         category = serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a category"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Validate slug uniqueness (excluding current instance)
+        slug = serializer.validated_data.get('slug', instance.slug)
+        if slug != instance.slug and Category.objects.filter(slug=slug).exists():
+            raise ValidationException(f"Category with slug '{slug}' already exists")
+        
+        category = serializer.save()
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Soft delete a category"""
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BrandCommandViewSet(BaseCommandViewSet):
@@ -51,6 +73,28 @@ class BrandCommandViewSet(BaseCommandViewSet):
         
         brand = serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a brand"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Validate slug uniqueness (excluding current instance)
+        slug = serializer.validated_data.get('slug', instance.slug)
+        if slug != instance.slug and Brand.objects.filter(slug=slug).exists():
+            raise ValidationException(f"Brand with slug '{slug}' already exists")
+        
+        brand = serializer.save()
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Soft delete a brand"""
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SupplierCommandViewSet(BaseCommandViewSet):
@@ -68,6 +112,28 @@ class SupplierCommandViewSet(BaseCommandViewSet):
         
         supplier = serializer.save()
         return Response(self.get_serializer(supplier).data, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a supplier"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Validate slug uniqueness (excluding current instance)
+        slug = serializer.validated_data.get('slug', instance.slug)
+        if slug != instance.slug and Supplier.objects.filter(slug=slug).exists():
+            raise ValidationException(f"Supplier with slug '{slug}' already exists")
+        
+        supplier = serializer.save()
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Soft delete a supplier"""
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoryBrandCommandViewSet(BaseCommandViewSet):

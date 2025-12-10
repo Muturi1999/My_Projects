@@ -9,7 +9,7 @@ sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
 
 from rest_framework import serializers
 from shared.common.serializers import BaseWriteSerializer
-from .models import Discount, Coupon, PromotionalBanner
+from .models import Discount, Coupon, PromotionalBanner, Deal
 
 
 class DiscountWriteSerializer(BaseWriteSerializer):
@@ -46,6 +46,20 @@ class PromotionalBannerWriteSerializer(BaseWriteSerializer):
             'id', 'title', 'subtitle', 'description', 'image', 'background_color',
             'cta_label', 'cta_href', 'position', 'order', 'start_date', 'end_date',
             'is_active', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class DealWriteSerializer(BaseWriteSerializer):
+    """Serializer for deals"""
+    
+    class Meta:
+        model = Deal
+        fields = [
+            'id', 'name', 'slug', 'description', 'deal_type', 'product_ids',
+            'category_slug', 'brand_slug', 'image', 'badge_text', 'badge_color',
+            'discount_percentage', 'min_discount', 'max_discount',
+            'start_date', 'end_date', 'is_active', 'order', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

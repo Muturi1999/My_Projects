@@ -31,6 +31,7 @@ class DatabaseConfig(BaseSettings):
     class Config:
         env_file = str(ENV_FILE)
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from .env file
 
 
 class RabbitMQConfig(BaseSettings):
@@ -49,6 +50,7 @@ class RabbitMQConfig(BaseSettings):
     class Config:
         env_file = str(ENV_FILE)
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from .env file
 
 
 class RedisConfig(BaseSettings):
@@ -67,6 +69,7 @@ class RedisConfig(BaseSettings):
     class Config:
         env_file = str(ENV_FILE)
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from .env file
 
 
 class AppConfig(BaseSettings):
@@ -74,7 +77,25 @@ class AppConfig(BaseSettings):
     app_name: str = Field("Guava E-Commerce", env="APP_NAME")
     app_env: str = Field("development", env="APP_ENV")
     app_debug: bool = Field(True, env="APP_DEBUG")
-    api_gateway_url: str = Field("http://localhost:8000", env="API_GATEWAY_URL")
+    
+    # Domain and Host Configuration (centralized - change here for production)
+    domain: str = Field("localhost", env="DOMAIN")
+    api_gateway_port: int = Field(8000, env="API_GATEWAY_PORT")
+    frontend_port: int = Field(3000, env="FRONTEND_PORT")
+    
+    # Derived URLs (automatically built from domain and ports)
+    @property
+    def api_gateway_url(self) -> str:
+        """API Gateway URL - change DOMAIN in .env for production"""
+        protocol = "https" if self.app_env == "production" else "http"
+        return f"{protocol}://{self.domain}:{self.api_gateway_port}"
+    
+    @property
+    def frontend_url(self) -> str:
+        """Frontend URL - change DOMAIN in .env for production"""
+        protocol = "https" if self.app_env == "production" else "http"
+        return f"{protocol}://{self.domain}:{self.frontend_port}"
+    
     api_version: str = Field("v1", env="API_VERSION")
     
     # Service ports
@@ -85,10 +106,12 @@ class AppConfig(BaseSettings):
     inventory_service_port: int = Field(8005, env="INVENTORY_SERVICE_PORT")
     promotions_service_port: int = Field(8006, env="PROMOTIONS_SERVICE_PORT")
     reports_service_port: int = Field(8007, env="REPORTS_SERVICE_PORT")
+    account_service_port: int = Field(8008, env="ACCOUNT_SERVICE_PORT")
     
     class Config:
         env_file = str(ENV_FILE)
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from .env file
 
 
 @lru_cache()
@@ -117,19 +140,21 @@ def get_database_config(service_name: str) -> DatabaseConfig:
         In local development we provide safe defaults so that the service can
         start even when per-service env vars are not defined.
         """
-        host: str = Field("localhost", env=f"{prefix}_DB_HOST")
-        port: int = Field(5432, env=f"{prefix}_DB_PORT")
-        name: str = Field(f"{prefix.lower()}_db", env=f"{prefix}_DB_NAME")
-        user: str = Field(os.getenv("DB_USER", "mike"), env=f"{prefix}_DB_USER")
-        password: str = Field(os.getenv("DB_PASSWORD", ""), env=f"{prefix}_DB_PASSWORD")
+        host: str = Field(default="localhost", validation_alias=f"{prefix}_DB_HOST")
+        port: int = Field(default=5432, validation_alias=f"{prefix}_DB_PORT")
+        name: str = Field(default=f"{prefix.lower()}_db", validation_alias=f"{prefix}_DB_NAME")
+        user: str = Field(default=os.getenv("DB_USER", "mike"), validation_alias=f"{prefix}_DB_USER")
+        password: str = Field(default=os.getenv("DB_PASSWORD", ""), validation_alias=f"{prefix}_DB_PASSWORD")
         
         @property
         def url(self) -> str:
             return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
         
-        class Config:
-            env_file = str(ENV_FILE)
-            case_sensitive = False
+        model_config = {
+            "env_file": str(ENV_FILE),
+            "case_sensitive": False,
+            "extra": "ignore"
+        }
     
     return ServiceDatabaseConfig()
 

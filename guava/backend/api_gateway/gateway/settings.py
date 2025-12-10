@@ -107,22 +107,25 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CORS settings
+# CORS settings - uses centralized domain configuration
 CORS_ALLOWED_ORIGINS = [
-    os.getenv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000'),
+    app_config.frontend_url,
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Service URLs
+# Service URLs - uses centralized domain configuration
+# Change DOMAIN in .env file to switch from localhost to production domain
+protocol = "https" if app_config.app_env == "production" else "http"
 SERVICE_URLS = {
-    'products': f'http://localhost:{app_config.products_service_port}',
-    'catalog': f'http://localhost:{app_config.catalog_service_port}',
-    'cms': f'http://localhost:{app_config.cms_service_port}',
-    'orders': f'http://localhost:{app_config.orders_service_port}',
-    'inventory': f'http://localhost:{app_config.inventory_service_port}',
-    'promotions': f'http://localhost:{app_config.promotions_service_port}',
-    'reports': f'http://localhost:{app_config.reports_service_port}',
+    'products': f'{protocol}://{app_config.domain}:{app_config.products_service_port}',
+    'catalog': f'{protocol}://{app_config.domain}:{app_config.catalog_service_port}',
+    'cms': f'{protocol}://{app_config.domain}:{app_config.cms_service_port}',
+    'orders': f'{protocol}://{app_config.domain}:{app_config.orders_service_port}',
+    'inventory': f'{protocol}://{app_config.domain}:{app_config.inventory_service_port}',
+    'promotions': f'{protocol}://{app_config.domain}:{app_config.promotions_service_port}',
+    'reports': f'{protocol}://{app_config.domain}:{app_config.reports_service_port}',
+    'account': f'{protocol}://{app_config.domain}:{app_config.account_service_port}',
 }
 
 

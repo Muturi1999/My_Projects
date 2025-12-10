@@ -14,7 +14,7 @@ import {
   RadioIcon,
   ChartBarIcon,
 } from "@heroicons/react/24/outline";
-import { shopCategories } from "@/lib/data/categories";
+import { useCategories } from "@/lib/hooks/useCategories";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   laptop: ComputerDesktopIcon,
@@ -32,9 +32,26 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function CategoryGrid() {
+  const { categories, isLoading } = useCategories();
+  
   // Split into two rows of 6 categories each
-  const firstRow = shopCategories.slice(0, 6);
-  const secondRow = shopCategories.slice(6, 12);
+  const firstRow = categories.slice(0, 6);
+  const secondRow = categories.slice(6, 12);
+  
+  if (isLoading) {
+    return (
+      <section className="bg-white min-h-[400px] sm:min-h-[500px] md:min-h-[604px]">
+        <div className="section-wrapper py-6 sm:py-8 md:py-12">
+          <h2 className="section-heading mb-4 sm:mb-6 md:mb-8 text-left text-xl sm:text-2xl">Shop by Category</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="h-48 bg-gray-100 animate-pulse rounded" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white min-h-[400px] sm:min-h-[500px] md:min-h-[604px]">
