@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { Squares2X2Icon, ListBulletIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon, ListBulletIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
 import { shopCategories } from "@/lib/data/categories";
 import { categoryProducts } from "@/lib/data/categoryProducts";
@@ -63,13 +63,13 @@ function ProductCard({
     return (
       <Card className="group p-4 hover:shadow-lg transition-all border border-gray-200 rounded-none">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative w-full md:w-48 h-48 bg-white border border-gray-200 flex items-center justify-center">
+          <div className="relative w-full md:w-48 h-40 sm:h-48 bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
             <Image
               src={product.image}
               alt={product.name}
               fill
-              sizes="(max-width: 768px) 100vw, 200px"
-              className="object-contain p-4"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 200px, 200px"
+              className="object-contain p-3 sm:p-4"
             />
             {/* Wishlist Hover Icon */}
             <WishlistIcon
@@ -79,24 +79,24 @@ function ProductCard({
             />
           </div>
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-start justify-between mb-2 gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-base sm:text-lg mb-2 line-clamp-2">{product.name}</h3>
+                <div className="flex items-center gap-1 mb-2 flex-wrap">
                   {Array.from({ length: Math.floor(product.rating) }).map((_, i) => (
-                    <StarIcon key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                    <StarIcon key={i} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-400 fill-current" />
                   ))}
-                  <span className="text-sm text-gray-600 ml-1">({product.ratingCount || 0})</span>
+                  <span className="text-xs sm:text-sm text-gray-600 ml-1">({product.ratingCount || 0})</span>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-col items-end gap-2 flex-shrink-0">
                 {product.hot && <Badge variant="destructive" className="text-xs">HOT</Badge>}
-                <span className="inline-flex items-center bg-[#A7E059] text-black px-2 py-1 rounded-full text-xs font-semibold">
+                <span className="inline-flex items-center bg-[#A7E059] text-black px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                   {discountPercentage}% OFF
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600 mb-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs sm:text-sm text-gray-600 mb-3">
               {product.processor && <div><span className="font-medium">Processor: </span>{product.processor}</div>}
               {product.ram && <div><span className="font-medium">RAM: </span>{product.ram}</div>}
               {product.storage && <div><span className="font-medium">SSD/Storage: </span>{product.storage}</div>}
@@ -104,24 +104,25 @@ function ProductCard({
               {product.os && <div><span className="font-medium">OS: </span>{product.os}</div>}
               {product.generation && <div><span className="font-medium">Generation: </span>{product.generation}</div>}
             </div>
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
                 {product.stock !== undefined && (
                   <div className="mb-2">
-                    <span className="text-sm text-[#A7E059] font-medium">In stock</span>
+                    <span className="text-xs sm:text-sm text-[#A7E059] font-medium">In stock</span>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-500 line-through">
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <span className="text-xs sm:text-sm text-gray-500 line-through">
                     Ksh {product.originalPrice.toLocaleString()}
                   </span>
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
                     Ksh {product.price.toLocaleString()}
                   </span>
                 </div>
               </div>
               <AddToCartButton
                 onClick={() => router.push(`/product/${product.id}`)}
+                className="w-full sm:w-auto"
               />
             </div>
           </div>
@@ -162,16 +163,16 @@ function ProductCard({
            />
         </div>
       </div>
-      <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-semibold text-base mb-2 line-clamp-2 min-h-[3rem]">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col">
+        <h3 className="font-semibold text-sm sm:text-base mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
           {product.name}
         </h3>
-        <div className="flex items-center gap-1 mb-3">
+        <div className="flex items-center gap-1 mb-2 sm:mb-3">
           {Array.from({ length: Math.floor(product.rating) }).map((_, i) => (
-            <StarIcon key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+            <StarIcon key={i} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-400 fill-current" />
           ))}
         </div>
-        <div className="space-y-1.5 mb-4 text-sm text-gray-600">
+        <div className="space-y-1 sm:space-y-1.5 mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
           {product.processor && (
             <div>
               <span className="font-medium">Processor: </span>
@@ -210,16 +211,16 @@ function ProductCard({
           )}
         </div>
         {product.stock !== undefined && (
-          <div className="mb-3">
-            <span className="text-sm text-[#A7E059] font-medium">In stock</span>
+          <div className="mb-2 sm:mb-3">
+            <span className="text-xs sm:text-sm text-[#A7E059] font-medium">In stock</span>
           </div>
         )}
-        <div className="mb-4">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 line-through">
+        <div className="mb-3 sm:mb-4">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <span className="text-xs sm:text-sm text-gray-500 line-through">
             Ksh {product.originalPrice.toLocaleString()}
           </span>
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-lg sm:text-xl font-bold text-gray-900">
             Ksh {product.price.toLocaleString()}
           </span>
           </div>
@@ -238,15 +239,20 @@ function ProductCard({
 
 export default function CategoryPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const slug = params.slug as string;
   const category = shopCategories.find((cat) => cat.slug === slug);
+
+  // Optional search query from the global header search bar
+  const searchQuery = (searchParams.get("q") || "").trim().toLowerCase();
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("Most Popular");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [filters, setFilters] = useState<any>({});
+  const [showFilters, setShowFilters] = useState(false);
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
 
@@ -275,6 +281,20 @@ export default function CategoryPage() {
   // Apply filters and sorting
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = [...categoryProductsList];
+
+    // Apply free-text search within this category when ?q= is present
+    if (searchQuery) {
+      filtered = filtered.filter((p) => {
+        const name = (p.name || "").toLowerCase();
+        const brand = ((p as any).brand || "").toLowerCase();
+        const categoryName = (p.category || "").toLowerCase();
+        return (
+          name.includes(searchQuery) ||
+          brand.includes(searchQuery) ||
+          categoryName.includes(searchQuery)
+        );
+      });
+    }
 
     // Apply filters
     if (filters.availability?.inStock) {
@@ -438,7 +458,7 @@ export default function CategoryPage() {
     }
 
     return filtered;
-  }, [categoryProductsList, filters, sortBy]);
+  }, [categoryProductsList, filters, sortBy, searchQuery]);
 
   const totalPages = Math.ceil(filteredAndSortedProducts.length / productsPerPage);
   const paginatedProducts = filteredAndSortedProducts.slice(
@@ -534,9 +554,9 @@ export default function CategoryPage() {
       <Header />
       <main className="flex-1">
         {/* Breadcrumb */}
-        <section className="bg-gray-50 py-4">
+        <section className="bg-gray-50 py-3 sm:py-4">
           <div className="section-wrapper">
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
               <Link
                 href="/"
                 className="text-gray-600 hover:text-[#A7E059] transition-colors"
@@ -544,31 +564,67 @@ export default function CategoryPage() {
                 Home
               </Link>
               <span className="text-gray-400">/</span>
-              <span className="text-gray-900 font-medium">{category.name}</span>
+              <span className="text-gray-900 font-medium truncate">{category.name}</span>
             </div>
           </div>
         </section>
 
         {/* Main Content */}
-        <section className="py-8 bg-white">
+        <section className="py-4 sm:py-6 md:py-8 bg-white">
           <div className="section-wrapper">
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Left Sidebar - Filters */}
-              <aside className="lg:w-64 flex-shrink-0">
+            <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+              {/* Left Sidebar - Filters (Desktop) */}
+              <aside className="hidden lg:block lg:w-64 flex-shrink-0">
                 <CategoryFilters categorySlug={slug} onFilterChange={handleFilterChange} />
               </aside>
 
+              {/* Mobile Filter Button */}
+              <div className="lg:hidden mb-4">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 w-full sm:w-auto"
+                >
+                  <FunnelIcon className="h-5 w-5" />
+                  <span>Filters</span>
+                  {activeFilters.length > 0 && (
+                    <span className="bg-[#A7E059] text-white rounded-full px-2 py-0.5 text-xs font-semibold">
+                      {activeFilters.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Mobile Filters Drawer */}
+              {showFilters && (
+                <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}>
+                  <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                    <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
+                      <h2 className="text-lg font-semibold">Filters</h2>
+                      <button
+                        onClick={() => setShowFilters(false)}
+                        className="p-2 hover:bg-gray-100 rounded-md"
+                      >
+                        <XMarkIcon className="h-6 w-6" />
+                      </button>
+                    </div>
+                    <div className="p-4">
+                      <CategoryFilters categorySlug={slug} onFilterChange={handleFilterChange} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Main Content Area */}
-              <div className="flex-1">
-                <h1 className="section-heading mb-6">{category.name}</h1>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">{category.name}</h1>
                 {/* Top Bar - Sort, View, Results */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-sm text-gray-600">Sort by:</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
+                    <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#A7E059]"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A7E059]"
                     >
                       {sortOptions.map((option) => (
                         <option key={option} value={option}>
@@ -577,42 +633,45 @@ export default function CategoryPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-md overflow-hidden">
+                  <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                    <div className="flex items-center gap-1 sm:gap-2 border border-gray-300 rounded-md overflow-hidden">
                       <button
                         onClick={() => setViewMode("grid")}
-                        className={`p-2 ${viewMode === "grid" ? "bg-[#A7E059] text-white" : "bg-white text-gray-600"}`}
+                        className={`p-2 sm:p-2 ${viewMode === "grid" ? "bg-[#A7E059] text-white" : "bg-white text-gray-600"}`}
+                        aria-label="Grid view"
                       >
-                        <Squares2X2Icon className="h-5 w-5" />
+                        <Squares2X2Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </button>
                       <button
                         onClick={() => setViewMode("list")}
-                        className={`p-2 ${viewMode === "list" ? "bg-[#A7E059] text-white" : "bg-white text-gray-600"}`}
+                        className={`p-2 sm:p-2 ${viewMode === "list" ? "bg-[#A7E059] text-white" : "bg-white text-gray-600"}`}
+                        aria-label="List view"
                       >
-                        <ListBulletIcon className="h-5 w-5" />
+                        <ListBulletIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </button>
                     </div>
-                    <span className="text-sm text-gray-600">
-                      {filteredAndSortedProducts.length.toLocaleString()} Results found
+                    <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                      {filteredAndSortedProducts.length.toLocaleString()} Results
                     </span>
                   </div>
                 </div>
 
                 {/* Active Filters */}
                 {activeFilters.length > 0 && (
-                  <div className="flex items-center gap-2 mb-6 flex-wrap">
-                    <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+                  <div className="flex items-center gap-2 mb-4 sm:mb-6 flex-wrap">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Active Filters:</span>
                     {activeFilters.map((filter) => (
                       <div
                         key={filter}
-                        className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-sm"
+                        className="flex items-center gap-1 bg-gray-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm"
                       >
-                        <span>{filter}</span>
+                        <span className="truncate max-w-[120px] sm:max-w-none">{filter}</span>
                         <button
                           onClick={() => removeFilter(filter)}
-                          className="ml-1 hover:text-red-600"
+                          className="ml-1 hover:text-red-600 flex-shrink-0"
+                          aria-label={`Remove ${filter} filter`}
                         >
-                          <XMarkIcon className="h-4 w-4" />
+                          <XMarkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                         </button>
                       </div>
                     ))}
@@ -625,8 +684,8 @@ export default function CategoryPage() {
                     <div
                       className={
                         viewMode === "grid"
-                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
-                          : "space-y-4 mb-8"
+                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8"
+                          : "space-y-3 sm:space-y-4 mb-6 sm:mb-8"
                       }
                     >
             {paginatedProducts.map((product) => {
@@ -656,13 +715,14 @@ export default function CategoryPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto pb-2">
                         <button
                           onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                           disabled={currentPage === 1}
-                          className="p-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="p-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex-shrink-0"
+                          aria-label="Previous page"
                         >
-                          <ChevronLeftIcon className="h-5 w-5" />
+                          <ChevronLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                         </button>
                         {Array.from({ length: Math.min(totalPages, 6) }, (_, i) => {
                           let pageNum;
@@ -679,7 +739,7 @@ export default function CategoryPage() {
                             <button
                               key={pageNum}
                               onClick={() => setCurrentPage(pageNum)}
-                              className={`px-4 py-2 border rounded-md ${
+                              className={`px-3 sm:px-4 py-1.5 sm:py-2 border rounded-md text-xs sm:text-sm flex-shrink-0 ${
                                 currentPage === pageNum
                                   ? "bg-[#A7E059] text-white border-[#A7E059]"
                                   : "border-gray-300 hover:bg-gray-50"
@@ -692,16 +752,17 @@ export default function CategoryPage() {
                         <button
                           onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                           disabled={currentPage === totalPages}
-                          className="p-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="p-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex-shrink-0"
+                          aria-label="Next page"
                         >
-                          <ChevronRightIcon className="h-5 w-5" />
+                          <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                         </button>
                       </div>
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-600 text-lg">No products found matching your filters.</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <p className="text-gray-600 text-sm sm:text-base md:text-lg">No products found matching your filters.</p>
                   </div>
                 )}
               </div>

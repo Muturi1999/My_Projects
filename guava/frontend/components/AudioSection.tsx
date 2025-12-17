@@ -24,6 +24,23 @@ export function AudioSection() {
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
 
+  // Map product names to their corresponding image filenames in public folder
+  const productsWithLocalImages = productCards.map((product) => {
+    const imageMap: { [key: string]: string } = {
+      "Sony WH-1000XM5": "/Sony WH-1000XM5.png",
+      "Apple AirPods Pro (2nd Gen)": "/Apple AirPods Pro (2nd Gen).png",
+      "JBL Flip 6 Portable Speaker": "/JBL Flip 6 Portable Speaker.png",
+      "JBL Tune 510BT": "/JBL.png",
+    };
+    const localSrc = imageMap[product.name] || `/${product.name}.png`; // Use mapping or default
+
+    return {
+      ...product,
+      image: localSrc,
+      images: [localSrc],
+    };
+  });
+
   return (
     <>
       <section className="py-8 sm:py-10 md:py-12 bg-white">
@@ -53,7 +70,7 @@ export function AudioSection() {
 
             {/* Product Cards */}
             <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {productCards.map((product, index) => {
+              {productsWithLocalImages.map((product, index) => {
                 const isInWishlist = wishlistIds.includes(product.id);
                 return (
                   <ProductCard

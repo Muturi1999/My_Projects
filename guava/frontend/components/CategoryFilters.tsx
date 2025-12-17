@@ -13,9 +13,11 @@ interface CategoryFiltersProps {
 
 export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFiltersProps) {
   const config = categoryFilterConfigs[categorySlug] || categoryFilterConfigs["laptops-computers"];
-  
+
+  // Start with NO availability filter applied by default so that
+  // the category page initially shows all products unfiltered.
   const [availability, setAvailability] = useState({
-    inStock: true,
+    inStock: false,
     outOfStock: false,
   });
   const [priceRange, setPriceRange] = useState([0, 500]);
@@ -138,8 +140,8 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
 
     return (
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">{title}</h3>
-        <div className={`space-y-2 ${maxHeight ? maxHeight + " overflow-y-auto" : ""}`}>
+        <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">{title}</h3>
+        <div className={`space-y-1.5 sm:space-y-2 ${maxHeight ? maxHeight + " overflow-y-auto" : ""}`}>
           {items.map((item) => {
             const itemName = typeof item === "string" ? item : item.name || item.label || "";
             const itemValue = typeof item === "string" ? item : item.value || item.name || "";
@@ -154,7 +156,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
                 />
                 <Label
                   htmlFor={`${title}-${itemValue}`}
-                  className="text-sm font-normal cursor-pointer flex-1"
+                  className="text-xs sm:text-sm font-normal cursor-pointer flex-1"
                 >
                   {itemName}
                   {count !== undefined && <span className="text-gray-500"> ({count})</span>}
@@ -168,12 +170,12 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
   };
 
   return (
-    <div className="w-full lg:w-64 space-y-6 pr-4">
+    <div className="w-full lg:w-64 space-y-4 sm:space-y-6 pr-0 sm:pr-4">
       {/* Availability */}
       {config.availability && (
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">AVAILABILITY</h3>
-          <div className="space-y-2">
+          <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">AVAILABILITY</h3>
+          <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="in-stock"
@@ -182,7 +184,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
                   setAvailability((prev) => ({ ...prev, inStock: !!checked }))
                 }
               />
-              <Label htmlFor="in-stock" className="text-sm font-normal cursor-pointer">
+              <Label htmlFor="in-stock" className="text-xs sm:text-sm font-normal cursor-pointer">
                 In stock <span className="text-gray-500">(1,200)</span>
               </Label>
             </div>
@@ -194,7 +196,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
                   setAvailability((prev) => ({ ...prev, outOfStock: !!checked }))
                 }
               />
-              <Label htmlFor="out-of-stock" className="text-sm font-normal cursor-pointer">
+              <Label htmlFor="out-of-stock" className="text-xs sm:text-sm font-normal cursor-pointer">
                 Out of stock <span className="text-gray-500">(25)</span>
               </Label>
             </div>
@@ -205,9 +207,9 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
       {/* Price Range */}
       {config.priceRange && (
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">PRICE RANGE</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-sm">
+          <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">PRICE RANGE</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-gray-600">Min price</span>
               <span className="font-medium">Ksh {(priceRange[0] * 1000).toLocaleString()}</span>
             </div>
@@ -219,7 +221,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
               step={1}
               className="w-full"
             />
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-gray-600">Max price</span>
               <span className="font-medium">
                 Ksh {priceRange[1] === 500 ? "500,000+" : (priceRange[1] * 1000).toLocaleString()}

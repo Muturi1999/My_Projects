@@ -17,6 +17,24 @@ export function AccessoriesSection() {
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
 
+  // Map product names to their corresponding image filenames in public folder
+  const imageMap: { [key: string]: string } = {
+    "Logitech MK270/MK295 Wireless Keyboard and Mouse": "/Logitech MK270-MK295.png",
+    "TP-Link 8/16-port switches": "/TP-Link 8-16-port switches.png",
+    "TP-Link Archer C6 AC1200": "/TP-Link Archer C6 AC1200.png",
+  };
+
+  // Map product cards to use local images
+  const productsWithLocalImages = productCards.map((product, index) => {
+    const localSrc = imageMap[product.name] || product.image; // Use mapping or fallback to original
+
+    return {
+      ...product,
+      image: localSrc,
+      images: [localSrc],
+    };
+  });
+
   return (
     <>
       <section className="py-8 sm:py-10 md:py-12 bg-white">
@@ -45,7 +63,7 @@ export function AccessoriesSection() {
 
             {/* Product Cards */}
             <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {productCards.map((product, index) => {
+              {productsWithLocalImages.map((product, index) => {
                 const isInWishlist = wishlistIds.includes(product.id);
                 return (
                   <ProductCard

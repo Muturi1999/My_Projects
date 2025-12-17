@@ -582,9 +582,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <section className="bg-gray-50 py-4">
+        <section className="bg-gray-50 py-3 sm:py-4">
           <div className="section-wrapper">
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
               <Link
                 href="/"
                 className="text-gray-600 hover:text-[#A7E059] transition-colors"
@@ -592,20 +592,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 Home
               </Link>
               <span className="text-gray-400">/</span>
-              <span className="text-gray-900 font-medium">
+              <span className="text-gray-900 font-medium truncate">
                 {detailedProduct.category}
               </span>
               <span className="text-gray-400">/</span>
-              <span className="text-gray-900 font-semibold">
+              <span className="text-gray-900 font-semibold truncate">
                 {detailedProduct.name}
               </span>
             </div>
           </div>
         </section>
 
-        <section className="py-8 md:py-12 bg-white">
+        <section className="py-4 sm:py-6 md:py-8 lg:py-12 bg-white">
           <div className="section-wrapper">
-            <div className="grid gap-8 lg:grid-cols-[3fr_2fr] lg:gap-10">
+            <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
               {/* Left column: gallery */}
               <div className="space-y-6">
                 <ProductGallery
@@ -625,23 +625,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 )}
 
                 <div className="space-y-1">
-                  <h1 className="font-public-sans text-2xl md:text-3xl font-semibold text-gray-900">
+                  <h1 className="font-public-sans text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 leading-tight">
                     {detailedProduct.name}
                   </h1>
                   {(detailedProduct as any).model && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       {(detailedProduct as any).model}
                     </p>
                   )}
                   {(detailedProduct as any).sku && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-[10px] sm:text-xs text-gray-400">
                       SKU: {(detailedProduct as any).sku}
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex items-center gap-1 text-yellow-400">
+                <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm flex-wrap">
+                  <div className="flex items-center gap-0.5 sm:gap-1 text-yellow-400">
                     ★★★★★
                   </div>
                   <span className="text-gray-500">
@@ -650,15 +650,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Pricing block (prices only) */}
-                <div className="bg-gray-50 rounded-none p-6 space-y-3 border border-gray-200">
-                  <div className="flex flex-wrap items-baseline gap-4">
-                    <span className="text-lg text-gray-500 line-through">
+                <div className="bg-gray-50 rounded-none p-4 sm:p-5 md:p-6 space-y-2 sm:space-y-3 border border-gray-200">
+                  <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 md:gap-4">
+                    <span className="text-base sm:text-lg text-gray-500 line-through">
                       KSh {detailedProduct.originalPrice.toLocaleString()}
                     </span>
-                    <span className="text-3xl font-bold text-red-600">
+                    <span className="text-2xl sm:text-3xl font-bold text-red-600">
                       KSh {detailedProduct.price.toLocaleString()}
                     </span>
-                    <Badge className="bg-red-500 text-white">
+                    <Badge className="bg-red-500 text-white text-xs sm:text-sm">
                       {Math.round(
                         ((detailedProduct.originalPrice - detailedProduct.price) /
                           detailedProduct.originalPrice) *
@@ -667,7 +667,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       % OFF
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     You save{" "}
                     <span className="font-semibold">
                       KSh {saving.toLocaleString()}
@@ -676,11 +676,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Stock & key hardware features directly under price */}
-                <div className="space-y-2 text-sm text-gray-700">
+                <div className="space-y-2 text-xs sm:text-sm text-gray-700">
                   <p className="text-green-600 font-semibold">
                     In stock - order now, ready for delivery
                   </p>
-                  <ul className="list-disc list-inside space-y-0.5">
+                  <ul className="list-disc list-inside space-y-0.5 text-xs sm:text-sm">
                     {detailedProduct.processor && (
                       <li>Processor: {detailedProduct.processor}</li>
                     )}
@@ -699,29 +699,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Quantity + add to cart / buy now / wishlist & share row */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {/* Quantity and Add to Cart on same row */}
-                  <div className="flex items-center gap-4">
-                    <div className="inline-flex items-center border border-gray-300 rounded-none">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                    <div className="inline-flex items-center border border-gray-300 rounded-none self-center sm:self-auto">
                       <button
                         type="button"
-                        className="px-3 py-2 text-gray-700 hover:bg-gray-100"
+                        className="px-2.5 sm:px-3 py-2 text-gray-700 hover:bg-gray-100"
+                        aria-label="Decrease quantity"
                       >
                         -
                       </button>
-                      <span className="px-4 py-2 text-sm text-gray-900 border-x border-gray-300">
+                      <span className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 border-x border-gray-300 min-w-[2.5rem] text-center">
                         1
                       </span>
                       <button
                         type="button"
-                        className="px-3 py-2 text-gray-700 hover:bg-gray-100"
+                        className="px-2.5 sm:px-3 py-2 text-gray-700 hover:bg-gray-100"
+                        aria-label="Increase quantity"
                       >
                         +
                       </button>
                     </div>
                     <Button
                       variant="outline"
-                      className="border border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700 text-sm md:text-base px-8 py-3 rounded-none flex-1"
+                      className="border border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs sm:text-sm md:text-base px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-none flex-1"
                     >
                       ADD TO CART
                     </Button>
@@ -732,16 +734,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     href={`/checkout?productId=${product.id}`}
                     className="block w-full"
                   >
-                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-sm md:text-base py-3 rounded-none">
+                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm md:text-base py-2.5 sm:py-3 rounded-none">
                       BUY NOW
                     </Button>
                   </Link>
 
                   {/* Wishlist / Compare / Share */}
-                  <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-gray-700">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700">
                     <ProductDetailWishlistButton productId={product.id} />
                     <ProductDetailCompareButton productId={product.id} />
-                    <div className="flex items-center gap-2 ml-auto">
+                    <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto sm:ml-auto justify-center sm:justify-start">
                       <span className="text-gray-500">Share:</span>
                       {/* Copy link */}
                       <button
@@ -816,36 +818,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Service information & contact options */}
-                <div className="space-y-3 text-sm">
+                <div className="space-y-3 text-xs sm:text-sm">
                   <div className="border border-gray-200 rounded-none divide-y divide-gray-200">
-                    <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
                       <div className="flex items-center gap-2">
-                        <TruckIcon className="h-5 w-5 text-gray-600" />
-                        <span className="font-medium text-gray-800">
+                        <TruckIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">
                           Delivery
                         </span>
                       </div>
-                      <span className="text-gray-600 text-right">
+                      <span className="text-gray-600 text-left sm:text-right text-xs sm:text-sm">
                         {detailedProduct.deliveryTime ??
                           "Same day delivery (within Nairobi)"}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
                       <div className="flex items-center gap-2">
-                        <ArrowPathIcon className="h-5 w-5 text-gray-600" />
-                        <span className="font-medium text-gray-800">
+                        <ArrowPathIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">
                           Easy Returns
                         </span>
                       </div>
-                      <span className="text-gray-600 text-right">
+                      <span className="text-gray-600 text-left sm:text-right text-xs sm:text-sm">
                         {detailedProduct.returnPolicyNote ??
                           "Easy returns within 7 days"}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
                       <div className="flex items-center gap-2">
-                        <ShieldCheckIcon className="h-5 w-5 text-gray-600" />
-                        <span className="font-medium text-gray-800">
+                        <ShieldCheckIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">
                           Warranty
                         </span>
                       </div>
@@ -856,24 +858,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     </div>
                   </div>
                   {/* Contact Options (WhatsApp / Call) */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
                     <a
                       href={`https://wa.me/254710505234?text=Hi, I'm interested in ${encodeURIComponent(
                         detailedProduct.name
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-none transition-colors border border-green-600"
+                      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold text-xs sm:text-sm px-4 sm:px-6 py-2.5 sm:py-3 rounded-none transition-colors border border-green-600"
                     >
-                      <ChatBubbleLeftRightIcon className="h-5 w-5" />
-                      Chat on WhatsApp
+                      <ChatBubbleLeftRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="whitespace-nowrap">Chat on WhatsApp</span>
                     </a>
                     <a
                       href="tel:+254710505234"
-                      className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-none transition-colors border border-blue-600"
+                      className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm px-4 sm:px-6 py-2.5 sm:py-3 rounded-none transition-colors border border-blue-600"
                     >
-                      <PhoneIcon className="h-5 w-5" />
-                      Call Us
+                      <PhoneIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="whitespace-nowrap">Call Us</span>
                     </a>
                   </div>
                 </div>
@@ -883,17 +885,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </section>
 
         {/* Product overview with dynamic add-ons */}
-        <section className="py-8 bg-white">
-          <div className="section-wrapper grid gap-8 lg:grid-cols-[3fr_2fr] lg:gap-10 items-start">
+        <section className="py-6 sm:py-8 md:py-10 bg-white">
+          <div className="section-wrapper grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-10 items-start">
             {/* Left: description header, product name, paragraph, supporting image */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 uppercase tracking-wide">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 uppercase tracking-wide">
                 Description
               </h3>
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
                 {detailedProduct.name}
               </h2>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 {detailedProduct.longDescription ||
                   detailedProduct.description ||
                   detailedProduct.descriptionList?.join(" ") ||

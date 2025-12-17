@@ -20,6 +20,26 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
 
   const displayProducts = products.slice(0, 4);
 
+  // Map laptop product names to actual image filenames in /public folder
+  const getLaptopImagePath = (productName: string): string => {
+    const imageMap: Record<string, string> = {
+      "HP Pavilion 15 i5": "/HP Pavilion.png",
+      "Apple MacBook Air M2": "/Apple Macbook Air M2.png",
+      "Dell XPS 13 9310": "/DELL XPS.png",
+      "Lenovo IdeaPad 3": "/Lenovo Ideapad.png",
+    };
+    return imageMap[productName] || `/${productName}.png`;
+  };
+
+  const laptopsWithLocalImages = displayProducts.map((product) => {
+    const localSrc = getLaptopImagePath(product.name);
+    return {
+      ...product,
+      image: localSrc,
+      images: [localSrc],
+    };
+  });
+
   return (
     <>
       <section className="py-8 sm:py-10 md:py-12 bg-white">
@@ -35,7 +55,7 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
           </div>
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {displayProducts.map((product, index) => {
+            {laptopsWithLocalImages.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (
                 <ProductCard

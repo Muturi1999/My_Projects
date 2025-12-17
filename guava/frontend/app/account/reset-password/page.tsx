@@ -61,52 +61,52 @@ export default function ResetPasswordPage() {
       
       {/* Breadcrumbs */}
       <div className="bg-gray-50 border-b border-gray-200">
-        <div className="section-wrapper py-3">
-          <nav className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="section-wrapper py-2 sm:py-3">
+          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600 flex-wrap">
             <Link href="/" className="hover:text-[#98C243] transition-colors">
               Home
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <Link href="/account" className="hover:text-[#98C243] transition-colors">
               User Account
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <Link href="/account" className="hover:text-[#98C243] transition-colors">
               Sign In
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <Link href="/account/forgot-password" className="hover:text-[#98C243] transition-colors">
               Forget Password
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="text-gray-900 font-medium">Reset Password</span>
           </nav>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 py-8 md:py-12">
+      <div className="flex-1 bg-gray-50 py-4 sm:py-6 md:py-8 lg:py-12 px-4 sm:px-6">
         <div className="section-wrapper">
           <div className="max-w-md mx-auto">
             {/* Card */}
-            <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
               {/* Title */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Reset Password
               </h1>
               
               {/* Instruction Text */}
-              <p className="text-gray-600 mb-6">
+              <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
                 Create a new password to secure your account. Ensure it&apos;s something strong and easy for you to remember.
               </p>
 
               {/* Form */}
-              <form onSubmit={handleResetPassword} className="space-y-5">
+              <form onSubmit={handleResetPassword} className="space-y-4 sm:space-y-5">
                 {/* Password */}
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
                   >
                     Password
                   </label>
@@ -117,19 +117,19 @@ export default function ResetPasswordPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full pr-10"
+                      className="w-full pr-10 text-xs sm:text-sm"
                       placeholder="8+ characters"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5" />
+                        <EyeSlashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <EyeIcon className="h-5 w-5" />
+                        <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </button>
                   </div>
@@ -139,7 +139,7 @@ export default function ResetPasswordPage() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
                   >
                     Confirm Password
                   </label>
@@ -150,19 +150,19 @@ export default function ResetPasswordPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full pr-10"
+                      className="w-full pr-10 text-xs sm:text-sm"
                       placeholder="Confirm your password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                       aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
                       {showConfirmPassword ? (
-                        <EyeSlashIcon className="h-5 w-5" />
+                        <EyeSlashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <EyeIcon className="h-5 w-5" />
+                        <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </button>
                   </div>
@@ -172,10 +172,10 @@ export default function ResetPasswordPage() {
                 <Button
                   type="submit"
                   disabled={isResetting}
-                  className="w-full bg-[#98C243] hover:bg-[#7FA836] text-white py-3 flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#98C243] hover:bg-[#7FA836] text-white py-2.5 sm:py-3 flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm md:text-base"
                 >
                   {isResetting ? "Resetting..." : "RESET PASSWORD"}
-                  <ArrowRightIcon className="h-5 w-5" />
+                  <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </form>
             </div>

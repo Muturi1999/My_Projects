@@ -16,6 +16,23 @@ export function PrinterScannerSection({ products }: PrinterScannerSectionProps) 
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
 
+  // Map product names to their corresponding image filenames in public folder
+  const productsWithLocalImages = displayedProducts.map((product) => {
+    const imageMap: { [key: string]: string } = {
+      "HP DeskJet 2710 All-in-One": "/HP DeskJet 2710 All-in-One.png",
+      "Canon PIXMA G3411 MegaTank": "/Canon PIXMA G3411 MegaTank.png",
+      "Epson EcoTank L3250": "/Epson EcoTank L3250.png",
+      "HP Smart Tank": "/HP Smart Tank.png",
+    };
+    const localSrc = imageMap[product.name] || `/${product.name}.png`; // Use mapping or default
+
+    return {
+      ...product,
+      image: localSrc,
+      images: [localSrc],
+    };
+  });
+
   return (
     <>
       <section className="py-8 sm:py-10 md:py-12 bg-white">
@@ -26,7 +43,7 @@ export function PrinterScannerSection({ products }: PrinterScannerSectionProps) 
           />
 
           <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-            {displayedProducts.map((product, index) => {
+            {productsWithLocalImages.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (
                 <ProductCard

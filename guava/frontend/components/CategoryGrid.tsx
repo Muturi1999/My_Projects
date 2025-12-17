@@ -3,55 +3,30 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ComputerDesktopIcon,
-  DevicePhoneMobileIcon,
-  PrinterIcon,
-  ServerIcon,
-  PlayIcon,
-  RectangleStackIcon,
-  Squares2X2Icon,
-  RadioIcon,
-  ChartBarIcon,
-} from "@heroicons/react/24/outline";
-import { useCategories } from "@/lib/hooks/useCategories";
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  laptop: ComputerDesktopIcon,
-  keyboard: RectangleStackIcon,
-  monitor: ComputerDesktopIcon,
-  smartphone: DevicePhoneMobileIcon,
-  tablet: DevicePhoneMobileIcon,
-  printer: PrinterIcon,
-  "hard-drive": ServerIcon,
-  gamepad: PlayIcon,
-  software: Squares2X2Icon,
-  desktop: ComputerDesktopIcon,
-  headphones: RadioIcon,
-  wifi: ChartBarIcon,
-};
+import { RectangleStackIcon } from "@heroicons/react/24/outline";
+import { shopCategories } from "@/lib/data/categories";
 
 export function CategoryGrid() {
-  const { categories, isLoading } = useCategories();
-  
-  // Split into two rows of 6 categories each
-  const firstRow = categories.slice(0, 6);
-  const secondRow = categories.slice(6, 12);
-  
-  if (isLoading) {
-    return (
-      <section className="bg-white min-h-[400px] sm:min-h-[500px] md:min-h-[604px]">
-        <div className="section-wrapper py-6 sm:py-8 md:py-12">
-          <h2 className="section-heading mb-4 sm:mb-6 md:mb-8 text-left text-xl sm:text-2xl">Shop by Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="h-48 bg-gray-100 animate-pulse rounded" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Fixed ordered list of 12 categories, two rows of 6, matching design
+  const orderedCategories = [
+    "laptops-computers",
+    "computer-accessories",
+    "monitors",
+    "smartphones",
+    "tablets-ipads",
+    "printers-scanners",
+    "desktops",
+    "audio-headphones",
+    "wifi-networking",
+    "software",
+    "drives-storage",
+    "gaming",
+  ]
+    .map((slug) => shopCategories.find((cat) => cat.slug === slug))
+    .filter((cat): cat is (typeof shopCategories)[number] => Boolean(cat));
+
+  const firstRow = orderedCategories.slice(0, 6);
+  const secondRow = orderedCategories.slice(6, 12);
 
   return (
     <section className="bg-white min-h-[400px] sm:min-h-[500px] md:min-h-[604px]">
@@ -61,8 +36,7 @@ export function CategoryGrid() {
           {/* First Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
             {firstRow.map((category, index) => {
-              const IconComponent = iconMap[category.icon];
-              const Icon = IconComponent && typeof IconComponent === 'function' ? IconComponent : RectangleStackIcon;
+              const Icon = RectangleStackIcon;
               return (
                 <motion.div
                   key={category.id}
@@ -121,8 +95,7 @@ export function CategoryGrid() {
           {/* Second Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
             {secondRow.map((category, index) => {
-              const IconComponent = iconMap[category.icon];
-              const Icon = IconComponent && typeof IconComponent === 'function' ? IconComponent : RectangleStackIcon;
+              const Icon = RectangleStackIcon;
               return (
                 <motion.div
                   key={category.id}

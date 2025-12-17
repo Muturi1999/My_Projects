@@ -21,42 +21,42 @@ export const shopCategories: Category[] = [
     name: "Laptops & Computers",
     icon: "laptop",
     slug: "laptops-computers",
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=400&q=80",
+    image: "/laptop.png",
   },
   {
     id: "2",
     name: "Computer Accessories",
     icon: "keyboard",
     slug: "computer-accessories",
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&q=80",
+    image: "/Computer Accessories.png",
   },
   {
     id: "3",
     name: "Monitors",
     icon: "monitor",
     slug: "monitors",
-    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=400&q=80",
+    image: "/Monitors.png",
   },
   {
     id: "4",
     name: "Smartphones",
     icon: "smartphone",
     slug: "smartphones",
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
+    image: "/Smartphones.png",
   },
   {
     id: "5",
     name: "Tablets & iPads",
     icon: "tablet",
     slug: "tablets-ipads",
-    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=400&q=80",
+    image: "/Tablets & Ipads.png",
   },
   {
     id: "6",
     name: "Printers & Scanners",
     icon: "printer",
     slug: "printers-scanners",
-    image: "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?auto=format&fit=crop&w=400&q=80",
+    image: "/Printers & Scanners.png",
   },
   // Second row (6 categories)
   {
@@ -64,42 +64,42 @@ export const shopCategories: Category[] = [
     name: "Desktops",
     icon: "desktop",
     slug: "desktops",
-    image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=400&q=80",
+    image: "/Desktops.png",
   },
   {
     id: "8",
     name: "Audio & Headphones",
     icon: "headphones",
     slug: "audio-headphones",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
+    image: "/Audio & Headphones.png",
   },
   {
     id: "9",
     name: "WiFi & Networking",
     icon: "wifi",
     slug: "wifi-networking",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80",
+    image: "/Wifi & Networking.png",
   },
   {
     id: "10",
     name: "Software",
     icon: "software",
     slug: "software",
-    image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=400&q=80",
+    image: "/Software.png",
   },
   {
     id: "11",
     name: "Drives & Storage",
     icon: "hard-drive",
     slug: "drives-storage",
-    image: "https://images.unsplash.com/photo-1591488320449-11f2e2e2d08f?auto=format&fit=crop&w=400&q=80",
+    image: "/Drivers & Storage.png",
   },
   {
     id: "12",
     name: "Gaming",
     icon: "gamepad",
     slug: "gaming",
-    image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=400&q=80",
+    image: "/Gaming.png",
   },
 ];
 
@@ -122,7 +122,7 @@ export const popularCategories: PopularCategory[] = [
   {
     id: "1",
     name: "CCTV & Security",
-    image: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&w=800&q=80",
+    image: "/cctv and security.png",
     slug: "cctv-security",
     subCategories: [
       "Access Control",
@@ -135,7 +135,7 @@ export const popularCategories: PopularCategory[] = [
   {
     id: "2",
     name: "Computer Accessories",
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+    image: "/computer accessories-pc.png",
     slug: "computer-accessories",
     subCategories: [
       "Laptop Bags & Cases",
@@ -148,7 +148,7 @@ export const popularCategories: PopularCategory[] = [
   {
     id: "3",
     name: "Drives & Storage",
-    image: "https://images.unsplash.com/photo-1591488320449-11f2e2e2d08f?auto=format&fit=crop&w=800&q=80",
+    image: "/Drivers&storage-pc.png",
     slug: "drives-storage",
     subCategories: [
       "External Hard Drive",
@@ -161,7 +161,7 @@ export const popularCategories: PopularCategory[] = [
   {
     id: "4",
     name: "TV, Audio & Video",
-    image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80",
+    image: "/Tv, audio & Video.png",
     slug: "tv-audio-video",
     subCategories: [
       "TVs",
@@ -291,7 +291,7 @@ export const popularBrands: Brand[] = [
   {
     id: "14",
     name: "Logitech",
-    image: "https://cdn.simpleicons.org/logitech/00B8FC",
+    image: "https://upload.wikimedia.org/wikipedia/commons/6/69/Logitech_logo.svg",
     slug: "logitech",
     logo: "/brands/logitech.png",
     color: "#00B8FC",
@@ -562,7 +562,7 @@ export const brandSections: BrandSection[] = [
     slug: "hp",
     discount: 0,
     color: "#A7E059",
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
+    image: "/HP.png",
     text: "You simply won't find it cheaper - HP Laptops",
   },
   {
@@ -570,7 +570,7 @@ export const brandSections: BrandSection[] = [
     slug: "dell",
     discount: 20,
     color: "#FF6B35",
-    image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80",
+    image: "/Dell.png",
     text: "20% OFF Dell Laptops",
   },
   {
@@ -578,7 +578,7 @@ export const brandSections: BrandSection[] = [
     slug: "lenovo",
     discount: 25,
     color: "#E2231A",
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
+    image: "/Lenovo.png",
     text: "Save up to 25% on Lenovo Laptops",
   },
   {
@@ -586,7 +586,7 @@ export const brandSections: BrandSection[] = [
     slug: "apple",
     discount: 15,
     color: "#000000",
-    image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=800&q=80",
+    image: "/Apple.png",
     text: "Premium Apple MacBooks",
   },
   {

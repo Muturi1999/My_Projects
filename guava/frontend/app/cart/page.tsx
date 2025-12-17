@@ -116,8 +116,8 @@ export default function CartPage() {
         </section>
 
         {/* Cart content */}
-        <section className="py-6 sm:py-10 bg-white flex-1">
-          <div className="section-wrapper grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8">
+        <section className="py-4 sm:py-6 md:py-8 lg:py-10 bg-white flex-1">
+          <div className="section-wrapper grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-4 sm:gap-6 lg:gap-8">
             {/* Left: Cart table */}
             <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
@@ -125,20 +125,22 @@ export default function CartPage() {
             </h1>
 
             {lines.length === 0 ? (
-              <div className="bg-white border border-gray-200 p-6 sm:p-8 text-center rounded-none">
-                <p className="text-gray-700 mb-3">
+              <div className="bg-white border border-gray-200 p-6 sm:p-8 md:p-10 text-center rounded-none">
+                <p className="text-sm sm:text-base text-gray-700 mb-3">
                   Your cart is currently empty.
                 </p>
                 <Link
                   href="/"
-                  className="text-sm font-semibold text-red-600 hover:text-red-700"
+                  className="text-xs sm:text-sm font-semibold text-red-600 hover:text-red-700"
                 >
                   Return to shop →
                 </Link>
               </div>
             ) : (
-              <div className="bg-white border border-gray-200 rounded-none overflow-x-auto mb-4">
-                <table className="w-full min-w-[720px] text-xs sm:text-sm">
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block bg-white border border-gray-200 rounded-none overflow-x-auto mb-4">
+                  <table className="w-full text-xs sm:text-sm">
                   <thead className="bg-gray-100 border-b border-gray-200">
                     <tr>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700">
@@ -262,6 +264,102 @@ export default function CartPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile/Tablet Card View */}
+              <div className="lg:hidden space-y-4 mb-4">
+                {lines
+                  .slice(
+                    (currentPage - 1) * ITEMS_PER_PAGE,
+                    currentPage * ITEMS_PER_PAGE
+                  )
+                  .map(({ product, quantity }) => {
+                    const lineTotal = product.price * quantity;
+                    return (
+                      <div
+                        key={product.id}
+                        className="bg-white border border-gray-200 rounded-none p-3 sm:p-4"
+                      >
+                        {/* Product Info */}
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/product/${product.id}`)}
+                          className="w-full flex items-start gap-3 mb-3 text-left"
+                        >
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 border border-gray-200 bg-white flex-shrink-0">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              sizes="(max-width: 640px) 80px, 100px"
+                              className="object-contain p-1.5"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-xs sm:text-sm text-gray-900 line-clamp-2 mb-1">
+                              {product.name}
+                            </p>
+                            <p className="text-[10px] sm:text-xs text-gray-500">
+                              {product.category}
+                              {product.brand && ` • ${product.brand.toUpperCase()}`}
+                            </p>
+                          </div>
+                        </button>
+
+                        {/* Price and Quantity Row */}
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-sm sm:text-base text-gray-900">
+                              KSh {product.price.toLocaleString()}
+                            </span>
+                            <span className="text-[10px] sm:text-xs text-gray-500 line-through">
+                              KSh {product.originalPrice.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="inline-flex items-center border border-gray-300 bg-white">
+                              <button
+                                type="button"
+                                onClick={() => handleDecrease(product.id, quantity)}
+                                className="px-2 py-1.5 hover:bg-gray-100"
+                                aria-label="Decrease quantity"
+                              >
+                                <MinusIcon className="h-3.5 w-3.5" />
+                              </button>
+                              <span className="px-3 py-1.5 border-x border-gray-300 text-xs min-w-[2rem] text-center">
+                                {quantity.toString().padStart(2, "0")}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleIncrease(product.id, quantity)}
+                                className="px-2 py-1.5 hover:bg-gray-100"
+                                aria-label="Increase quantity"
+                              >
+                                <PlusIcon className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => remove(product.id)}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100 flex-shrink-0"
+                              aria-label="Remove from cart"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Subtotal */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs sm:text-sm text-gray-600">Sub-total:</span>
+                          <span className="font-semibold text-sm sm:text-base text-gray-900">
+                            KSh {lineTotal.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              </>
             )}
 
             {lines.length > 0 && (
@@ -332,9 +430,9 @@ export default function CartPage() {
             </div>
 
             {/* Right: Cart totals / coupon */}
-            <aside className="space-y-6">
-            <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-              <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-4">
+            <aside className="space-y-4 sm:space-y-6 lg:sticky lg:top-4 lg:self-start">
+            <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+              <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                 Cart Totals
               </h2>
               <div className="divide-y divide-gray-200 text-xs sm:text-sm">
@@ -366,7 +464,7 @@ export default function CartPage() {
                       : "KSh 0"}
                   </span>
                 </div>
-                <div className="flex justify-between py-3 text-sm sm:text-base font-semibold">
+                <div className="flex justify-between py-3 text-sm sm:text-base md:text-lg font-semibold">
                   <span>Total</span>
                   <span className="text-gray-900">
                     KSh {totals.total.toLocaleString()}
@@ -381,7 +479,7 @@ export default function CartPage() {
                   if (lines.length === 0) return;
                   router.push("/checkout");
                 }}
-                className="mt-4 w-full inline-flex items-center justify-center bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500 text-white text-sm sm:text-base font-semibold py-3 rounded-none"
+                className="mt-4 w-full inline-flex items-center justify-center bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 rounded-none"
               >
                 PROCEED TO CHECKOUT
               </button>
@@ -398,11 +496,11 @@ export default function CartPage() {
             </div>
 
             {/* Coupon section */}
-            <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-              <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+            <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+              <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3">
                 Coupon Code
               </h2>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <input
                   type="text"
                   placeholder="Enter coupon code"
@@ -410,7 +508,7 @@ export default function CartPage() {
                 />
                 <button
                   type="button"
-                  className="px-4 py-2 text-xs sm:text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-none"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-none whitespace-nowrap"
                 >
                   APPLY COUPON
                 </button>

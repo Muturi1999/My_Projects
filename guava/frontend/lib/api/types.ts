@@ -105,6 +105,24 @@ export interface Homepage {
   hero_slides: HeroSlide[];
   shop_by_category: ShopByCategory;
   featured_deals: FeaturedDeals;
+  // Optional hot deals block from CMS (may not be present on older data)
+  hot_deals?: {
+    id: string;
+    title: string;
+    description?: string;
+    layout?: string;
+    items: Array<{
+      id: string;
+      name: string;
+      image: string;
+      price: number;
+      originalPrice?: number;
+      inStock?: boolean;
+      rating?: number;
+      badge?: string;
+      slug: string;
+    }>;
+  };
   custom_sections: CustomSection[];
   updated_at: string;
 }

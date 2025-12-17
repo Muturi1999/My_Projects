@@ -69,16 +69,16 @@ export default function VerifyPage() {
       
       {/* Breadcrumbs */}
       <div className="bg-gray-50 border-b border-gray-200">
-        <div className="section-wrapper py-3">
-          <nav className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="section-wrapper py-2 sm:py-3">
+          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600 flex-wrap">
             <Link href="/" className="hover:text-[#98C243] transition-colors">
               Home
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <Link href="/account" className="hover:text-[#98C243] transition-colors">
               Sign Up
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="text-gray-900 font-medium">
               {verificationMethod === "email" ? "Email" : "Phone"} Verification
             </span>
@@ -87,33 +87,33 @@ export default function VerifyPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 py-8 md:py-12">
+      <div className="flex-1 bg-gray-50 py-4 sm:py-6 md:py-8 lg:py-12 px-4 sm:px-6">
         <div className="section-wrapper">
           <div className="max-w-md mx-auto">
             {/* Card */}
-            <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
               {/* Title */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Verify Your {verificationMethod === "email" ? "Email Address" : "Phone Number"}
               </h1>
               
               {/* Instruction Text */}
-              <p className="text-gray-600 mb-6">
+              <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
                 Enter the 6-digit verification code we sent to{" "}
                 <span className="font-medium">{maskedTarget}</span> to continue.
               </p>
 
               {/* Verification Method Selection (if both email and phone are available) */}
               {email && phone && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                     Verify using:
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setVerificationMethod("email")}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 transition-colors ${
+                      className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-md border-2 transition-colors text-xs sm:text-sm ${
                         verificationMethod === "email"
                           ? "border-[#98C243] bg-[#F0F9E8] text-[#7FA836]"
                           : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
@@ -125,13 +125,13 @@ export default function VerifyPage() {
                     <button
                       type="button"
                       onClick={() => setVerificationMethod("phone")}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 transition-colors ${
+                      className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-md border-2 transition-colors text-xs sm:text-sm ${
                         verificationMethod === "phone"
                           ? "border-[#98C243] bg-[#F0F9E8] text-[#7FA836]"
                           : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                       }`}
                     >
-                      <PhoneIcon className="h-5 w-5" />
+                      <PhoneIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       <span className="font-medium">Phone</span>
                     </button>
                   </div>
@@ -139,16 +139,16 @@ export default function VerifyPage() {
               )}
 
               {/* Form */}
-              <form onSubmit={handleVerify} className="space-y-5">
+              <form onSubmit={handleVerify} className="space-y-4 sm:space-y-5">
                 {/* Verification Code Input */}
                 <div>
                   <label
                     htmlFor="verificationCode"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
                   >
                     Verification Code
                   </label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                     <Input
                       id="verificationCode"
                       type="text"
@@ -158,7 +158,7 @@ export default function VerifyPage() {
                         setVerificationCode(value);
                       }}
                       required
-                      className="w-full text-center text-2xl font-mono tracking-widest"
+                      className="w-full text-center text-xl sm:text-2xl font-mono tracking-widest text-xs sm:text-sm"
                       placeholder="000000"
                       maxLength={6}
                     />
@@ -166,12 +166,12 @@ export default function VerifyPage() {
                       type="button"
                       onClick={handleResendCode}
                       disabled={isResending}
-                      className="text-sm text-[#98C243] hover:text-[#7FA836] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-xs sm:text-sm text-[#98C243] hover:text-[#7FA836] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2 sm:py-0"
                     >
                       {isResending ? "Sending..." : "Resend Code"}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2">
                     Enter the 6-digit code sent to {maskedTarget}
                   </p>
                 </div>
@@ -179,10 +179,10 @@ export default function VerifyPage() {
                 {/* Verify Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-[#98C243] hover:bg-[#7FA836] text-white py-3 flex items-center justify-center gap-2 font-medium"
+                  className="w-full bg-[#98C243] hover:bg-[#7FA836] text-white py-2.5 sm:py-3 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm md:text-base"
                 >
                   VERIFY ME
-                  <ArrowRightIcon className="h-5 w-5" />
+                  <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </form>
             </div>

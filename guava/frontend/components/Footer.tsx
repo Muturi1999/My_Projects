@@ -8,29 +8,50 @@ import {
 } from "@heroicons/react/24/outline";
 
 const topCategories = [
-  "Laptops & Computers",
-  "SmartPhone",
-  "Headphone",
-  "Accessories",
-  "Printers",
-  "Monitors & TVs",
+  { name: "Laptops & Computers", href: "/category/laptops-computers" },
+  { name: "Computer Accessories", href: "/category/computer-accessories" },
+  { name: "Monitors", href: "/category/monitors" },
+  { name: "Smartphones", href: "/category/smartphones" },
+  { name: "Printers & Scanners", href: "/category/printers-scanners" },
+  { name: "TV, Audio & Video", href: "/category/tv-audio-video" },
 ];
 
 const helpLinks = [
-  "Contact Us",
-  "Payment Options",
-  "Delivery Information",
-  "Track Order",
-  "Returns & Cancellations",
-  "Customer Help",
-  "About Us",
+  { label: "Contact Us", href: "/contact" },
+  { label: "Payment Options", href: "/help/payment-options" },
+  { label: "Delivery Information", href: "/help/delivery-information" },
+  { label: "Track Order", href: "/track-order" },
+  { label: "Returns & Cancellations", href: "/help/returns-and-cancellations" },
+  { label: "Customer Help", href: "/help" },
+  { label: "About Us", href: "/about" },
 ];
 
 const socialLinks = [
-  { name: "Facebook", href: "#" },
-  { name: "X", href: "#" },
-  { name: "Instagram", href: "#" },
-  { name: "YouTube", href: "#" },
+  {
+    name: "Facebook",
+    href: "#",
+    icon: "https://img.icons8.com/?size=100&id=uLWV5A9vXIPu&format=png&color=000000",
+  },
+  {
+    name: "X",
+    href: "#",
+    icon: "https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=FFFFFF",
+  },
+  {
+    name: "LinkedIn",
+    href: "#",
+    icon: "https://img.icons8.com/?size=100&id=xuvGCOXi8Wyg&format=png&color=000000",
+  },
+  {
+    name: "YouTube",
+    href: "#",
+    icon: "https://img.icons8.com/?size=100&id=19318&format=png&color=000000",
+  },
+  {
+    name: "Instagram",
+    href: "#",
+    icon: "https://img.icons8.com/?size=100&id=BrU2BBoRXiWq&format=png&color=000000",
+  },
 ];
 
 export function Footer() {
@@ -51,10 +72,14 @@ export function Footer() {
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+                  className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
                   aria-label={social.name}
                 >
-                  <span className="text-xs">{social.name[0]}</span>
+                  <img
+                    src={social.icon}
+                    alt={social.name}
+                    className="w-[35px] h-[35px] object-contain"
+                  />
                 </a>
               ))}
             </div>
@@ -64,13 +89,13 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">TOP CATEGORIES</h4>
             <ul className="space-y-2 text-sm">
-              {topCategories.map((category) => (
-                <li key={category}>
+              {topCategories.map((item) => (
+                <li key={item.name}>
                   <Link
-                    href="#"
+                    href={item.href}
                     className="hover:text-green-400 transition-colors"
                   >
-                    {category}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -82,12 +107,12 @@ export function Footer() {
             <h4 className="text-white font-semibold mb-4">HELP & SUPPORT</h4>
             <ul className="space-y-2 text-sm">
               {helpLinks.map((link) => (
-                <li key={link}>
+                <li key={link.label}>
                   <Link
-                    href="#"
+                    href={link.href}
                     className="hover:text-green-400 transition-colors"
                   >
-                    {link}
+                    {link.label}
                   </Link>
                 </li>
               ))}

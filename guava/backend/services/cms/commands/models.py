@@ -20,7 +20,8 @@ class Homepage(BaseModel):
     hero_slides = models.JSONField(default=list)  # Array of hero slide objects
     shop_by_category = models.JSONField(default=dict)  # Shop by category configuration
     featured_deals = models.JSONField(default=dict)  # Featured deals configuration
-    custom_sections = models.JSONField(default=list)  # Array of custom sections
+    hot_deals = models.JSONField(default=dict)  # Today's hot deals configuration
+    custom_sections = models.JSONField(default=list)  # Array of other sections
     
     class Meta:
         db_table = 'cms_homepage'

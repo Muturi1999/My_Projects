@@ -133,7 +133,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       {/* Mobile / tablet / small-desktop header (all screens below xl) */}
       <div className="bg-black text-white xl:hidden">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="section-wrapper py-3 flex items-center justify-between">
           {/* Left: Hamburger */}
           <div className="flex items-center">
             <button

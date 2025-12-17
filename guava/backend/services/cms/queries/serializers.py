@@ -19,7 +19,7 @@ class HomepageReadSerializer(BaseReadSerializer):
         model = Homepage
         fields = [
             'id', 'title', 'description', 'hero_slides', 'shop_by_category',
-            'featured_deals', 'custom_sections', 'updated_at'
+            'featured_deals', 'hot_deals', 'custom_sections', 'updated_at'
         ]
 
 

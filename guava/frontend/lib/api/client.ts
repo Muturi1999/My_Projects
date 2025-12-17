@@ -66,13 +66,29 @@ apiClient.interceptors.response.use(
           // Not found
           errorMessage = errorMessage || 'Resource not found';
           break;
+        case 503:
+          // Service unavailable
+          errorMessage = errorMessage || data?.message || 'Service unavailable. Please ensure backend services are running.';
+          console.error('Service unavailable:', data);
+          break;
+        case 504:
+          // Gateway timeout
+          errorMessage = errorMessage || 'Request timeout. Service may be slow or unavailable.';
+          console.error('Request timeout:', data);
+          break;
         case 500:
           // Server error
           errorMessage = errorMessage || 'Server error';
           console.error('Server error:', data);
           break;
         default:
-          console.error('API error:', data);
+          // Log the full error for debugging
+          console.error('API error:', {
+            status,
+            data,
+            message: errorMessage,
+            url: error.config?.url
+          });
       }
     } else if (error.request) {
       // Request made but no response - backend is likely not running

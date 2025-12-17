@@ -20,7 +20,8 @@ fi
 echo ""
 echo "🌐 Starting API Gateway on port 8000..."
 cd api_gateway
-python3 manage.py runserver 8000 > /tmp/api_gateway.log 2>&1 &
+export PYTHONPATH=/home/mike/Desktop/My_Projects/guava/backend:$PYTHONPATH
+../venv/bin/python manage.py runserver 8000 > /tmp/api_gateway.log 2>&1 &
 API_GATEWAY_PID=$!
 echo "   API Gateway started (PID: $API_GATEWAY_PID)"
 cd ..
@@ -33,12 +34,15 @@ echo ""
 echo "📁 Starting Catalog Service on port 8002..."
 cd services/catalog
 
+# Set PYTHONPATH to include backend directory
+export PYTHONPATH=/home/mike/Desktop/My_Projects/guava/backend:$PYTHONPATH
+
 # Run migrations first
 echo "   Running migrations..."
-python3 manage.py migrate --noinput > /dev/null 2>&1
+../../venv/bin/python manage.py migrate --noinput > /dev/null 2>&1
 
 # Start the service
-python3 manage.py runserver 8002 > /tmp/catalog_service.log 2>&1 &
+../../venv/bin/python manage.py runserver 8002 > /tmp/catalog_service.log 2>&1 &
 CATALOG_PID=$!
 echo "   Catalog Service started (PID: $CATALOG_PID)"
 cd ../..

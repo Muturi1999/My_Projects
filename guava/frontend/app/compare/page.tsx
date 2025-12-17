@@ -143,9 +143,9 @@ export default function ComparePage() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1">
-          <section className="bg-gray-50 py-4">
+          <section className="bg-gray-50 py-3 sm:py-4">
             <div className="section-wrapper">
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
                 <Link
                   href="/"
                   className="text-gray-600 hover:text-[#98C243] transition-colors"
@@ -158,17 +158,17 @@ export default function ComparePage() {
             </div>
           </section>
 
-          <section className="py-12 bg-white">
+          <section className="py-8 sm:py-10 md:py-12 bg-white px-4 sm:px-6">
             <div className="section-wrapper text-center">
-              <ArrowsRightLeftIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <ArrowsRightLeftIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
                 No products to compare
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                 Add products to compare their features and specifications.
               </p>
               <Link href="/">
-                <Button className="bg-[#98C243] hover:bg-[#7FA836] text-white">
+                <Button className="bg-[#98C243] hover:bg-[#7FA836] text-white text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-2.5">
                   Start Shopping
                 </Button>
               </Link>
@@ -185,9 +185,9 @@ export default function ComparePage() {
       <Header />
       <main className="flex-1">
         {/* Breadcrumbs */}
-        <section className="bg-gray-50 py-4">
+        <section className="bg-gray-50 py-3 sm:py-4">
           <div className="section-wrapper">
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
               <Link
                 href="/"
                 className="text-gray-600 hover:text-[#98C243] transition-colors"
@@ -201,34 +201,35 @@ export default function ComparePage() {
         </section>
 
         {/* Product Cards - Horizontal Scroll */}
-        <section className="py-6 bg-white border-b border-gray-200">
+        <section className="py-4 sm:py-6 bg-white border-b border-gray-200">
           <div className="section-wrapper">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <div
-                className="flex gap-4 pb-4"
-                style={{ minWidth: `${Math.max(4, products.length) * 280}px` }}
+                className="flex gap-3 sm:gap-4 pb-4"
+                style={{ minWidth: `${Math.max(4, products.length) * 240}px` }}
               >
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="flex-shrink-0 w-[260px] border border-gray-200 rounded-lg p-4 bg-white relative"
+                    className="flex-shrink-0 w-[220px] sm:w-[240px] md:w-[260px] border border-gray-200 rounded-lg p-3 sm:p-4 bg-white relative"
                   >
                     {/* Remove button */}
                     <button
                       onClick={() => remove(product.id)}
-                      className="absolute -top-2 -right-2 p-2 rounded-full bg-white border-2 border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-colors shadow-md z-10"
+                      className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 p-1.5 sm:p-2 rounded-full bg-white border-2 border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-colors shadow-md z-10"
                       aria-label="Remove from compare"
                     >
-                      <XMarkIcon className="h-5 w-5 text-gray-700" />
+                      <XMarkIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
                     </button>
 
                     {/* Product Image */}
                     <Link href={`/product/${product.id}`}>
-                      <div className="relative w-full h-48 mb-3 bg-white rounded-lg overflow-hidden border border-gray-200">
+                      <div className="relative w-full h-40 sm:h-44 md:h-48 mb-2 sm:mb-3 bg-white rounded-lg overflow-hidden border border-gray-200">
                         <Image
                           src={product.image}
                           alt={product.name}
                           fill
+                          sizes="(max-width: 640px) 220px, (max-width: 768px) 240px, 260px"
                           className="object-contain p-2"
                         />
                       </div>
@@ -236,19 +237,19 @@ export default function ComparePage() {
 
                     {/* Product Name */}
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-[#98C243] transition-colors">
+                      <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-[#98C243] transition-colors">
                         {product.name}
                       </h3>
                     </Link>
 
                     {/* Price */}
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-900">
+                    <div className="mb-2 sm:mb-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                        <span className="text-base sm:text-lg font-bold text-gray-900">
                           KSh {product.price.toLocaleString()}
                         </span>
                         {product.originalPrice > product.price && (
-                          <span className="text-sm text-gray-500 line-through">
+                          <span className="text-xs sm:text-sm text-gray-500 line-through">
                             KSh {product.originalPrice.toLocaleString()}
                           </span>
                         )}
@@ -290,23 +291,23 @@ export default function ComparePage() {
         </section>
 
         {/* Comparison Table */}
-        <section className="py-6 bg-white">
+        <section className="py-4 sm:py-6 bg-white">
           <div className="section-wrapper">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] border-collapse">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full min-w-[600px] sm:min-w-[800px] border-collapse text-xs sm:text-sm">
                 <tbody>
                   {attributes.map((attribute, attrIndex) => (
                     <tr
                       key={attribute}
                       className={attrIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
                     >
-                      <th className="w-48 px-4 py-3 text-left font-semibold text-gray-900 border-r border-gray-200 align-top">
+                      <th className="w-32 sm:w-40 md:w-48 px-2 sm:px-3 md:px-4 py-2 sm:py-3 text-left font-semibold text-gray-900 border-r border-gray-200 align-top text-xs sm:text-sm">
                         {attribute}
                       </th>
                       {products.map((product, productIndex) => (
                         <td
                           key={`${product.id}-${attribute}`}
-                          className="px-4 py-3 text-sm text-gray-700 border-r border-gray-200 last:border-r-0 align-top"
+                          className="px-2 sm:px-3 md:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-700 border-r border-gray-200 last:border-r-0 align-top"
                         >
                           {attribute === "Stock status" ? (
                             <span

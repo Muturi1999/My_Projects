@@ -4,8 +4,11 @@ Catalog models for commands (write side of CQRS).
 import sys
 from pathlib import Path
 
+# Add shared directory to path before importing
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-sys.path.insert(0, str(BASE_DIR / 'backend' / 'shared'))
+shared_path = str(BASE_DIR / 'backend' / 'shared')
+if shared_path not in sys.path:
+    sys.path.insert(0, shared_path)
 
 from django.db import models
 from shared.common.models import BaseModel

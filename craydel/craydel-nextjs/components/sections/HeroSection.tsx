@@ -1,88 +1,118 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 type TabType = 'tours' | 'hotels' | 'visa' | 'experience';
 
+const tabs: { key: TabType; label: string; icon: string; badge?: string }[] = [
+  { key: 'tours', label: 'Tours', icon: 'bi-bus-front', badge: '68 Tours' },
+  { key: 'hotels', label: 'Hotels', icon: 'bi-building', badge: '45 Hotels' },
+  { key: 'visa', label: 'Visa', icon: 'bi-passport', badge: '12 Countries' },
+  { key: 'experience', label: 'Experience', icon: 'bi-compass', badge: '35 Guides' },
+];
+
 export default function HeroSection() {
   const [activeTab, setActiveTab] = useState<TabType>('tours');
 
+  const formFields = useMemo(() => {
+    switch (activeTab) {
+      case 'tours':
+        return [
+          { label: 'Destination', placeholder: 'Select Destination' },
+          { label: 'Tour Types', placeholder: 'Tour Types' },
+        ];
+      case 'hotels':
+        return [
+          { label: 'Where to?', placeholder: 'Destination' },
+          { label: 'Guests & Rooms', placeholder: '1 Adults, 0 Child' },
+        ];
+      case 'visa':
+        return [
+          { label: 'Country', placeholder: 'Select Country' },
+          { label: 'Visa Category', placeholder: 'Travel Visa' },
+        ];
+      case 'experience':
+        return [
+          { label: 'Destination', placeholder: 'Select Destination' },
+          { label: 'Activity Category', placeholder: 'Pick activity' },
+        ];
+      default:
+        return [];
+    }
+  }, [activeTab]);
+
   return (
-    <section className="hero-section position-relative" style={{
-      backgroundImage: 'url(/images/home1-location-search-bg.png)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      padding: '150px 0 100px',
-    }}>
-      <div className="container">
+    <section className="hero-section hero-section-v2 position-relative overflow-hidden">
+      <div className="hero-video-bg">
+        <video autoPlay loop muted playsInline poster="/images/home1-location-search-bg.png">
+          <source src="/home1-banner-video.mp4" type="video/mp4" />
+        </video>
+        <div className="hero-overlay" />
+      </div>
+
+      <div className="container position-relative">
         <div className="row justify-content-center">
-          <div className="col-lg-10">
+          <div className="col-xl-11">
             <div className="hero-content text-center text-white mb-5">
-              <h1 className="display-4 fw-bold mb-3">All-in-one Travel Booking.</h1>
-              <p className="lead mb-4">
-                Highlights convenience and simplicity, Best for agencies with online & mobile-friendly services.
+              <h1 className="hero-title mb-3">All-in-one Travel Booking.</h1>
+              <p className="hero-subtitle">
+                Highlights convenience and simplicity, Best for agencies with online &amp; mobile-friendly services.
               </p>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="search-tabs mb-4">
-              <ul className="nav nav-pills justify-content-center gap-2" role="tablist">
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'tours' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('tours')}
-                  >
-                    Tours
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'hotels' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('hotels')}
-                  >
-                    Hotels
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'visa' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('visa')}
-                  >
-                    Visa
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'experience' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('experience')}
-                  >
-                    Experience
-                  </button>
-                </li>
+            <div className="search-tabs mb-3">
+              <ul className="nav nav-pills justify-content-center gap-2 flex-wrap" role="tablist">
+                {tabs.map((tab) => (
+                  <li key={tab.key} className="nav-item">
+                    <button
+                      className={`nav-link hero-tab ${activeTab === tab.key ? 'active' : ''}`}
+                      onClick={() => setActiveTab(tab.key)}
+                    >
+                      <span className="tab-icon-wrap">
+                        <i className={`bi ${tab.icon}`}></i>
+                      </span>
+                      <span className="tab-label">{tab.label}</span>
+                      {tab.badge && <span className="tab-badge">{tab.badge}</span>}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Tab Content */}
-            <div className="tab-content">
-              {/* Tours Tab */}
-              {activeTab === 'tours' && (
-                <div className="search-form-card bg-white rounded-4 p-4 shadow-lg">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Destination</label>
-                      <select className="form-select">
-                        <option>Select</option>
-                        <option>Saudi Arabia</option>
-                        <option>United States</option>
-                        <option>Arab Emirates</option>
-                        <option>Tokyo, Japan</option>
-                        <option>Paris, France</option>
-                      </select>
+            <div className="hero-search-wrapper">
+              <div className="search-form-card search-form-card-v2 shadow-lg">
+                <div className="row g-3 align-items-end">
+                  <div className="col-lg-4">
+                    <label className="form-label fw-semibold text-dark">Select</label>
+                    <div className="input-icon">
+                      <i className="bi bi-geo-alt"></i>
+                      <Input placeholder={formFields[0]?.placeholder ?? 'Select Destination'} />
                     </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Tour Types</label>
+                    <small className="text-muted">Destination</small>
+                    <div className="mt-2 small text-muted">
+                      Can&apos;t find what you&apos;re looking for?{' '}
+                      <a href="#" className="custom-itinerary-link">
+                        create your Custom Itinerary
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="col-lg-3">
+                    <label className="form-label fw-semibold text-dark">15 December</label>
+                    <div className="input-icon">
+                      <i className="bi bi-calendar-week"></i>
+                      <Input type="date" defaultValue="2025-12-15" />
+                    </div>
+                    <small className="text-muted">Monday 2025</small>
+                  </div>
+
+                  <div className="col-lg-3">
+                    <label className="form-label fw-semibold text-dark">{formFields[1]?.label ?? 'Tour Types'}</label>
+                    <div className="input-icon">
+                      <i className="bi bi-filter-circle"></i>
                       <select className="form-select">
                         <option>Adventure Tour</option>
                         <option>Family Tour</option>
@@ -90,148 +120,23 @@ export default function HeroSection() {
                         <option>Solo Tour</option>
                       </select>
                     </div>
-                    <div className="col-12">
-                      <Button className="w-100 btn-primary btn-lg">
-                        <Search className="me-2" />
-                        SEARCH
-                      </Button>
-                    </div>
+                    <small className="text-muted">Tour Types</small>
                   </div>
-                </div>
-              )}
 
-              {/* Hotels Tab */}
-              {activeTab === 'hotels' && (
-                <div className="search-form-card bg-white rounded-4 p-4 shadow-lg">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Where to?</label>
-                      <select className="form-select">
-                        <option>Destination</option>
-                        <option>Dhaka, Bangladesh</option>
-                        <option>Himachal Pradesh, India</option>
-                        <option>Jakarta, Indonesia</option>
-                        <option>Lisbon, Portugal</option>
-                        <option>Marina Bay, Singapore</option>
-                        <option>Bangkok, Thailand</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">1 Adults, 0 Child</label>
-                      <select className="form-select">
-                        <option>1 Room</option>
-                        <option>2 Rooms</option>
-                        <option>3 Rooms</option>
-                      </select>
-                    </div>
-                    <div className="col-12">
-                      <Button className="w-100 btn-primary btn-lg">
-                        <Search className="me-2" />
-                        SEARCH
-                      </Button>
-                    </div>
+                  <div className="col-lg-2">
+                    <Button className="w-100 hero-search-btn">
+                      <Search className="me-2" />
+                      Search
+                    </Button>
                   </div>
                 </div>
-              )}
 
-              {/* Visa Tab */}
-              {activeTab === 'visa' && (
-                <div className="search-form-card bg-white rounded-4 p-4 shadow-lg">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Country</label>
-                      <select className="form-select">
-                        <option>Select</option>
-                        <option>Australia</option>
-                        <option>Canada</option>
-                        <option>India</option>
-                        <option>Indonesia</option>
-                        <option>Qatar</option>
-                        <option>Thailand</option>
-                        <option>United States</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Visa Category</label>
-                      <select className="form-select">
-                        <option>Business Visa</option>
-                        <option>Medical Visa</option>
-                        <option>Student Visa</option>
-                        <option>Travel Visa</option>
-                        <option>Work Visa</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Citizenship</label>
-                      <select className="form-select">
-                        <option>American</option>
-                        <option>Australian</option>
-                        <option>Brazilian</option>
-                        <option>Canadian</option>
-                        <option>Chinese</option>
-                        <option>Indian</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Current Location</label>
-                      <select className="form-select">
-                        <option>Australia</option>
-                        <option>Bangladesh</option>
-                        <option>Brazil</option>
-                        <option>Canada</option>
-                        <option>India</option>
-                        <option>Japan</option>
-                        <option>United Kingdom</option>
-                        <option>United States</option>
-                      </select>
-                    </div>
-                    <div className="col-12">
-                      <Button className="w-100 btn-primary btn-lg">
-                        <Search className="me-2" />
-                        SEARCH
-                      </Button>
-                    </div>
-                  </div>
+                <div className="tab-dots mt-3">
+                  <span className="dot active"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
                 </div>
-              )}
-
-              {/* Experience Tab */}
-              {activeTab === 'experience' && (
-                <div className="search-form-card bg-white rounded-4 p-4 shadow-lg">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Destination</label>
-                      <select className="form-select">
-                        <option>Select</option>
-                        <option>Morocco</option>
-                        <option>Paris, France</option>
-                        <option>Philippines</option>
-                        <option>Singapore</option>
-                        <option>Canada</option>
-                        <option>Jordan</option>
-                        <option>Australia</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Activity Category</label>
-                      <select className="form-select">
-                        <option>Bungee Jumping</option>
-                        <option>Hiking & Trekking</option>
-                        <option>Paragliding</option>
-                        <option>Rock Climbing</option>
-                        <option>Skydiving</option>
-                        <option>Zip-lining</option>
-                      </select>
-                    </div>
-                    <div className="col-12">
-                      <Button className="w-100 btn-primary btn-lg">
-                        <Search className="me-2" />
-                        SEARCH
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

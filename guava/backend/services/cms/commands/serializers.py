@@ -19,7 +19,7 @@ class HomepageWriteSerializer(BaseWriteSerializer):
         model = Homepage
         fields = [
             'id', 'title', 'description', 'hero_slides', 'shop_by_category',
-            'featured_deals', 'custom_sections', 'created_at', 'updated_at', 'is_active'
+            'featured_deals', 'hot_deals', 'custom_sections', 'created_at', 'updated_at', 'is_active'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

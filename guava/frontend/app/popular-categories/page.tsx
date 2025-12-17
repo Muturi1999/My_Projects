@@ -60,7 +60,7 @@ export default function PopularCategoriesPage() {
                     ))}
                   </ul>
                   {/* Shop all Button */}
-                  <Link href={category.slug === "computer-accessories" ? "/computer-accessories" : `/category/${category.slug}`}>
+                  <Link href={`/category/${category.slug}`}>
                     <Button
                       variant="outline"
                       className="w-full border-[#A7E059] text-[#A7E059] hover:bg-[#A7E059] hover:text-white"

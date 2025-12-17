@@ -11,9 +11,9 @@ export function PopularCategories() {
   const router = useRouter();
   
   return (
-    <section className="py-8 sm:py-10 md:py-12 bg-gray-50">
+    <section className="py-10 sm:py-12 md:py-16 bg-gray-50">
       <div className="section-wrapper">
-        <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
+        <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10">
           <h2 className="section-heading">Popular categories</h2>
           <Link
             href="/popular-categories"
@@ -22,11 +22,9 @@ export function PopularCategories() {
             View all →
           </Link>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
           {popularCategories.map((category, index) => {
-            const categoryUrl = category.slug === "computer-accessories" 
-              ? "/computer-accessories" 
-              : `/category/${category.slug}`;
+            const categoryUrl = `/category/${category.slug}`;
             const isSpecialCategory = ["cctv-security", "computer-accessories", "drives-storage", "tv-audio-video"].includes(category.slug);
             
             // Get background color for category name based on slug
@@ -53,7 +51,7 @@ export function PopularCategories() {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5 }}
                 onClick={() => router.push(categoryUrl)}
-                className="bg-white rounded-none shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
+                className="bg-white rounded-none shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-all group max-w-xs mx-auto w-full"
               >
                   {/* Image - Full Width */}
                   <div className="relative w-full h-48 overflow-hidden">

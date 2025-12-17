@@ -20,7 +20,7 @@ export function FeaturedDeals() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
               whileHover={{ scale: 1.02, y: -4 }}
-              className="bg-[#A7E059] rounded-none text-white relative overflow-hidden shadow-lg border border-gray-200 w-full md:flex-1 min-h-[320px]"
+              className="bg-[#789b32] rounded-none text-white relative overflow-hidden shadow-lg border border-gray-200 w-full md:flex-1 min-h-[320px]"
             >
               {deal.badge && (
                 <Badge
@@ -35,57 +35,62 @@ export function FeaturedDeals() {
                 <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 z-10 relative">
                   <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-white drop-shadow-sm leading-tight">
+                      <p className="text-[9px] sm:text-[10px] font-semibold tracking-[0.18em] text-white/90 uppercase">
+                        2025 model | new release
+                      </p>
+                      <h3 className="mt-1 text-base sm:text-xl md:text-2xl font-bold text-white drop-shadow-sm leading-tight">
                         {deal.name} - {deal.model}
                       </h3>
                     </div>
-                    <ul className="space-y-1 sm:space-y-1.5 text-[10px] sm:text-xs text-white">
+                    <div className="inline-flex items-center bg-[#FFD600] text-[9px] sm:text-[10px] font-semibold text-black px-2.5 py-1 rounded-none shadow-sm">
+                      INCLUDES FREE 24&quot; MONITOR
+                    </div>
+                    <ul className="space-y-0.5 sm:space-y-1 text-xs sm:text-sm text-white mt-1.5">
                       {deal.description.map((item, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0" />
                           <span className="leading-relaxed">{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="space-y-2 pt-2">
-                    <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
-                      <span className="line-through opacity-80 text-white/90 text-sm sm:text-base">
-                        KSh {deal.originalPrice.toLocaleString()}
+                  <div className="space-y-1.5 pt-4">
+                    <div className="flex flex-col gap-0.5 text-white">
+                      <span className="text-sm sm:text-base opacity-90">
+                        Ksh {deal.price.toLocaleString()}
                       </span>
-                      <span className="text-lg sm:text-xl md:text-2xl font-bold text-white drop-shadow-sm">
-                        KSh {deal.price.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] sm:text-xs">
-                      <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-none text-white font-semibold border border-white/30">
-                        Save: KSh {deal.saving.toLocaleString()}
+                      <span className="text-xs sm:text-sm opacity-90">
+                        Save: Ksh {deal.saving.toLocaleString()}
                       </span>
                     </div>
                   </div>
                   <Link
                     href={`/checkout?productId=${deal.productId ?? deal.id}`}
-                    className="mt-2"
+                    className="mt-3 inline-flex w-auto"
                   >
                     <Button
                       variant="destructive"
                       size="lg"
-                      className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-3 rounded-none shadow-lg transition-all w-full"
+                      className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] sm:text-xs px-4 sm:px-5 py-2 rounded-none shadow-md transition-all flex items-center gap-1.5"
                     >
-                      <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
+                      <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                       BUY NOW
                     </Button>
                   </Link>
                 </div>
-                {/* Right Image Section */}
-                <div className="flex items-center justify-center relative z-10 w-full md:w-48 lg:w-64 flex-shrink-0 h-52 md:h-auto">
+                {/* Right Image Section with Intel + HP badges */}
+                {/* Right panel: OMEN image should occupy full height and about half width */}
+                <div className="relative z-10 w-full md:w-1/2 flex-shrink-0 h-56 md:h-full flex items-stretch justify-center">
+                  {/* subtle green gradient to blend image with card background */}
+                  <div className="absolute inset-0 bg-gradient-to-l from-[#789b32] via-[#6b8b2d] to-[#789b32]" />
                   <div className="relative w-full h-full flex items-center justify-center">
+                    {/* Omen laptop image */}
                     <Image
                       src={deal.image}
                       alt={`${deal.name} ${deal.model}`}
                       width={256}
                       height={353}
-                      className="object-contain w-full h-full max-h-[200px] max-w-full"
+                      className="object-contain w-full h-full max-h-full max-w-full"
                     />
                   </div>
                 </div>

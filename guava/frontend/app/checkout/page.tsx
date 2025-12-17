@@ -60,6 +60,7 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [shippingAdjustment, setShippingAdjustment] = useState(0);
 
   const buyNowProductId = searchParams.get("productId");
@@ -115,7 +116,7 @@ export default function CheckoutPage() {
   }, [lines, shippingCost]);
 
   const handlePlaceOrder = () => {
-    if (!acceptTerms || lines.length === 0) return;
+    if (!acceptTerms || lines.length === 0 || isPlacingOrder) return;
 
     // In a real app this would call your backend checkout API and only redirect
     // after payment confirmation. For now we create a local order record,
@@ -158,6 +159,8 @@ export default function CheckoutPage() {
       },
     ];
 
+    setIsPlacingOrder(true);
+
     const orderRecord: OrderRecord = {
       id: orderId,
       orderNumber,
@@ -176,12 +179,18 @@ export default function CheckoutPage() {
       activities,
     };
 
-    addOrder(orderRecord);
+    try {
+      addOrder(orderRecord);
 
-    if (!buyNowProductId) {
-      clearCart();
+      if (!buyNowProductId) {
+        clearCart();
+      }
+
+      setOrderPlaced(true);
+      router.push(`/checkout/success?orderId=${orderId}`);
+    } finally {
+      setIsPlacingOrder(false);
     }
-    router.push(`/checkout/success?orderId=${orderId}`);
   };
 
   // orderPlaced is kept for potential future use with real backend integration
@@ -210,17 +219,17 @@ export default function CheckoutPage() {
         </section>
 
         {/* Checkout content */}
-        <section className="py-6 sm:py-10 bg-white flex-1">
-          <div className="section-wrapper grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8">
+        <section className="py-4 sm:py-6 md:py-8 lg:py-10 bg-white flex-1">
+          <div className="section-wrapper grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-4 sm:gap-6 lg:gap-8">
             {/* Left: Billing, Shipping, Payment, Notes */}
             <div className="space-y-6">
               {/* Billing information */}
-              <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-4">
+              <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                   Billing Information
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <div>
                     <label className="block text-[11px] sm:text-xs text-gray-600 mb-1">
                       Full Name
@@ -329,8 +338,8 @@ export default function CheckoutPage() {
               </div>
 
               {/* Shipping */}
-              <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+              <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3">
                   Shipping
                 </h2>
                 <div className="space-y-2 text-xs sm:text-sm">
@@ -439,11 +448,11 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment option */}
-              <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+              <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3">
                   Payment Option
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("mpesa")}
@@ -490,8 +499,8 @@ export default function CheckoutPage() {
               </div>
 
               {/* Additional information */}
-              <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+              <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3">
                   Additional Information
                 </h2>
                 <label className="block text-[11px] sm:text-xs text-gray-600 mb-1">
@@ -508,9 +517,9 @@ export default function CheckoutPage() {
             </div>
 
             {/* Right: Order summary */}
-            <aside className="space-y-6">
-              <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-none">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-4">
+            <aside className="space-y-4 sm:space-y-6 lg:sticky lg:top-4 lg:self-start">
+              <div className="bg-white border border-gray-200 p-4 sm:p-5 md:p-6 rounded-none">
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                   Order Summary
                 </h2>
 
@@ -519,13 +528,13 @@ export default function CheckoutPage() {
                     No items to checkout. Please add items to your cart.
                   </p>
                 ) : (
-                  <div className="space-y-3 mb-4 max-h-64 overflow-y-auto pr-1">
+                  <div className="space-y-3 mb-4 max-h-64 sm:max-h-80 overflow-y-auto pr-1">
                     {lines.map(({ product, quantity }) => (
                       <div
                         key={product.id}
-                        className="flex items-center gap-3 text-xs sm:text-sm"
+                        className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm"
                       >
-                        <div className="relative w-10 h-10 border border-gray-200 bg-white flex-shrink-0">
+                        <div className="relative w-10 h-10 sm:w-12 sm:h-12 border border-gray-200 bg-white flex-shrink-0">
                           <Image
                             src={product.image}
                             alt={product.name}
@@ -636,11 +645,11 @@ export default function CheckoutPage() {
                 {/* Place order */}
                 <button
                   type="button"
-                  disabled={!acceptTerms || lines.length === 0}
+                  disabled={!acceptTerms || lines.length === 0 || isPlacingOrder}
                   onClick={handlePlaceOrder}
-                  className="mt-3 w-full inline-flex items-center justify-center bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500 text-white text-sm sm:text-base font-semibold py-3 rounded-none"
+                  className="mt-3 w-full inline-flex items-center justify-center bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 rounded-none"
                 >
-                  {orderPlaced ? "ORDER PLACED" : "PLACE ORDER"}
+                  {isPlacingOrder ? "PLACING ORDER..." : orderPlaced ? "ORDER PLACED" : "PLACE ORDER"}
                 </button>
 
                 {orderPlaced && (

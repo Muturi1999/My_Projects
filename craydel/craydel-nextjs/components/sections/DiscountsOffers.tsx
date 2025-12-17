@@ -1,13 +1,28 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 
 const offers = [
-  { id: 1, image: '/images/visa-package-img1.webp', title: 'Special Offer 1' },
-  { id: 2, image: '/images/visa-package-img2.webp', title: 'Special Offer 2' },
-  { id: 3, image: '/images/visa-package-img3.webp', title: 'Special Offer 3' },
-  { id: 4, image: '/images/visa-package-img4.webp', title: 'Special Offer 4' },
-  { id: 5, image: '/images/visa-package-img5.webp', title: 'Special Offer 5' },
+  {
+    id: 1,
+    image: '/images/visa-package-img1.webp',
+    title: 'Bali Indonesia',
+    price: '$299.00',
+    duration: '04 Days',
+  },
+  {
+    id: 2,
+    image: '/images/visa-package-img3.webp',
+    title: 'Travel Around The World',
+    badge: '30% OFF',
+    cta: 'View All Tour',
+  },
+  {
+    id: 3,
+    image: '/images/visa-package-img2.webp',
+    title: 'Himachal Pradesh',
+    price: '$299.00/pp',
+    duration: '04 Days, 03 Nights',
+  },
 ];
 
 export default function DiscountsOffers() {
@@ -20,21 +35,38 @@ export default function DiscountsOffers() {
             A curated list of the most popular travel packages based on different destinations.
           </p>
         </div>
-        <div className="row g-4">
+
+        <div className="row g-4 justify-content-center">
           {offers.map((offer) => (
-            <div key={offer.id} className="col-lg-2 col-md-4 col-sm-6">
-              <Card className="border-0 shadow-sm h-100">
-                <div className="position-relative" style={{ height: '200px', overflow: 'hidden' }}>
-                  <Image
-                    src={offer.image}
-                    alt={offer.title}
-                    fill
-                    className="object-cover"
-                  />
+            <div key={offer.id} className="col-lg-4 col-md-6">
+              <Card className="border-0 shadow-sm h-100 discount-card">
+                <div className="position-relative discount-img">
+                  <Image src={offer.image} alt={offer.title} fill className="object-cover" />
+                  {offer.badge && <span className="discount-badge">{offer.badge}</span>}
                 </div>
+                <CardContent className="p-4">
+                  <h5 className="mb-2">{offer.title}</h5>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div>
+                      {offer.price && <div className="h5 mb-0 text-primary">{offer.price}</div>}
+                      {offer.duration && <small className="text-muted">{offer.duration}</small>}
+                    </div>
+                    {offer.cta && (
+                      <a href="#" className="link-btn">
+                        {offer.cta} <i className="bi bi-arrow-up-right"></i>
+                      </a>
+                    )}
+                  </div>
+                </CardContent>
               </Card>
             </div>
           ))}
+        </div>
+
+        <div className="tab-dots text-center mt-4">
+          <span className="dot active"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
         </div>
       </div>
     </section>

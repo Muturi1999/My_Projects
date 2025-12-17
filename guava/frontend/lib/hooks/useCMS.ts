@@ -4,8 +4,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cmsApi } from '@/lib/api';
 import type { Homepage, Navigation, Footer, ServiceGuarantee } from '@/lib/api/types';
+import { cmsApi } from '@/lib/api';
+import { getHomepageCMS, getNavigationCMS, getFooterCMS } from '@/lib/data/cms/store';
 
 export function useHomepage() {
   const [homepage, setHomepage] = useState<Homepage | null>(null);
@@ -14,17 +15,12 @@ export function useHomepage() {
 
   useEffect(() => {
     async function fetchHomepage() {
-      try {
-        setLoading(true);
-        const data = await cmsApi.getHomepage();
-        setHomepage(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch homepage'));
-        setHomepage(null);
-      } finally {
-        setLoading(false);
-      }
+      // For now, avoid calling the CMS API (which is down) and use local CMS data only.
+      setLoading(true);
+      const mock = getHomepageCMS() as unknown as Homepage;
+      setHomepage(mock);
+      setError(null);
+      setLoading(false);
     }
 
     fetchHomepage();
@@ -46,8 +42,10 @@ export function useNavigation() {
         setNavigation(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch navigation'));
-        setNavigation(null);
+        // Fallback to local mock navigation data
+        const mock = getNavigationCMS() as unknown as Navigation;
+        setNavigation(mock);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -72,8 +70,10 @@ export function useFooter() {
         setFooter(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch footer'));
-        setFooter(null);
+        // Fallback to local mock footer data
+        const mock = getFooterCMS() as unknown as Footer;
+        setFooter(mock);
+        setError(null);
       } finally {
         setLoading(false);
       }

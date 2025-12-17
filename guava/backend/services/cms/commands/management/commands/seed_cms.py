@@ -153,6 +153,7 @@ class Command(BaseCommand):
                 'hero_slides': homepage_data.get('heroSlides', []),
                 'shop_by_category': homepage_data.get('shopByCategory', {}),
                 'featured_deals': homepage_data.get('featuredDeals', {}),
+                'hot_deals': homepage_data.get('hotDeals', {}),
                 'custom_sections': homepage_data.get('customSections', [])
             }
         )
@@ -162,6 +163,7 @@ class Command(BaseCommand):
             homepage.hero_slides = homepage_data.get('heroSlides', homepage.hero_slides)
             homepage.shop_by_category = homepage_data.get('shopByCategory', homepage.shop_by_category)
             homepage.featured_deals = homepage_data.get('featuredDeals', homepage.featured_deals)
+            homepage.hot_deals = homepage_data.get('hotDeals', homepage.hot_deals)
             homepage.custom_sections = homepage_data.get('customSections', homepage.custom_sections)
             homepage.save()
         

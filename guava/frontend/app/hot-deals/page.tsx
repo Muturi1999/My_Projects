@@ -1,10 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { hotDeals } from "@/lib/data/products";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { useHomepage } from "@/lib/hooks/useCMS";
+import { mapApiProductsToComponents } from "@/lib/utils/productMapper";
+import { hotDeals } from "@/lib/data/products";
+import React from "react";
 
 function renderStars(rating: number) {
   return (
@@ -22,6 +25,38 @@ function renderStars(rating: number) {
 }
 
 export default function HotDealsPage() {
+  const { homepage, loading } = useHomepage();
+
+  const products = React.useMemo(() => {
+    // Use CMS data if available, otherwise fallback to mock data
+    if (!loading && homepage?.hot_deals?.items?.length) {
+      return mapApiProductsToComponents(
+        homepage.hot_deals.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          originalPrice: item.originalPrice ?? item.price,
+          rating: item.rating ?? 5,
+          badge: item.badge,
+          slug: item.slug,
+          discount: item.originalPrice
+            ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+            : 0,
+          stock: item.inStock ? 10 : 0,
+          ratingCount: 120,
+          category: "",
+          brand: "",
+          description: "",
+          images: [item.image],
+        }))
+      );
+    }
+    
+    // Fallback to mock data
+    return hotDeals;
+  }, [homepage, loading]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -44,8 +79,11 @@ export default function HotDealsPage() {
               </Link>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {hotDeals.map((product) => (
+            {loading && !products.length ? (
+              <p className="text-gray-500 text-sm">Loading hot deals...</p>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {products.map((product) => (
                 <div
                   key={product.id}
                   className="rounded-none border border-gray-200 shadow-sm bg-white flex flex-col overflow-hidden"
@@ -109,6 +147,7 @@ export default function HotDealsPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         </section>
       </main>
