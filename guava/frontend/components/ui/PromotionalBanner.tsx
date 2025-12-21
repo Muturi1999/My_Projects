@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
+import { getProductUrl } from "@/lib/utils/sectionSlugs";
 
 interface PromotionalBannerProps {
   title: string;
@@ -20,6 +21,7 @@ interface PromotionalBannerProps {
   buttonText?: string;
   className?: string;
   variant?: "tp-link" | "xiaomi";
+  section?: string; // Section name for URL generation
 }
 
 export function PromotionalBanner({
@@ -35,6 +37,7 @@ export function PromotionalBanner({
   buttonText = "SHOP NOW",
   className,
   variant,
+  section,
 }: PromotionalBannerProps) {
   const bgColor =
     backgroundColor ||
@@ -134,7 +137,7 @@ export function PromotionalBanner({
 
       {/* Button */}
       {productId && (
-        <Link href={`/product/${productId}`} className="w-full mt-2">
+        <Link href={getProductUrl(productId, section)} className="w-full mt-2">
           <Button
             variant="destructive"
             className="bg-red-600 hover:bg-red-700 text-white font-semibold w-full rounded-none"

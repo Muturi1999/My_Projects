@@ -7,7 +7,6 @@ import {
   audioDeals,
   brandLaptops 
 } from "@/lib/data/products";
-import { adminApiClient, PaginationParams } from "@/lib/admin-api/client";
 
 // Helper to get all products
 function getAllProducts() {
@@ -36,45 +35,17 @@ export async function GET(request: NextRequest) {
     
     // Get single product
     if (id) {
-      const result = await adminApiClient.getProduct(id, (itemId) => {
-        const allProducts = getAllProducts();
-        return allProducts.find((p) => 
-          p.id === itemId || p.id?.toString() === itemId
-        ) || null;
-      });
-      
-      return NextResponse.json(result || {});
+      const allProducts = getAllProducts();
+      const product = allProducts.find((p) => 
+        p.id === id || p.id?.toString() === id
+      );
+      return NextResponse.json(product || {});
     }
     
     // Get paginated products
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '20');
     const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || '';
-    const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
-    
-    const params: PaginationParams = {
-      page,
-      pageSize,
-      search,
-      sortBy: sortBy || undefined,
-      sortOrder,
-    };
-    
-    const result = await adminApiClient.getProducts(params, () => getAllProducts());
-    
-    // Ensure result is always a valid paginated response
-    if (!result || typeof result !== 'object') {
-      throw new Error('Invalid response from getProducts');
-    }
-    
-    return NextResponse.json(result);
-  } catch (error: any) {
-    console.error("Failed to fetch products", error);
-    // Fallback to mock data - always return valid JSON
-    const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
-    const pageSize = parseInt(request.nextUrl.searchParams.get('pageSize') || '20');
-    const search = request.nextUrl.searchParams.get('search') || '';
     
     let allProducts = getAllProducts();
     
@@ -98,36 +69,28 @@ export async function GET(request: NextRequest) {
       hasNext: end < allProducts.length,
       hasPrevious: page > 1,
     });
+  } catch (error: any) {
+    console.error("Failed to fetch products", error);
+    return NextResponse.json({
+      results: [],
+      count: 0,
+      page: 1,
+      pageSize: 20,
+      totalPages: 0,
+      hasNext: false,
+      hasPrevious: false,
+    });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Create via API (with mock fallback)
-    const result = await adminApiClient.createProduct(body, (data) => {
-      return {
-        ...data,
-        id: Date.now().toString(),
-      };
-    });
-
-    // Create a stock snapshot in inventory service
-    try {
-      await adminApiClient.createStockRecord(
-        {
-          product_id: result.id,
-          quantity: Number(body.stock_quantity) || 0,
-          warehouse: body.warehouse ?? null,
-          low_stock_threshold: Number(body.low_stock_threshold) || 5,
-        },
-        () => undefined
-      );
-    } catch (stockError) {
-      console.warn("Failed to create inventory record", stockError);
-    }
-    
+    const result = {
+      ...body,
+      id: Date.now().toString(),
+    };
+    // Note: Products are stored in static files, so this is a mock operation
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error("Failed to create product", error);
@@ -144,15 +107,13 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
     
-    // Update via API (with mock fallback)
-    const result = await adminApiClient.updateProduct(id, data, (itemId, itemData) => {
-      const allProducts = getAllProducts();
-      const product = allProducts.find((p) => 
-        p.id === itemId || p.id?.toString() === itemId
-      );
-      return product ? { ...product, ...itemData } : null;
-    });
+    const allProducts = getAllProducts();
+    const product = allProducts.find((p) => 
+      p.id === id || p.id?.toString() === id
+    );
+    const result = product ? { ...product, ...data } : null;
     
+    // Note: Products are stored in static files, so this is a mock operation
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Failed to update product", error);
@@ -169,11 +130,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
     
-    // Delete via API (with mock fallback)
-    await adminApiClient.deleteProduct(id, (itemId) => {
-      console.log(`Mock delete product: ${itemId}`);
-    });
-    
+    // Note: Products are stored in static files, so this is a mock operation
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Failed to delete product", error);

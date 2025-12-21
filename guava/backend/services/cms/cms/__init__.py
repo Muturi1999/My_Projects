@@ -1,5 +1,0 @@
-"""
-CMS service Django project.
-"""
-
-

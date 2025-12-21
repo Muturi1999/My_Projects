@@ -15,38 +15,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useCompare } from "@/lib/hooks/use-compare";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
-import {
-  hotDeals,
-  laptopDeals,
-  printerDeals,
-  accessoriesDeals,
-  audioDeals,
-  brandLaptops,
-  categorySubcategoryProducts,
-  type Product,
-} from "@/lib/data/products";
-import { categoryProducts } from "@/lib/data/categoryProducts";
-
-// Build unified catalog
-const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
-const categorySubcategoryList: Product[] = Object.values(
-  categorySubcategoryProducts
-).flatMap((group) => Object.values(group).flat());
-
-const allCatalogProducts: Product[] = [
-  ...hotDeals,
-  ...laptopDeals,
-  ...printerDeals,
-  ...accessoriesDeals,
-  ...audioDeals,
-  ...Object.values(brandLaptops).flat(),
-  ...categoryProductsList,
-  ...categorySubcategoryList,
-];
-
-function getProductById(id: string): Product | undefined {
-  return allCatalogProducts.find((p) => p.id === id);
-}
+import { type Product } from "@/lib/data/products";
+import { catalogProducts as allCatalogProducts, getProductById } from "@/lib/data/productCatalog";
 
 function getProductAttribute(product: Product, attribute: string): string {
   switch (attribute) {

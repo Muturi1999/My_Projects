@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryCardForm } from "@/components/admin/homepage/CategoryCardForm";
 import { FeaturedTileForm } from "@/components/admin/homepage/FeaturedTileForm";
 import { ProductHighlightForm } from "@/components/admin/homepage/ProductHighlightForm";
+import { SyncButton } from "@/components/admin/cms/SyncButton";
 import Link from "next/link";
 
 type SectionKey =
@@ -201,6 +202,7 @@ export function HomepageTab() {
           <p className="text-sm text-gray-500 mt-1">Control hero, category highlights, deals, and promotional sections.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <SyncButton />
           <Button variant="outline" onClick={fetchHomepage} disabled={isLoading || isSaving} size="sm">
             Reset
           </Button>

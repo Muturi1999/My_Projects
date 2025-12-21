@@ -1,121 +1,71 @@
-# API Integration Files - Ready for Future Use
+# Frontend-Only Architecture
 
-## 📁 Available API Integration Files
+## 📁 Current Architecture
 
-All API integration infrastructure is in place and ready to use when needed. The frontend currently uses mock data, but you can switch to API calls anytime.
+The frontend now operates entirely with local data stores. All backend dependencies have been removed.
 
-### 🔌 API Client (`lib/api/`)
+### 🗄️ Local Data Store (`lib/data/cms/store.ts`)
 
-- **`client.ts`** - Axios instance configured for API Gateway
-- **`types.ts`** - TypeScript interfaces matching backend API responses
-- **`products.ts`** - Product API functions (list, get, search, hot deals, etc.)
-- **`catalog.ts`** - Catalog API functions (categories, brands)
-- **`cms.ts`** - CMS API functions (homepage, navigation, footer, service guarantees)
-- **`index.ts`** - Centralized exports
+- **Homepage CMS** - `getHomepageCMS()`, `updateHomepageCMS()`
+- **Navigation CMS** - `getNavigationCMS()`, `updateNavigationCMS()`
+- **Footer CMS** - `getFooterCMS()`, `updateFooterCMS()`
+- **Service Guarantees** - `getServiceGuaranteesCMS()`, `updateServiceGuaranteesCMS()`
+- **Taxonomy** - `getTaxonomyCMS()`, `updateTaxonomyCMS()`
 
-### 🎣 React Hooks (`lib/hooks/`)
+### 🎣 React Hooks (`lib/hooks/useCMS.ts`)
 
-- **`useProducts.ts`** - Hook for fetching products with filters
-  - `useProducts(params)` - List products
-  - `useProduct(id)` - Single product
-  - `useHotDeals()` - Hot deals
-  - `useProductsByCategory(slug)` - Products by category
-  - `useProductsByBrand(slug)` - Products by brand
+All hooks now read from local data stores only:
 
-- **`useCatalog.ts`** - Hook for fetching catalog data
-  - `useCategories()` - List categories
-  - `useCategory(idOrSlug)` - Single category
-  - `useBrands()` - List brands
-  - `useBrand(idOrSlug)` - Single brand
+- **`useHomepage()`** - Reads from local CMS store
+- **`useNavigation()`** - Reads from local CMS store
+- **`useFooter()`** - Reads from local CMS store
+- **`useServiceGuarantees()`** - Reads from local CMS store
 
-- **`useCMS.ts`** - Hook for fetching CMS data
-  - `useHomepage()` - Current homepage
-  - `useNavigation()` - Current navigation
-  - `useFooter()` - Current footer
-  - `useServiceGuarantees()` - Service guarantees
+### 🛠️ Admin API Routes (`app/api/admin/`)
 
-- **`index.ts`** - Centralized exports
+All admin API routes now operate on local data stores:
 
-### 🛠️ Utilities (`lib/utils/`)
+- `/api/admin/homepage` - GET/PUT for homepage CMS
+- `/api/admin/navigation` - GET/PUT for navigation CMS
+- `/api/admin/footer` - GET/PUT for footer CMS
+- `/api/admin/service-guarantees` - CRUD operations
+- `/api/admin/products` - Product management (reads from static files)
+- `/api/admin/catalog/categories` - Category management
+- `/api/admin/catalog/brands` - Brand management
 
-- **`productMapper.ts`** - Maps API Product format to component Product format
-  - `mapApiProductToComponent(apiProduct)` - Single product mapper
-  - `mapApiProductsToComponents(apiProducts)` - Array mapper
+### 📝 Data Sources
 
-### ⚙️ Configuration (`lib/config/`)
+- **CMS Data**: `lib/data/cms/store.ts` (in-memory state)
+- **Products**: `lib/data/products.ts` (static TypeScript files)
+- **Categories**: `lib/data/categories.ts` (static TypeScript files)
 
-- **`env.ts`** - Environment variable loader with defaults
-  - Configured for `http://localhost:8000/api/v1` (API Gateway)
-  - Has sensible defaults for development
+## 🔄 How It Works
 
-## 🔄 How to Switch from Mock Data to API
+### Reading Data
 
-When you're ready to use the API, here's what to change:
-
-### Example: HotDealsSection
-
-**Current (Mock Data):**
 ```typescript
-import { hotDeals } from "@/lib/data/products";
+import { useHomepage } from "@/lib/hooks/useCMS";
 
-export function HotDealsSection() {
-  const displayedDeals = hotDeals.slice(0, 4);
-  // ...
+export function MyComponent() {
+  const { homepage, loading, error } = useHomepage();
+  // homepage is read from local store
 }
 ```
 
-**With API:**
-```typescript
-import { useHotDeals } from "@/lib/hooks";
-import { mapApiProductsToComponents } from "@/lib/utils/productMapper";
+### Updating Data (Admin)
 
-export function HotDealsSection() {
-  const { products, loading, error } = useHotDeals();
-  const displayedDeals = mapApiProductsToComponents(products).slice(0, 4);
-  
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState />;
-  // ...
-}
+```typescript
+// Admin API route automatically updates local store
+await fetch('/api/admin/homepage', {
+  method: 'PUT',
+  body: JSON.stringify(newHomepageData)
+});
 ```
 
-## 📋 Checklist for API Integration
+## 📋 Notes
 
-When switching to API:
-
-1. ✅ Replace mock data imports with API hooks
-2. ✅ Add loading states (skeleton loaders)
-3. ✅ Add error handling
-4. ✅ Use `mapApiProductsToComponents()` for product mapping
-5. ✅ Ensure backend services are running
-6. ✅ Test API endpoints
-
-## 🚀 Backend Requirements
-
-Before using the API, ensure:
-
-- ✅ API Gateway running on port 8000
-- ✅ Required services running (Products, Catalog, CMS)
-- ✅ Database migrations completed
-- ✅ Environment variables configured
-
-See `START_BACKEND.md` for setup instructions.
-
-## 📝 Notes
-
-- All API integration files are ready and tested
-- The mapper handles format differences between API and components
-- Hooks include loading and error states
-- TypeScript types match backend serializers
-- Error handling is built-in
-
-## 🎯 When to Use
-
-You can switch to API integration when:
-- Backend is fully set up and tested
-- You want real-time data
-- You need dynamic content management
-- You're ready for production deployment
-
-Until then, the mock data works perfectly for development and testing!
-
+- All data is stored in-memory (resets on page refresh)
+- Products and categories are read from static TypeScript files
+- Admin UI updates persist in the current session only
+- No backend services required
+- No database required

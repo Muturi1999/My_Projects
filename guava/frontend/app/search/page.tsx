@@ -5,33 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ui/ProductCard";
-import {
-  type Product,
-  hotDeals,
-  laptopDeals,
-  printerDeals,
-  accessoriesDeals,
-  audioDeals,
-  brandLaptops,
-  categorySubcategoryProducts,
-} from "@/lib/data/products";
-import { categoryProducts } from "@/lib/data/categoryProducts";
-
-const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
-const categorySubcategoryList: Product[] = Object.values(
-  categorySubcategoryProducts
-).flatMap((group) => Object.values(group).flat());
-
-const allCatalogProducts: Product[] = [
-  ...hotDeals,
-  ...laptopDeals,
-  ...printerDeals,
-  ...accessoriesDeals,
-  ...audioDeals,
-  ...Object.values(brandLaptops).flat(),
-  ...categoryProductsList,
-  ...categorySubcategoryList,
-];
+import { type Product } from "@/lib/data/products";
+import { catalogProducts as allCatalogProducts } from "@/lib/data/productCatalog";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();

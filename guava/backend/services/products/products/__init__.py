@@ -1,5 +1,0 @@
-"""
-Products service Django project.
-"""
-
-

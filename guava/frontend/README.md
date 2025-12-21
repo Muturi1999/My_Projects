@@ -9,7 +9,6 @@ Next.js 16 frontend application for the Guava e-commerce platform.
 - **Tailwind CSS** - Utility-first CSS framework
 - **Framer Motion** - Animation library
 - **Heroicons** - Icon library
-- **Axios** - HTTP client for API calls
 - **Zod** - Schema validation
 
 ## Project Structure
@@ -18,7 +17,7 @@ Next.js 16 frontend application for the Guava e-commerce platform.
 frontend/
 ├── app/              # Next.js App Router pages
 │   ├── (admin)/      # Admin dashboard routes
-│   ├── api/          # API routes (Next.js API)
+│   ├── api/          # API routes (Next.js API - local data only)
 │   ├── category/     # Category pages
 │   ├── product/      # Product detail pages
 │   └── ...
@@ -27,9 +26,9 @@ frontend/
 │   ├── ui/           # Reusable UI components
 │   └── ...           # Feature components
 ├── lib/              # Utilities and helpers
-│   ├── api/          # API client (Axios)
+│   ├── admin-api/    # Admin API client (local store only)
 │   ├── config/       # Configuration
-│   ├── data/         # Mock data (temporary)
+│   ├── data/         # Local data stores and static data
 │   └── types/        # TypeScript types
 ├── public/           # Static assets
 └── ...
@@ -40,7 +39,7 @@ frontend/
 ### Prerequisites
 
 - Node.js 18+ or Bun
-- Backend services running (see `../backend/README.md`)
+- No backend services required
 
 ### Installation
 
@@ -53,12 +52,10 @@ bun install
 
 ### Environment Variables
 
-Create a `.env.local` file in the frontend directory:
+Create a `.env.local` file in the frontend directory (optional):
 
 ```env
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:8000
 NEXT_PUBLIC_DOMAIN=localhost
 ```
 
@@ -83,20 +80,17 @@ npm run build
 npm start
 ```
 
-## API Integration
+## Data Architecture
 
-The frontend uses the API client located in `lib/api/` to communicate with the backend services through the API Gateway.
+The frontend uses local data stores for all CMS content and static files for products/categories.
 
-### Example Usage
+### Local Data Stores
 
 ```typescript
-import { productsApi } from '@/lib/api';
+import { useHomepage } from '@/lib/hooks/useCMS';
 
-// Get products
-const products = await productsApi.list({ category: 'laptops' });
-
-// Get single product
-const product = await productsApi.get(productId);
+// Reads from local in-memory store
+const { homepage, loading, error } = useHomepage();
 
 // Get hot deals
 const hotDeals = await productsApi.getHotDeals();

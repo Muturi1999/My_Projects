@@ -66,6 +66,7 @@ export function AudioSection() {
               logo={xiaomiProduct.logo}
               productId={xiaomiProduct.id}
               variant="xiaomi"
+              section="Audio & Headphones Deals"
             />
 
             {/* Product Cards */}
@@ -82,6 +83,7 @@ export function AudioSection() {
                     className="h-full"
                     showWishlist
                     isInWishlist={isInWishlist}
+                    section="Audio & Headphones Deals"
                     onWishlistToggle={(id, e) => {
                       e.preventDefault();
                       e.stopPropagation();

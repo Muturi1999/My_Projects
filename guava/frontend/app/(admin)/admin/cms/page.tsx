@@ -6,6 +6,7 @@ import { HomepageTab } from "@/components/admin/cms/tabs/HomepageTab";
 import { NavigationTab } from "@/components/admin/cms/tabs/NavigationTab";
 import { HeroTab } from "@/components/admin/cms/tabs/HeroTab";
 import { CategoriesTab } from "@/components/admin/cms/tabs/CategoriesTab";
+import { InventoryTab } from "@/components/admin/cms/tabs/InventoryTab";
 import { ShopTab } from "@/components/admin/cms/tabs/ShopTab";
 import { DetailTab } from "@/components/admin/cms/tabs/DetailTab";
 import { FooterTab } from "@/components/admin/cms/tabs/FooterTab";
@@ -26,6 +27,8 @@ export default function CMSHubPage() {
         return <HeroTab />;
       case "categories":
         return <CategoriesTab />;
+      case "inventory":
+        return <InventoryTab />;
       case "shop":
         return <ShopTab />;
       case "detail":

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { popularBrands } from "@/lib/data/categories";
-import { adminApiClient, PaginationParams } from "@/lib/admin-api/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,9 +8,7 @@ export async function GET(request: NextRequest) {
     
     // Get single brand
     if (id) {
-      const allData = await adminApiClient.getBrands(undefined, () => popularBrands);
-      const brands = allData.results || [];
-      const brand = brands.find((b: any) => 
+      const brand = popularBrands.find((b) => 
         b.id === id || b.id?.toString() === id || b.slug === id
       );
       return NextResponse.json(brand || null);
@@ -20,26 +17,6 @@ export async function GET(request: NextRequest) {
     // Get paginated brands
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '20');
-    const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || '';
-    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
-    
-    const params: PaginationParams = {
-      page,
-      pageSize,
-      search,
-      sortBy: sortBy || undefined,
-      sortOrder,
-    };
-    
-    const result = await adminApiClient.getBrands(params, () => popularBrands);
-    
-    return NextResponse.json(result);
-  } catch (error: any) {
-    console.error("Failed to fetch brands", error);
-    // Fallback to mock data
-    const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
-    const pageSize = parseInt(request.nextUrl.searchParams.get('pageSize') || '20');
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     
@@ -52,21 +29,28 @@ export async function GET(request: NextRequest) {
       hasNext: end < popularBrands.length,
       hasPrevious: page > 1,
     });
+  } catch (error: any) {
+    console.error("Failed to fetch brands", error);
+    return NextResponse.json({
+      results: [],
+      count: 0,
+      page: 1,
+      pageSize: 20,
+      totalPages: 0,
+      hasNext: false,
+      hasPrevious: false,
+    });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Create via API (with mock fallback)
-    const result = await adminApiClient.createBrand(body, (data) => {
-      return {
-        ...data,
-        id: Date.now().toString(),
-      };
-    });
-    
+    // Note: Brands are stored in static files, so this is a mock operation
+    const result = {
+      ...body,
+      id: Date.now().toString(),
+    };
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error("Failed to create brand", error);
@@ -83,13 +67,11 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
     
-    // Update via API (with mock fallback)
-    const result = await adminApiClient.updateBrand(id, data, (itemId, itemData) => {
-      const brand = popularBrands.find((b) => 
-        b.id === itemId || b.id?.toString() === itemId || b.slug === itemId
-      );
-      return brand ? { ...brand, ...itemData } : null;
-    });
+    // Note: Brands are stored in static files, so this is a mock operation
+    const brand = popularBrands.find((b) => 
+      b.id === id || b.id?.toString() === id || b.slug === id
+    );
+    const result = brand ? { ...brand, ...data } : null;
     
     return NextResponse.json(result);
   } catch (error: any) {
@@ -107,11 +89,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
     
-    // Delete via API (with mock fallback)
-    await adminApiClient.deleteBrand(id, (itemId) => {
-      console.log(`Mock delete brand: ${itemId}`);
-    });
-    
+    // Note: Brands are stored in static files, so this is a mock operation
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Failed to delete brand", error);

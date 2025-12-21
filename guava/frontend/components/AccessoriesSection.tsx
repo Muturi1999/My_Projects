@@ -59,6 +59,7 @@ export function AccessoriesSection() {
               priceText={`From Ksh ${bannerProduct?.price.toLocaleString() || "6,499"}`}
               productId={bannerProduct?.id || "13"}
               variant="tp-link"
+              section="Computer Accessories Deals"
             />
 
             {/* Product Cards */}
@@ -75,6 +76,7 @@ export function AccessoriesSection() {
                     className="h-full"
                     showWishlist
                     isInWishlist={isInWishlist}
+                    section="Computer Accessories Deals"
                     onWishlistToggle={(id, e) => {
                       e.preventDefault();
                       e.stopPropagation();

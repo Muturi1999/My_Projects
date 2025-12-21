@@ -1,5 +1,0 @@
-"""
-Promotions service Django project.
-"""
-
-

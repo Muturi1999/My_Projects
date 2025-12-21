@@ -1,5 +1,0 @@
-"""
-Catalog service Django project.
-"""
-
-

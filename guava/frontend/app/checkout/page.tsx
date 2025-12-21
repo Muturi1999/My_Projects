@@ -6,36 +6,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import {
-  type Product,
-  hotDeals,
-  laptopDeals,
-  printerDeals,
-  accessoriesDeals,
-  audioDeals,
-  brandLaptops,
-  categorySubcategoryProducts,
-} from "@/lib/data/products";
-import { categoryProducts } from "@/lib/data/categoryProducts";
+import { type Product } from "@/lib/data/products";
+import { catalogProducts as allCatalogProducts } from "@/lib/data/productCatalog";
 import { useCart } from "@/lib/hooks/use-cart";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useOrders, type OrderRecord, type OrderActivityEntry } from "@/lib/hooks/use-orders";
-
-const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
-const categorySubcategoryList: Product[] = Object.values(
-  categorySubcategoryProducts
-).flatMap((group) => Object.values(group).flat());
-
-const allCatalogProducts: Product[] = [
-  ...hotDeals,
-  ...laptopDeals,
-  ...printerDeals,
-  ...accessoriesDeals,
-  ...audioDeals,
-  ...Object.values(brandLaptops).flat(),
-  ...categoryProductsList,
-  ...categorySubcategoryList,
-];
 
 type ShippingMethod = "nairobi" | "near-nairobi" | "outside-nairobi" | "pickup";
 type PaymentMethod = "mpesa" | "card" | "cod";

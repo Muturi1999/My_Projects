@@ -1,37 +1,60 @@
 "use client";
 
+import { useMemo } from "react";
+import Link from "next/link";
 import { Product } from "@/lib/data/products";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
+import { printerDeals } from "@/lib/data/products";
+import { useHomepage } from "@/lib/hooks/useCMS";
+import { mapApiProductsToComponents } from "@/lib/utils/productMapper";
+import type { Product as APIProduct } from "@/lib/api/types";
+import { mapProductsToLocalImages } from "@/lib/utils/imageMapper";
 
-interface PrinterScannerSectionProps {
-  products: Product[];
-}
-
-export function PrinterScannerSection({ products }: PrinterScannerSectionProps) {
-  const displayedProducts = products.slice(0, 4);
+export function PrinterScannerSection() {
+  const { homepage, loading } = useHomepage();
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
 
-  // Map product names to their corresponding image filenames in public folder
-  const productsWithLocalImages = displayedProducts.map((product) => {
-    const imageMap: { [key: string]: string } = {
-      "HP DeskJet 2710 All-in-One": "/HP DeskJet 2710 All-in-One.png",
-      "Canon PIXMA G3411 MegaTank": "/Canon PIXMA G3411 MegaTank.png",
-      "Epson EcoTank L3250": "/Epson EcoTank L3250.png",
-      "HP Smart Tank": "/HP Smart Tank.png",
-    };
-    const localSrc = imageMap[product.name] || `/${product.name}.png`; // Use mapping or default
-
-    return {
-      ...product,
-      image: localSrc,
-      images: [localSrc],
-    };
-  });
+  // Fetch products from CMS or fallback to static data
+  const displayedProducts = useMemo(() => {
+    if (!loading && homepage?.printer_scanner?.items && homepage.printer_scanner.items.length > 0) {
+      // Use CMS data
+      const apiProducts: APIProduct[] = homepage.printer_scanner.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        description: "",
+        price: item.price,
+        original_price: item.originalPrice ?? item.price,
+        discount_percentage: item.originalPrice
+          ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+          : 0,
+        image: item.image,
+        images: [item.image],
+        category_slug: "",
+        brand_slug: "",
+        hot: false,
+        featured: false,
+        rating: item.rating ?? 5,
+        rating_count: 120,
+        stock_quantity: item.inStock ? 10 : 0,
+        specifications: undefined,
+        product_images: [],
+        created_at: "",
+        updated_at: "",
+      }));
+      const products = mapApiProductsToComponents(apiProducts);
+      return mapProductsToLocalImages(products).slice(0, 4);
+    }
+    
+    // Fallback to static data
+    const products = printerDeals.slice(0, 4);
+    return mapProductsToLocalImages(products);
+  }, [homepage, loading]);
 
   return (
     <>
@@ -43,7 +66,7 @@ export function PrinterScannerSection({ products }: PrinterScannerSectionProps) 
           />
 
           <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-            {productsWithLocalImages.map((product, index) => {
+            {displayedProducts.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (
                 <ProductCard
@@ -54,6 +77,7 @@ export function PrinterScannerSection({ products }: PrinterScannerSectionProps) 
                   imageHeight="h-48"
                   showWishlist
                   isInWishlist={isInWishlist}
+                  section="Printer & Scanner Deals"
                   onWishlistToggle={(id, e) => {
                     e.preventDefault();
                     e.stopPropagation();

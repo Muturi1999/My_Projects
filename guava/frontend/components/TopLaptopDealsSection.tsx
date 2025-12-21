@@ -1,44 +1,26 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Product } from "@/lib/data/products";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
+import { laptopDeals } from "@/lib/data/products";
+import { mapProductsToLocalImages } from "@/lib/utils/imageMapper";
 
-interface TopLaptopDealsSectionProps {
-  products: Product[];
-}
-
-export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) {
+export function TopLaptopDealsSection() {
   const { ids: wishlistIds, toggle } = useWishlist();
   const router = useRouter();
   const toast = useToast();
 
-  const displayProducts = products.slice(0, 4);
-
-  // Map laptop product names to actual image filenames in /public folder
-  const getLaptopImagePath = (productName: string): string => {
-    const imageMap: Record<string, string> = {
-      "HP Pavilion 15 i5": "/HP Pavilion.png",
-      "Apple MacBook Air M2": "/Apple Macbook Air M2.png",
-      "Dell XPS 13 9310": "/DELL XPS.png",
-      "Lenovo IdeaPad 3": "/Lenovo Ideapad.png",
-    };
-    return imageMap[productName] || `/${productName}.png`;
-  };
-
-  const laptopsWithLocalImages = displayProducts.map((product) => {
-    const localSrc = getLaptopImagePath(product.name);
-    return {
-      ...product,
-      image: localSrc,
-      images: [localSrc],
-    };
-  });
+  // Fetch products internally - no props needed
+  const displayProducts = useMemo(() => {
+    const products = laptopDeals.slice(0, 4);
+    return mapProductsToLocalImages(products);
+  }, []);
 
   return (
     <>
@@ -55,7 +37,7 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
           </div>
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {laptopsWithLocalImages.map((product, index) => {
+            {displayProducts.map((product, index) => {
               const isInWishlist = wishlistIds.includes(product.id);
               return (
                 <ProductCard
@@ -67,6 +49,7 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
                   showWishlist
                   showViewButton
                   isInWishlist={isInWishlist}
+                  section="Top Laptop Deals"
                   onWishlistToggle={(id, e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -78,7 +61,7 @@ export function TopLaptopDealsSection({ products }: TopLaptopDealsSectionProps) 
                       toast.info("Removed from wishlist");
                     }
                   }}
-                  onCardClick={() => router.push(`/product/${product.id}`)}
+                  onCardClick={() => router.push(`/home/top-laptop-deals/${product.id}`)}
                   imageHeight="h-[260px]"
                   className="h-full"
                 />

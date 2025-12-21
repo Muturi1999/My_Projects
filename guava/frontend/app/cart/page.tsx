@@ -7,36 +7,10 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
-import {
-  type Product,
-  hotDeals,
-  laptopDeals,
-  printerDeals,
-  accessoriesDeals,
-  audioDeals,
-  brandLaptops,
-  categorySubcategoryProducts,
-} from "@/lib/data/products";
-import { categoryProducts } from "@/lib/data/categoryProducts";
+import { type Product } from "@/lib/data/products";
+import { catalogProducts as allCatalogProducts } from "@/lib/data/productCatalog";
 import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/hooks/use-cart";
-
-const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
-
-const categorySubcategoryList: Product[] = Object.values(
-  categorySubcategoryProducts
-).flatMap((group) => Object.values(group).flat());
-
-const allCatalogProducts: Product[] = [
-  ...hotDeals,
-  ...laptopDeals,
-  ...printerDeals,
-  ...accessoriesDeals,
-  ...audioDeals,
-  ...Object.values(brandLaptops).flat(),
-  ...categoryProductsList,
-  ...categorySubcategoryList,
-];
 
 export default function CartPage() {
   const router = useRouter();

@@ -1,32 +1,65 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { RectangleStackIcon } from "@heroicons/react/24/outline";
 import { shopCategories } from "@/lib/data/categories";
+import { useHomepage } from "@/lib/hooks/useCMS";
+import type { CategoryCardContent } from "@/lib/types/cms";
+
+interface CategoryDisplay {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+}
 
 export function CategoryGrid() {
-  // Fixed ordered list of 12 categories, two rows of 6, matching design
-  const orderedCategories = [
-    "laptops-computers",
-    "computer-accessories",
-    "monitors",
-    "smartphones",
-    "tablets-ipads",
-    "printers-scanners",
-    "desktops",
-    "audio-headphones",
-    "wifi-networking",
-    "software",
-    "drives-storage",
-    "gaming",
-  ]
-    .map((slug) => shopCategories.find((cat) => cat.slug === slug))
-    .filter((cat): cat is (typeof shopCategories)[number] => Boolean(cat));
+  const { homepage, loading } = useHomepage();
 
-  const firstRow = orderedCategories.slice(0, 6);
-  const secondRow = orderedCategories.slice(6, 12);
+  // Get categories from CMS or fallback to static data
+  const categories = useMemo((): CategoryDisplay[] => {
+    if (!loading && homepage?.shop_by_category?.items && homepage.shop_by_category.items.length > 0) {
+      // Map CMS CategoryCardContent to CategoryDisplay format
+      return homepage.shop_by_category.items.map((cat: CategoryCardContent) => ({
+        id: cat.id,
+        name: cat.title,
+        slug: cat.slug,
+        image: cat.image,
+      }));
+    }
+    
+    // Fallback to static data with fixed order
+    const orderedSlugs = [
+      "laptops-computers",
+      "computer-accessories",
+      "monitors",
+      "smartphones",
+      "tablets-ipads",
+      "printers-scanners",
+      "desktops",
+      "audio-headphones",
+      "wifi-networking",
+      "software",
+      "drives-storage",
+      "gaming",
+    ];
+    
+    return orderedSlugs
+      .map((slug) => shopCategories.find((cat) => cat.slug === slug))
+      .filter((cat): cat is (typeof shopCategories)[number] => Boolean(cat))
+      .map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        image: cat.image,
+      }));
+  }, [homepage, loading]);
+
+  const firstRow = categories.slice(0, 6);
+  const secondRow = categories.slice(6, 12);
 
   return (
     <section className="bg-white min-h-[400px] sm:min-h-[500px] md:min-h-[604px]">

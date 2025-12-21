@@ -12,6 +12,7 @@ import { Product } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
 import { WishlistIcon } from "@/components/ui/WishlistIcon";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
+import { getProductUrl } from "@/lib/utils/sectionSlugs";
 
 export interface ProductCardProps {
   product: Product;
@@ -26,6 +27,7 @@ export interface ProductCardProps {
   className?: string;
   imageHeight?: string;
   badgePosition?: "top-left" | "top-right" | "inline";
+  section?: string; // Section name for URL generation (e.g., "Today's Hot Deals")
 }
 
 export function ProductCard({
@@ -41,6 +43,7 @@ export function ProductCard({
   className,
   imageHeight = "h-48",
   badgePosition = "top-left",
+  section,
 }: ProductCardProps) {
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
 
@@ -230,7 +233,7 @@ export function ProductCard({
           ) : (
             // When card has onClick handler, use Link for title
             <Link
-              href={`/product/${product.id}`}
+              href={getProductUrl(product.id, section)}
               onClick={(e) => {
                 e.stopPropagation();
                 onCardClick?.();
@@ -344,7 +347,7 @@ export function ProductCard({
   // Wrap in Link if no onCardClick handler
   if (!onCardClick) {
     return (
-      <Link href={`/product/${product.id}`} className="block h-full">
+      <Link href={getProductUrl(product.id, section)} className="block h-full">
         {cardContent}
       </Link>
     );

@@ -1,3 +1,24 @@
+# Guava
+
+This repository contains the Guava e-commerce project. The backend is a single Django project (`guava`) that consolidates service apps under `services/*`. The API Gateway functionality has been moved into the root app `guava.api` and routes are exposed under `/api/v1/`.
+
+Quick start:
+
+1. Create a Python venv and install dependencies:
+
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+
+2. Run checks:
+
+   python manage.py check
+
+3. Run the development server:
+
+   python manage.py runserver
+
+See `/backend` for service packages. If you previously referenced `backend/api_gateway`, use `guava.api` now; old code is deprecated via `backend/api_gateway/DEPRECATED.md`.
 # Guava E-Commerce Platform
 
 Full-stack e-commerce platform built with Next.js and Django REST Framework.

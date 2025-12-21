@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminApiClient } from "@/lib/admin-api/client";
 import { mockSuppliers } from "@/lib/data/admin/mockSuppliers";
 import { slugify } from "@/lib/utils/slugify";
 
@@ -11,11 +10,34 @@ function buildPaginationParams(searchParams: URLSearchParams) {
   };
 }
 
+function paginate<T>(items: T[], page: number, pageSize: number) {
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  return {
+    results: items.slice(start, end),
+    count: items.length,
+    page,
+    pageSize,
+    totalPages: Math.ceil(items.length / pageSize),
+    hasNext: end < items.length,
+    hasPrevious: page > 1,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const params = buildPaginationParams(request.nextUrl.searchParams);
-    const suppliers = await adminApiClient.getSuppliers(params, () => mockSuppliers);
-    return NextResponse.json(suppliers);
+    let suppliers = mockSuppliers;
+    
+    // Apply search filter
+    if (params.search) {
+      suppliers = suppliers.filter((s) =>
+        s.name?.toLowerCase().includes(params.search!.toLowerCase())
+      );
+    }
+    
+    const paginated = paginate(suppliers, params.page, params.pageSize);
+    return NextResponse.json(paginated);
   } catch (error: any) {
     console.error("Failed to fetch suppliers", error);
     return NextResponse.json({ error: "Failed to fetch suppliers" }, { status: 500 });
@@ -29,13 +51,10 @@ export async function POST(request: NextRequest) {
       ...body,
       slug: body.slug || slugify(body.name || ""),
       tags: body.tags || [],
-    };
-    const supplier = await adminApiClient.createSupplier(payload, (data) => ({
-      ...data,
       id: `mock-${Date.now()}`,
-      slug: payload.slug,
-    }));
-    return NextResponse.json(supplier, { status: 201 });
+    };
+    // Note: Suppliers are stored in static files, so this is a mock operation
+    return NextResponse.json(payload, { status: 201 });
   } catch (error: any) {
     console.error("Failed to create supplier", error);
     return NextResponse.json({ error: "Failed to create supplier" }, { status: 500 });

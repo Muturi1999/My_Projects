@@ -21,6 +21,7 @@ import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
 import { useRouter } from "next/navigation";
+import { mapProductsToLocalImages } from "@/lib/utils/imageMapper";
 
 // Combine all laptop products from static datasets so product IDs
 // always resolve correctly on the product detail page.
@@ -43,6 +44,7 @@ function ProductCard({
   viewMode,
   isInWishlist,
   onWishlistToggle,
+  categorySlug,
 }: {
   product: Product & {
     type?: string;
@@ -53,6 +55,7 @@ function ProductCard({
   viewMode: "grid" | "list";
   isInWishlist: boolean;
   onWishlistToggle: (id: string, e: React.MouseEvent) => void;
+  categorySlug: string;
 }) {
   const router = useRouter();
   const discountPercentage = Math.round(
@@ -121,7 +124,7 @@ function ProductCard({
                 </div>
               </div>
               <AddToCartButton
-                onClick={() => router.push(`/product/${product.id}`)}
+                onClick={() => router.push(`/product/${product.id}?category=${categorySlug}`)}
                 className="w-full sm:w-auto"
               />
             </div>
@@ -134,7 +137,7 @@ function ProductCard({
   return (
     <Card
       className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 cursor-pointer rounded-none"
-      onClick={() => router.push(`/product/${product.id}`)}
+      onClick={() => router.push(`/product/${product.id}?category=${categorySlug}`)}
     >
       <div className="px-4 pt-4 flex flex-col gap-2 items-start">
         <span className="inline-flex items-center bg-[#A7E059] text-black px-2.5 py-1 rounded-full text-xs font-semibold">
@@ -461,10 +464,12 @@ export default function CategoryPage() {
   }, [categoryProductsList, filters, sortBy, searchQuery]);
 
   const totalPages = Math.ceil(filteredAndSortedProducts.length / productsPerPage);
-  const paginatedProducts = filteredAndSortedProducts.slice(
+  const paginatedProductsRaw = filteredAndSortedProducts.slice(
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+  // Map products to use local images
+  const paginatedProducts = mapProductsToLocalImages(paginatedProductsRaw);
 
   const handleFilterChange = useCallback((newFilters: any) => {
       setFilters(newFilters);
@@ -696,6 +701,7 @@ export default function CategoryPage() {
                   product={product}
                   viewMode={viewMode}
                   isInWishlist={isInWishlist}
+                  categorySlug={slug}
                   onWishlistToggle={(id, e) => {
                     e.preventDefault();
                     e.stopPropagation();

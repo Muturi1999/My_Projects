@@ -1,5 +1,0 @@
-"""
-Inventory service Django project.
-"""
-
-

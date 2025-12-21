@@ -9,10 +9,19 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images, name }: ProductGalleryProps) {
-  // Limit to at most 6 images for the gallery
-  const safeImages = images && images.length ? images.slice(0, 6) : [""];
+  // Filter out only empty or placeholder images
+  // Allow both local paths and URLs (including unsplash.com) as valid images
+  const validImages = (images || [])
+    .filter((img) => img && typeof img === "string" && img.trim() !== "" && !img.includes("placeholder"))
+    .slice(0, 6); // Limit to max 6 images
+  
+  // If no valid images, return null (don't show gallery)
+  if (validImages.length === 0) {
+    return null;
+  }
+
   const maxVisible = 4;
-  const total = safeImages.length;
+  const total = validImages.length;
 
   const [startIndex, setStartIndex] = React.useState(0);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -20,14 +29,14 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
   const canPrev = startIndex > 0;
   const canNext = startIndex + maxVisible < total;
 
-  const visibleImages = safeImages.slice(startIndex, startIndex + maxVisible);
+  const visibleImages = validImages.slice(startIndex, startIndex + maxVisible);
 
   return (
     <div className="space-y-4">
       {/* Main image */}
       <div className="relative w-full aspect-[4/3] bg-white rounded-none overflow-hidden border border-gray-200 p-4">
         <Image
-          src={safeImages[activeIndex] ?? safeImages[0]}
+          src={validImages[activeIndex] ?? validImages[0]}
           alt={name}
           fill
           className="object-contain p-4"
@@ -35,7 +44,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
         />
       </div>
 
-      {/* Thumbnails + navigation (4 visible, up to 6 total with arrows) */}
+      {/* Thumbnails + navigation (only show if more than 1 image) */}
       {total > 1 && (
         <div className="flex items-center gap-3 justify-between">
           <button

@@ -1,12 +1,16 @@
 /**
- * React hooks for CMS API.
+ * React hooks for CMS data (local store only - no backend).
  */
 'use client';
 
 import { useState, useEffect } from 'react';
 import type { Homepage, Navigation, Footer, ServiceGuarantee } from '@/lib/api/types';
-import { cmsApi } from '@/lib/api';
-import { getHomepageCMS, getNavigationCMS, getFooterCMS } from '@/lib/data/cms/store';
+import { 
+  getHomepageCMS, 
+  getNavigationCMS, 
+  getFooterCMS,
+  getServiceGuaranteesCMS 
+} from '@/lib/data/cms/store';
 
 export function useHomepage() {
   const [homepage, setHomepage] = useState<Homepage | null>(null);
@@ -14,16 +18,11 @@ export function useHomepage() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchHomepage() {
-      // For now, avoid calling the CMS API (which is down) and use local CMS data only.
-      setLoading(true);
-      const mock = getHomepageCMS() as unknown as Homepage;
-      setHomepage(mock);
-      setError(null);
-      setLoading(false);
-    }
-
-    fetchHomepage();
+    setLoading(true);
+    const mock = getHomepageCMS() as unknown as Homepage;
+    setHomepage(mock);
+    setError(null);
+    setLoading(false);
   }, []);
 
   return { homepage, loading, error };
@@ -35,23 +34,11 @@ export function useNavigation() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchNavigation() {
-      try {
-        setLoading(true);
-        const data = await cmsApi.getNavigation();
-        setNavigation(data);
-        setError(null);
-      } catch (err) {
-        // Fallback to local mock navigation data
-        const mock = getNavigationCMS() as unknown as Navigation;
-        setNavigation(mock);
-        setError(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchNavigation();
+    setLoading(true);
+    const mock = getNavigationCMS() as unknown as Navigation;
+    setNavigation(mock);
+    setError(null);
+    setLoading(false);
   }, []);
 
   return { navigation, loading, error };
@@ -63,23 +50,11 @@ export function useFooter() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchFooter() {
-      try {
-        setLoading(true);
-        const data = await cmsApi.getFooter();
-        setFooter(data);
-        setError(null);
-      } catch (err) {
-        // Fallback to local mock footer data
-        const mock = getFooterCMS() as unknown as Footer;
-        setFooter(mock);
-        setError(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchFooter();
+    setLoading(true);
+    const mock = getFooterCMS() as unknown as Footer;
+    setFooter(mock);
+    setError(null);
+    setLoading(false);
   }, []);
 
   return { footer, loading, error };
@@ -91,21 +66,11 @@ export function useServiceGuarantees() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchGuarantees() {
-      try {
-        setLoading(true);
-        const response = await cmsApi.getServiceGuarantees();
-        setGuarantees(response.results);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch service guarantees'));
-        setGuarantees([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchGuarantees();
+    setLoading(true);
+    const cmsData = getServiceGuaranteesCMS();
+    setGuarantees(cmsData.guarantees || []);
+    setError(null);
+    setLoading(false);
   }, []);
 
   return { guarantees, loading, error };

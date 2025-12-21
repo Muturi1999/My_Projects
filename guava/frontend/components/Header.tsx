@@ -20,33 +20,8 @@ import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
 import { useCompare } from "@/lib/hooks/use-compare";
 import { CartPopup } from "./CartPopup";
-import {
-  type Product,
-  hotDeals,
-  laptopDeals,
-  printerDeals,
-  accessoriesDeals,
-  audioDeals,
-  brandLaptops,
-  categorySubcategoryProducts,
-} from "@/lib/data/products";
-import { categoryProducts } from "@/lib/data/categoryProducts";
-
-const categoryProductsList: Product[] = Object.values(categoryProducts).flat();
-const categorySubcategoryList: Product[] = Object.values(
-  categorySubcategoryProducts
-).flatMap((group) => Object.values(group).flat());
-
-const allCatalogProducts: Product[] = [
-  ...hotDeals,
-  ...laptopDeals,
-  ...printerDeals,
-  ...accessoriesDeals,
-  ...audioDeals,
-  ...Object.values(brandLaptops).flat(),
-  ...categoryProductsList,
-  ...categorySubcategoryList,
-];
+import { type Product } from "@/lib/data/products";
+import { catalogProducts as allCatalogProducts } from "@/lib/data/productCatalog";
 
 export function Header() {
   const [selectedCategory, setSelectedCategory] = useState("All");

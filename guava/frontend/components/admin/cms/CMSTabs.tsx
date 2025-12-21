@@ -18,6 +18,7 @@ const tabs = [
   { id: "navigation", label: "Navigation", icon: Bars3Icon, href: "/admin/cms?tab=navigation" },
   { id: "hero", label: "Hero Sections", icon: PhotoIcon, href: "/admin/cms?tab=hero" },
   { id: "categories", label: "Categories", icon: FolderIcon, href: "/admin/cms?tab=categories" },
+  { id: "inventory", label: "Inventory", icon: ShoppingBagIcon, href: "/admin/cms?tab=inventory" },
   { id: "shop", label: "Shop Page", icon: ShoppingBagIcon, href: "/admin/cms?tab=shop" },
   { id: "detail", label: "Product Detail", icon: DocumentTextIcon, href: "/admin/cms?tab=detail" },
   { id: "footer", label: "Footer & Services", icon: InformationCircleIcon, href: "/admin/cms?tab=footer" },

@@ -1,4 +1,0 @@
-"""
-Reports service Django project.
-"""
-

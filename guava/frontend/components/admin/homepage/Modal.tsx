@@ -23,7 +23,7 @@ export function Modal({ open, title, description, children, footer, onClose }: M
           {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
         </div>
         <div className="p-6">{children}</div>
-        {footer && <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">{footer}</div>}
+        {footer && <div className="px-6 py-4 border-t border-gray-100">{footer}</div>}
       </div>
     </div>
   );

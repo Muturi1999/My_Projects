@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,13 +8,62 @@ import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { featuredDeals } from "@/lib/data/products";
+import { useHomepage } from "@/lib/hooks/useCMS";
+import type { FeaturedTile } from "@/lib/types/cms";
+import { getProductImage } from "@/lib/utils/imageMapper";
+
+interface DealDisplay {
+  id: string;
+  name: string;
+  model?: string;
+  description: string[];
+  price: number;
+  saving: number;
+  badge?: string;
+  image: string;
+  productId?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
 
 export function FeaturedDeals() {
+  const { homepage, loading } = useHomepage();
+
+  // Get featured deals from CMS or fallback to static data
+  const displayedDeals = useMemo((): DealDisplay[] => {
+    if (!loading && homepage?.featured_deals?.items && homepage.featured_deals.items.length > 0) {
+      // Map CMS FeaturedTile to DealDisplay format
+      return homepage.featured_deals.items.map((deal: FeaturedTile) => ({
+        id: deal.id,
+        name: deal.title,
+        model: deal.subtitle,
+        description: Array.isArray(deal.description) ? deal.description : [],
+        price: deal.price,
+        saving: deal.saving || (deal.originalPrice ? deal.originalPrice - deal.price : 0),
+        badge: deal.badge,
+        image: getProductImage(deal.title, deal.image),
+        productId: deal.id,
+        ctaLabel: deal.ctaLabel,
+        ctaHref: deal.ctaHref,
+      }));
+    }
+    
+    // Fallback to static data
+    return featuredDeals.map((deal) => ({
+      ...deal,
+      image: getProductImage(deal.name, deal.image),
+    }));
+  }, [homepage, loading]);
+
+  if (displayedDeals.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-8 sm:py-10 md:py-12 bg-white">
       <div className="section-wrapper">
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 justify-center items-center md:items-stretch">
-          {featuredDeals.map((deal, index) => (
+          {displayedDeals.map((deal, index) => (
             <motion.div
               key={deal.id}
               initial={{ opacity: 0, y: 30 }}
@@ -39,7 +89,7 @@ export function FeaturedDeals() {
                         2025 model | new release
                       </p>
                       <h3 className="mt-1 text-base sm:text-xl md:text-2xl font-bold text-white drop-shadow-sm leading-tight">
-                        {deal.name} - {deal.model}
+                        {deal.name}{deal.model ? ` - ${deal.model}` : ""}
                       </h3>
                     </div>
                     <div className="inline-flex items-center bg-[#FFD600] text-[9px] sm:text-[10px] font-semibold text-black px-2.5 py-1 rounded-none shadow-sm">
@@ -65,7 +115,7 @@ export function FeaturedDeals() {
                     </div>
                   </div>
                   <Link
-                    href={`/checkout?productId=${deal.productId ?? deal.id}`}
+                    href={deal.ctaHref || `/checkout?productId=${deal.productId ?? deal.id}`}
                     className="mt-3 inline-flex w-auto"
                   >
                     <Button
@@ -74,7 +124,7 @@ export function FeaturedDeals() {
                       className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] sm:text-xs px-4 sm:px-5 py-2 rounded-none shadow-md transition-all flex items-center gap-1.5"
                     >
                       <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                      BUY NOW
+                      {deal.ctaLabel || "BUY NOW"}
                     </Button>
                   </Link>
                 </div>
