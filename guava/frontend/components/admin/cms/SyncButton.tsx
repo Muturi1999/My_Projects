@@ -17,19 +17,25 @@ export function SyncButton() {
     setStats(null);
 
     try {
+      console.log("SyncButton: Starting sync...");
       const response = await fetch("/api/admin/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
 
       const data = await response.json();
+      console.log("SyncButton: Sync response", data);
 
       if (data.success) {
         setSuccess(true);
         setMessage(data.message);
         setStats(data.stats);
-        // Reset success state after 5 seconds
-        setTimeout(() => setSuccess(false), 5000);
+        // Reset success state after 10 seconds to allow user to see stats
+        setTimeout(() => setSuccess(false), 10000);
+        // Reload the page after 2 seconds to show updated data
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
         setSuccess(false);
         setMessage(data.message || "Sync failed");

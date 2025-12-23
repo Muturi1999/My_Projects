@@ -42,7 +42,10 @@ export function HeroBanner() {
   return (
     <section className="relative w-full overflow-hidden bg-black">
       <div className="relative w-full h-[260px] sm:h-[340px] md:h-[420px] lg:h-[480px]">
-        <AnimatePresence mode="wait">
+        {/* Use 'sync' so enter and exit overlap and produce a crossfade instead
+          of waiting for the exiting slide to fully unmount (which shows the
+          background in between and causes a dark gap). */}
+        <AnimatePresence mode="sync">
           <motion.div
             key={currentImage + activeIndex}
             initial={{ opacity: 0 }}

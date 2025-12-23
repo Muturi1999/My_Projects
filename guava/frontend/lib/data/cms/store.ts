@@ -31,7 +31,18 @@ export function getHomepageCMS(): HomepageCMSData {
 }
 
 export function updateHomepageCMS(data: HomepageCMSData) {
+  console.log("CMS Store: updateHomepageCMS called with data:", {
+    heroSlides: data.heroSlides?.length || 0,
+    shopByCategory: data.shopByCategory?.items?.length || 0,
+    hotDeals: data.hotDeals?.items?.length || 0,
+    printerScanner: data.printerScanner?.items?.length || 0,
+    accessories: data.accessories?.items?.length || 0,
+    audio: data.audio?.items?.length || 0,
+    popularBrands: data.popularBrands?.items?.length || 0,
+    popularCategories: data.popularCategories?.items?.length || 0,
+  });
   homepageState = data;
+  console.log("CMS Store: homepageState updated successfully");
 }
 
 // Taxonomy

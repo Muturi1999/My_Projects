@@ -3,7 +3,12 @@ import { syncFrontendToCMS } from "@/scripts/syncFrontendToCMS";
 
 export async function POST() {
   try {
+    console.log("API: Starting sync from frontend to CMS...");
     const result = syncFrontendToCMS();
+    console.log("API: Sync completed", {
+      success: result.success,
+      stats: result.stats,
+    });
     
     if (result.success) {
       return NextResponse.json({

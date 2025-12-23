@@ -194,7 +194,7 @@ export default function CheckoutPage() {
         </section>
 
         {/* Checkout content */}
-        <section className="py-4 sm:py-6 md:py-8 lg:py-10 bg-white flex-1">
+        <section className="py-4 sm:py-6 md:py-8 lg:py-10 bg-white flex-1 pb-24 lg:pb-0">
           <div className="section-wrapper grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-4 sm:gap-6 lg:gap-8">
             {/* Left: Billing, Shipping, Payment, Notes */}
             <div className="space-y-6">
@@ -637,6 +637,25 @@ export default function CheckoutPage() {
           </div>
         </section>
       </div>
+
+        {/* Mobile sticky checkout bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 z-50">
+          <div className="section-wrapper flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm text-gray-600">Total</div>
+              <div className="text-lg font-bold">KSh {totals.total.toLocaleString()}</div>
+            </div>
+            <div>
+              <button
+                onClick={handlePlaceOrder}
+                disabled={!acceptTerms || lines.length === 0 || isPlacingOrder}
+                className="bg-[#98C243] disabled:opacity-60 text-white px-4 py-3 rounded-md"
+              >
+                {isPlacingOrder ? "Placing…" : "PLACE ORDER"}
+              </button>
+            </div>
+          </div>
+        </div>
 
       <Footer />
     </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, type RefObject } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDownIcon, Bars3Icon } from "@heroicons/react/24/outline";
@@ -9,6 +9,37 @@ import {
   popularCategories,
   shopCategories,
 } from "@/lib/data/categories";
+
+// Simple outside click handler component
+function OutsideClickHandler({
+  refEl,
+  onOutside,
+}: {
+  refEl: RefObject<HTMLElement | null>;
+  onOutside: () => void;
+}) {
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!refEl.current) return;
+      if (!refEl.current.contains(e.target as Node)) {
+        onOutside();
+      }
+    };
+
+    document.addEventListener("mousedown", handler);
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") onOutside();
+    };
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [refEl, onOutside]);
+
+  return null;
+}
 
 const categories = [
   "Laptops & Computers",
@@ -23,6 +54,8 @@ const categories = [
 export function CategoryNav() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAllCategoriesDropdown, setShowAllCategoriesDropdown] = useState(false);
+  const [pinnedAllCategories, setPinnedAllCategories] = useState(false);
+  const allCategoriesRef = useRef<HTMLDivElement | null>(null);
   const [activeAllCategorySlug, setActiveAllCategorySlug] = useState<string>(
     shopCategories[0]?.slug ?? ""
   );
@@ -39,7 +72,7 @@ export function CategoryNav() {
 
   return (
     <nav
-      className="sticky top-[80px] bg-white border-b border-gray-200 z-40"
+      className="sticky top-[80px] bg-white border-b border-gray-200 z-60"
       onMouseLeave={handleMouseLeave}
     >
       <div className="section-wrapper">
@@ -48,19 +81,23 @@ export function CategoryNav() {
             {/* All Categories with Dropdown */}
             <div
               className="relative"
+              ref={allCategoriesRef}
               onMouseEnter={() => setShowAllCategoriesDropdown(true)}
-              onMouseLeave={() => setShowAllCategoriesDropdown(false)}
+              onMouseLeave={() => !pinnedAllCategories && setShowAllCategoriesDropdown(false)}
             >
               <button
                 type="button"
-                onClick={() =>
-                  setShowAllCategoriesDropdown((prev) => !prev)
-                }
+                onClick={() => {
+                  setShowAllCategoriesDropdown((prev) => !prev);
+                  setPinnedAllCategories((prev) => !prev);
+                }}
                 className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap border border-gray-200 rounded-none ${
                   showAllCategoriesDropdown
                     ? "bg-gray-100 text-[#A7E059]"
                     : "bg-white text-gray-700 hover:text-[#A7E059]"
                 }`}
+                aria-expanded={showAllCategoriesDropdown}
+                aria-controls="all-categories-dropdown"
               >
                 <Bars3Icon className="h-4 w-4" />
                 All Categories
@@ -78,6 +115,7 @@ export function CategoryNav() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
+                    id="all-categories-dropdown"
                     className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[800px] max-h-[600px] overflow-y-auto"
                   >
                     <div className="flex">
@@ -173,6 +211,17 @@ export function CategoryNav() {
               </AnimatePresence>
             </div>
 
+            {/* Close on outside click when dropdown is open */}
+            {showAllCategoriesDropdown && (
+              <OutsideClickHandler
+                refEl={allCategoriesRef}
+                onOutside={() => {
+                  setShowAllCategoriesDropdown(false);
+                  setPinnedAllCategories(false);
+                }}
+              />
+            )}
+
             {/* Other Categories */}
             {categories.map((category) => {
               const hasDropdown = categoryDropdowns[category];
@@ -186,11 +235,20 @@ export function CategoryNav() {
                 >
                   <Link
                     href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // toggle on click for better accessibility on desktop
+                      if (hasDropdown) {
+                        setActiveDropdown(isActive ? null : category);
+                      }
+                    }}
                     className={`flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive
                         ? "text-[#A7E059]"
                         : "text-gray-700 hover:text-[#A7E059]"
                     }`}
+                    aria-expanded={isActive}
+                    aria-controls={isActive ? "category-dropdown" : undefined}
                   >
                     {category}
                     {hasDropdown && (

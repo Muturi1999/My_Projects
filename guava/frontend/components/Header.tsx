@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import {
   UserIcon, HomeIcon,
 } from "@heroicons/react/24/outline";
 import { CategoryNav } from "./CategoryNav";
-import { shopCategories } from "@/lib/data/categories";
+import { shopCategories, popularBrands } from "@/lib/data/categories";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
 import { useCompare } from "@/lib/hooks/use-compare";
@@ -32,11 +33,22 @@ export function Header() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showMobileScopeDropdown, setShowMobileScopeDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
   const router = useRouter();
   const { count: wishlistCount } = useWishlist();
   const { count: cartCount } = useCart();
   const { count: compareCount } = useCompare();
   const [showCartPopup, setShowCartPopup] = useState(false);
+
+  const handleCartClick = (e?: React.MouseEvent) => {
+    if (typeof window !== "undefined" && window.innerWidth < 1280) {
+      e?.preventDefault();
+      setShowCartPopup((prev) => !prev);
+    } else {
+      router.push("/cart");
+    }
+  };
 
   // Removed useScrollHideHeader() to keep header sticky at all times
 
@@ -55,6 +67,63 @@ export function Header() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showCategoryDropdown]);
+
+  // Focus trap & keyboard handling for mobile menu
+  const handleMenuKeyDown = (e: React.KeyboardEvent) => {
+    if (!menuRef.current) return;
+    const focusable = menuRef.current.querySelectorAll<HTMLElement>(
+      'a, button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable || focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
+    if (e.key === "Tab") {
+      // If shift + tab
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      // Auto-focus first focusable element inside menu (anchor or button)
+      setTimeout(() => {
+        const el = menuRef.current?.querySelector<HTMLElement>("a, button");
+        el?.focus();
+      }, 50);
+
+      // Lock body scroll
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const onDocKey = (ev: KeyboardEvent) => {
+        if (ev.key === "Escape") setIsMobileMenuOpen(false);
+      };
+      document.addEventListener("keydown", onDocKey);
+
+      return () => {
+        document.body.style.overflow = prevOverflow || "";
+        document.removeEventListener("keydown", onDocKey);
+      };
+    }
+  }, [isMobileMenuOpen]);
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -115,6 +184,8 @@ export function Header() {
               type="button"
               aria-label="Open menu"
               onClick={() => setIsMobileMenuOpen(true)}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
@@ -155,7 +226,7 @@ export function Header() {
             >
               <HeartIcon className="h-5 w-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
               )}
@@ -186,29 +257,29 @@ export function Header() {
             </button>
 
             {/* Cart */}
-            <div
-              className="relative"
-              onMouseEnter={() => setShowCartPopup(true)}
-              onMouseLeave={() => setShowCartPopup(false)}
-            >
-              <button
-                type="button"
-                onClick={() => router.push("/cart")}
+              <div
                 className="relative"
-                aria-label="Cart"
+                onMouseEnter={() => setShowCartPopup(true)}
+                onMouseLeave={() => setShowCartPopup(false)}
               >
-                <ShoppingCartIcon className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
-                )}
-              </button>
-              <CartPopup
-                isOpen={showCartPopup}
-                onClose={() => setShowCartPopup(false)}
-              />
-            </div>
+                <button
+                  type="button"
+                  onClick={handleCartClick}
+                  className="relative"
+                  aria-label="Cart"
+                >
+                  <ShoppingCartIcon className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
+                </button>
+                <CartPopup
+                  isOpen={showCartPopup}
+                  onClose={() => setShowCartPopup(false)}
+                />
+              </div>
           </div>
         </div>
 
@@ -235,30 +306,50 @@ export function Header() {
                   <ChevronDownIcon className="h-3 w-3" />
                 </button>
                 {showMobileScopeDropdown && (
-                  <div className="absolute left-0 mt-1 w-40 bg-white text-gray-800 rounded-md shadow-lg border border-gray-200 z-50">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchScope("all");
-                        setShowMobileScopeDropdown(false);
-                      }}
-                      className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
-                    >
-                      All
-                    </button>
-                    {shopCategories.map((category) => (
+                  <div className="absolute left-0 mt-1 w-56 bg-white text-gray-800 rounded-md shadow-lg border border-gray-200 z-50 p-2">
+                    <div className="space-y-1">
                       <button
-                        key={category.id}
                         type="button"
                         onClick={() => {
-                          if (category.slug) setSearchScope(category.slug);
+                          setSearchScope("all");
                           setShowMobileScopeDropdown(false);
                         }}
                         className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
                       >
-                        {category.name}
+                        All
                       </button>
-                    ))}
+                      {shopCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          type="button"
+                          onClick={() => {
+                            if (category.slug) setSearchScope(category.slug);
+                            setShowMobileScopeDropdown(false);
+                          }}
+                          className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+
+                      <div className="pt-2 border-t border-gray-100">
+                        <h4 className="text-xs text-gray-500 px-3 py-1">Brands</h4>
+                        <div className="grid grid-cols-2 gap-1 px-2">
+                          {popularBrands.slice(0, 8).map((b) => (
+                            <button
+                              key={b.id}
+                              onClick={() => {
+                                setShowMobileScopeDropdown(false);
+                                router.push(`/search?brand=${b.slug}`);
+                              }}
+                              className="text-xs text-left px-2 py-1 hover:text-[#A7E059]"
+                            >
+                              {b.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -321,6 +412,8 @@ export function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setShowCategoryDropdown((prev) => !prev)}
+                    aria-expanded={showCategoryDropdown}
+                    aria-controls="search-categories-dropdown"
                     className="flex items-center gap-1 px-2 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 border-r border-gray-300 hover:bg-gray-50 transition-colors"
                   >
                     <span className="hidden sm:inline">
@@ -332,32 +425,56 @@ export function Header() {
                     <ChevronDownIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                   {showCategoryDropdown && (
-                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto min-w-[200px]">
-                      <button
-                        onClick={() => {
-                          setSelectedCategory("All");
-                          setSearchScope("all");
-                          setShowCategoryDropdown(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        All
-                      </button>
-                      {shopCategories.map((category) => (
-                        <button
-                          key={category.id}
-                          onClick={() => {
-                            setSelectedCategory(category.name);
-                            if (category.slug) {
-                              setSearchScope(category.slug);
-                            }
-                            setShowCategoryDropdown(false);
-                          }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                        >
-                          {category.name}
-                        </button>
-                      ))}
+                    <div id="search-categories-dropdown" className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-72 overflow-y-auto min-w-[320px]">
+                      <div className="p-2">
+                        <div className="flex gap-4">
+                          <div className="min-w-[200px]">
+                            <button
+                              onClick={() => {
+                                setSelectedCategory("All");
+                                setSearchScope("all");
+                                setShowCategoryDropdown(false);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            >
+                              All
+                            </button>
+                            {shopCategories.map((category) => (
+                              <button
+                                key={category.id}
+                                onClick={() => {
+                                  setSelectedCategory(category.name);
+                                  if (category.slug) {
+                                    setSearchScope(category.slug);
+                                  }
+                                  setShowCategoryDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              >
+                                {category.name}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div className="flex-1 border-l border-gray-100 pl-4">
+                            <h4 className="text-xs text-gray-500 mb-2 font-semibold">Brands</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              {popularBrands.slice(0, 12).map((b) => (
+                                <button
+                                  key={b.id}
+                                  onClick={() => {
+                                    setShowCategoryDropdown(false);
+                                    router.push(`/search?brand=${b.slug}`);
+                                  }}
+                                  className="text-sm text-gray-700 hover:text-[#A7E059] text-left px-2 py-1"
+                                >
+                                  {b.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -416,9 +533,9 @@ export function Header() {
                   Wishlist
                 </span>
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                    {wishlistCount > 9 ? "9+" : wishlistCount}
-                  </span>
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-5 h-5 sm:w-5 sm:h-5 flex items-center justify-center">
+                      {wishlistCount > 9 ? "9+" : wishlistCount}
+                    </span>
                 )}
               </button>
 
@@ -434,9 +551,9 @@ export function Header() {
                   Compare
                 </span>
                 {compareCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                    {compareCount > 9 ? "9+" : compareCount}
-                  </span>
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-5 h-5 sm:w-5 sm:h-5 flex items-center justify-center">
+                        {compareCount > 9 ? "9+" : compareCount}
+                      </span>
                 )}
               </button>
 
@@ -461,14 +578,14 @@ export function Header() {
               >
                 <button
                   type="button"
-                  onClick={() => router.push("/cart")}
+                  onClick={handleCartClick}
                   className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#A7E059] transition-colors relative"
                   aria-label="Cart"
                 >
                   <ShoppingCartIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   <span className="text-[10px] sm:text-xs hidden sm:inline">Cart</span>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-5 h-5 sm:w-5 sm:h-5 flex items-center justify-center">
                       {cartCount > 9 ? "9+" : cartCount}
                     </span>
                   )}
@@ -488,68 +605,78 @@ export function Header() {
         <CategoryNav />
       </div>
 
-      {/* Mobile menu panel */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute inset-x-0 top-full bg-white border-t border-gray-200 shadow-lg">
-          <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200">
-            <span className="text-sm font-semibold text-gray-900">
-              Menu
-            </span>
-            <button
-              type="button"
-              aria-label="Close menu"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-700" />
-            </button>
-          </div>
-          <nav className="px-4 py-3 space-y-2 text-sm text-gray-800">
-            <Link
-              href="/"
-              className="block py-1 hover:text-red-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/popular-categories"
-              className="block py-1 hover:text-red-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Popular Categories
-            </Link>
-            <Link
-              href="/popular-brands"
-              className="block py-1 hover:text-red-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Popular Brands
-            </Link>
-            <Link
-              href="/hot-deals"
-              className="block py-1 hover:text-red-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Today&apos;s Hot Deals
-            </Link>
-            <div className="pt-2 mt-1 border-t border-gray-200">
-              <p className="text-[11px] font-semibold text-gray-500 mb-1">
-                Shop by category
-              </p>
-              {shopCategories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={category.slug ? `/category/${category.slug}` : "/"}
-                  className="block py-1.5 hover:text-red-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {category.name}
-                </Link>
-              ))}
+      {/* Mobile menu panel (animated + focus trap) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeInOut" }}
+            className="md:hidden absolute inset-x-0 top-full bg-white border-t border-gray-200 shadow-lg"
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile menu"
+            ref={menuRef}
+            onKeyDown={handleMenuKeyDown}
+          >
+            <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200">
+              <span className="text-sm font-semibold text-gray-900">Menu</span>
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-700" />
+              </button>
             </div>
-          </nav>
-        </div>
-      )}
+            <nav className="px-4 py-3 space-y-2 text-sm text-gray-800" role="navigation" aria-label="Mobile primary">
+              <Link
+                href="/"
+                className="block py-1 hover:text-red-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link
+                href="/popular-categories"
+                className="block py-1 hover:text-red-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Popular Categories
+              </Link>
+              <Link
+                href="/popular-brands"
+                className="block py-1 hover:text-red-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Popular Brands
+              </Link>
+              <Link
+                href="/hot-deals"
+                className="block py-1 hover:text-red-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Today&apos;s Hot Deals
+              </Link>
+              <div className="pt-2 mt-1 border-t border-gray-200">
+                <p className="text-[11px] font-semibold text-gray-500 mb-1">Shop by category</p>
+                {shopCategories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={category.slug ? `/category/${category.slug}` : "/"}
+                    className="block py-1.5 hover:text-red-600"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
