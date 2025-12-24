@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/ui/AddToCartButton";
@@ -57,33 +59,148 @@ export default function HotDealsPage() {
     return hotDeals;
   }, [homepage, loading]);
 
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("Most Popular");
+
+  const filteredProducts = React.useMemo(() => {
+    let filtered = [...products];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.category?.toLowerCase().includes(query) ||
+          p.brand?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case "Price: Low to High":
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case "Price: High to Low":
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case "Highest Rated":
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case "Newest First":
+        // Keep original order for hot deals
+        break;
+      default:
+        // Most Popular - keep original order
+        break;
+    }
+
+    return filtered;
+  }, [products, searchQuery, sortBy]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 bg-white">
-        <section className="py-10">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-16 md:py-20">
           <div className="section-wrapper">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="section-heading">Today&apos;s Hot Deals</h1>
-                <p className="text-gray-600 mt-2">
-                  Latest offers with limited stock. Grab them before they are
-                  gone.
-                </p>
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-4">
+                <span className="text-sm font-semibold">🔥 LIMITED TIME OFFERS</span>
               </div>
+              <h1 className="font-public-sans text-4xl md:text-5xl font-bold mb-4">
+                Today&apos;s Hot Deals
+              </h1>
+              <p className="text-lg md:text-xl opacity-90 mb-6">
+                Exclusive discounts on top products. Limited stock available - grab them before they&apos;re gone!
+              </p>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="bg-white/20 px-4 py-2 rounded">
+                  <span className="font-semibold">{filteredProducts.length}</span> Deals Available
+                </div>
+                <div className="bg-white/20 px-4 py-2 rounded">
+                  <span className="font-semibold">Up to 70%</span> OFF
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Breadcrumb */}
+        <section className="bg-gray-50 py-4">
+          <div className="section-wrapper">
+            <div className="flex items-center gap-4 text-sm">
               <Link
                 href="/"
-                className="text-sm font-medium text-[#A7E059] hover:underline"
+                className="text-gray-600 hover:text-[#A7E059] transition-colors"
               >
-                ← Back to Home
+                Home
               </Link>
+              <span className="text-gray-400">/</span>
+              <span className="text-gray-900 font-medium">Hot Deals</span>
             </div>
+          </div>
+        </section>
 
-            {loading && !products.length ? (
+        {/* Search and Sort Bar */}
+        <section className="bg-white border-b border-gray-200 py-4">
+          <div className="section-wrapper">
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+              <div className="flex-1 max-w-md">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search hot deals..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A7E059] focus:border-transparent"
+                  />
+                  <svg
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A7E059] focus:border-transparent"
+                >
+                  <option>Most Popular</option>
+                  <option>Price: Low to High</option>
+                  <option>Price: High to Low</option>
+                  <option>Highest Rated</option>
+                  <option>Newest First</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Products Grid */}
+        <section className="py-10 bg-white">
+          <div className="section-wrapper">{loading && !products.length ? (
               <p className="text-gray-500 text-sm">Loading hot deals...</p>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">
+                  {searchQuery ? `No deals found matching "${searchQuery}"` : "No hot deals available at the moment."}
+                </p>
+              </div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{filteredProducts.map((product) => (
                 <div
                   key={product.id}
                   className="rounded-none border border-gray-200 shadow-sm bg-white flex flex-col overflow-hidden"

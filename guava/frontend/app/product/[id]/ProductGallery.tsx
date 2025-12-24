@@ -11,8 +11,17 @@ interface ProductGalleryProps {
 export function ProductGallery({ images, name }: ProductGalleryProps) {
   // Filter out only empty or placeholder images
   // Allow both local paths and URLs (including unsplash.com) as valid images
+  // For Django products (URLs), don't filter out placeholder text
   const validImages = (images || [])
-    .filter((img) => img && typeof img === "string" && img.trim() !== "" && !img.includes("placeholder"))
+    .filter((img) => {
+      if (!img || typeof img !== "string" || img.trim() === "") return false;
+      // If it's a URL (starts with http:// or https://), don't filter by placeholder
+      if (img.startsWith("http://") || img.startsWith("https://")) {
+        return true;
+      }
+      // For local paths, filter out placeholders
+      return !img.includes("placeholder");
+    })
     .slice(0, 6); // Limit to max 6 images
   
   // If no valid images, return null (don't show gallery)
@@ -41,6 +50,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
           fill
           className="object-contain p-4"
           priority
+          unoptimized={validImages[activeIndex]?.startsWith('http://') || validImages[activeIndex]?.startsWith('https://')}
         />
       </div>
 
@@ -72,6 +82,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                     alt={`${name} thumbnail ${absoluteIndex + 1}`}
                     fill
                     className="object-contain p-2"
+                    unoptimized={image.startsWith('http://') || image.startsWith('https://')}
                   />
                 </button>
               );

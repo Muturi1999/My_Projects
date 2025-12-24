@@ -10,6 +10,7 @@ interface BrandLaptopCardProps {
 
 export function BrandLaptopCard({ laptop }: BrandLaptopCardProps) {
   const router = useRouter();
+  const brandSlug = laptop.brand || '';
 
   return (
     <ProductCard
@@ -17,7 +18,7 @@ export function BrandLaptopCard({ laptop }: BrandLaptopCardProps) {
       variant="detailed"
       showSpecs={true}
       showViewButton={true}
-      onCardClick={() => router.push(`/product/${laptop.id}`)}
+      onCardClick={() => router.push(`/product/${laptop.slug || laptop.id}?from=brand&brand=${brandSlug}`)}
       imageHeight="h-48 md:h-52"
     />
   );

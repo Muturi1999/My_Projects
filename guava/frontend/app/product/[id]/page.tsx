@@ -29,6 +29,8 @@ import { ProductDetailCompareButton } from "./ProductDetailCompareButton";
 import { mapProductsToLocalImages, getProductImage } from "@/lib/utils/imageMapper";
 import { getCategorySlug } from "@/lib/utils/categoryMapper";
 import { AddonCardDetailed } from "@/components/AddonCardDetailed";
+import { transformDjangoProduct, isDjangoProduct } from "@/lib/utils/productTransformer";
+import { env } from "@/lib/config/env";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -549,7 +551,7 @@ function getFeaturedProduct(id: string) {
   };
 }
 
-function buildProductDetail(product: Product & { descriptionList?: string[]; features?: string[] }) {
+function buildProductDetail(product: Product & { descriptionList?: string[]; features?: string[]; _isDjangoProduct?: boolean }) {
   const defaultDescriptions =
     product.descriptionList ||
     (product as any).descriptionBlocks ||
@@ -561,13 +563,27 @@ function buildProductDetail(product: Product & { descriptionList?: string[]; fea
     ];
 
   // Get images array, filtering out invalid/empty images
+  // For Django products, use images as-is (they're already URLs)
+  // For static products, filter out placeholders
   const rawImages = product.images?.length ? product.images : (product.image ? [product.image] : []);
   
-  // Filter out only empty or placeholder images
-  // Allow both local paths and URLs (including unsplash.com) as valid images
-  const images = rawImages.filter(
-    (img) => img && typeof img === "string" && img.trim() !== "" && !img.includes("placeholder")
-  );
+  let images: string[];
+  if (product._isDjangoProduct) {
+    // Django products: use images as-is, only filter empty strings
+    images = rawImages.filter(
+      (img) => img && typeof img === "string" && img.trim() !== ""
+    );
+  } else {
+    // Static products: filter out placeholders and empty strings
+    images = rawImages.filter(
+      (img) => img && typeof img === "string" && img.trim() !== "" && !img.includes("placeholder")
+    );
+  }
+  
+  // Ensure we have at least one image (use primary image as fallback)
+  if (images.length === 0 && product.image) {
+    images = [product.image];
+  }
 
   return {
     ...product,
@@ -589,31 +605,155 @@ export async function generateStaticParams() {
 }
 
 export default async function ProductPage({ params, searchParams }: ProductPageProps) {
+  // Await params and searchParams (Next.js 15+ requirement)
   const { id } = await params;
-  const { category: categorySlugFromUrl } = await searchParams;
+  const { category: categorySlugFromUrl, brand: brandSlugFromUrl, from } = await searchParams;
   
   let product =
     catalogProducts.find((item) => item.id === id) || getFeaturedProduct(id);
+
+  // If product not found in static data, try fetching from Django API using Next.js API route
+  if (!product) {
+    try {
+      // Use the app URL from env config for server-side fetch
+      const baseUrl = env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      
+      // Try by slug first (most common case for URLs like /product/test-product)
+      let response = await fetch(
+        `${baseUrl}/api/products?slug=${encodeURIComponent(id)}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: 'no-store', // Ensure fresh data
+        }
+      );
+
+      if (!response.ok) {
+        // If slug lookup fails, try by ID (in case id is numeric)
+        response = await fetch(
+          `${baseUrl}/api/products?id=${encodeURIComponent(id)}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            cache: 'no-store',
+          }
+        );
+      }
+
+      if (response.ok) {
+        const djangoProduct = await response.json();
+        if (djangoProduct && !djangoProduct.error) {
+          product = transformDjangoProduct(djangoProduct);
+        }
+      } else {
+        // Log the error for debugging
+        const errorText = await response.text();
+        console.error(`Failed to fetch product ${id}:`, response.status, errorText);
+      }
+    } catch (error) {
+      console.error("Failed to fetch product from Django:", error);
+    }
+  }
 
   if (!product) {
     notFound();
   }
 
-  // Map product images to local paths
-  const productWithLocalImages = mapProductsToLocalImages([product])[0];
+  // Only apply image mapper to static products, not Django products
+  const productWithLocalImages = isDjangoProduct(product)
+    ? product
+    : mapProductsToLocalImages([product])[0];
+  
   const detailedProduct = buildProductDetail(productWithLocalImages);
   const saving = detailedProduct.originalPrice - detailedProduct.price;
-  // Compute similar products on the frontend using category, brand and subtype
-  const similarProductsRaw = getSimilarProductsFrontend(
-    product as Product,
-    catalogProducts,
-    4
-  );
-  // Map similar products to local images
-  const similarProducts = mapProductsToLocalImages(similarProductsRaw);
+  
+  // Fetch similar products and addons from Django API - related to this product's category
+  // "You may also like" and "Add On's and Accessories" should show products from the same category, from database
+  const productCategory = (product as any).category || (product as any).category_slug || "";
+  
+  let similarProducts: Product[] = [];
+  let addons: any[] = [];
+  
+  if (productCategory) {
+    try {
+      const API_BASE_URL = env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000/api";
+      
+      const response = await fetch(
+        `${API_BASE_URL}/products/queries/?category_slug=${productCategory}&page_size=20`,
+        {
+          headers: { "Content-Type": "application/json" },
+          cache: 'no-store',
+          next: { revalidate: 0 },
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Get products from same category, excluding current product
+        const categoryProducts = (data.results || [])
+          .filter((p: any) => p.id?.toString() !== product.id?.toString())
+          .map((p: any) => transformDjangoProduct(p));
+        
+        // Similar products: first 4 products from same category
+        similarProducts = categoryProducts.slice(0, 4);
+        
+        // Addons: next 5 products from same category
+        addons = categoryProducts.slice(4, 9).map((addon: any) => ({
+          id: addon.id,
+          name: addon.name,
+          price: addon.price,
+          originalPrice: addon.originalPrice,
+          image: addon.image || "",
+          discount: addon.originalPrice ? Math.round(((addon.originalPrice - addon.price) / addon.originalPrice) * 100) : 0,
+        }));
+      }
+    } catch (error: any) {
+      // Silently fail - no similar products/addons if API unavailable
+      if (process.env.NODE_ENV === 'development') {
+        console.warn("Failed to fetch category products from Django API:", error.message || error);
+      }
+    }
+  }
+  
+  // Fallback to static similar products only if no Django products found
+  if (similarProducts.length === 0) {
+    const similarProductsRaw = getSimilarProductsFrontend(
+      product as Product,
+      catalogProducts,
+      4
+    );
+    // Map similar products to local images (only for static products)
+    similarProducts = similarProductsRaw.map(p => 
+      isDjangoProduct(p) ? p : mapProductsToLocalImages([p])[0]
+    );
+  }
+  
+  // Fallback to static addons only if no Django addons found
+  if (addons.length === 0) {
+    const explicitAddons = (product as any).addons || [];
+    const fallbackAddons = explicitAddons.length > 0
+      ? explicitAddons
+      : getFallbackAddons(product as Product);
+    
+    addons = fallbackAddons;
+  }
+  
+  // Map addon images to local paths (only for static addons)
+  const computedAddons = addons.map((addon) => {
+    const localImage = isDjangoProduct(addon) 
+      ? addon.image 
+      : getProductImage(addon.name, addon.image);
+    return {
+      ...addon,
+      image: localImage,
+    };
+  });
 
-  // Get category slug for navigation - prefer URL param, fallback to mapping
-  const categorySlug = categorySlugFromUrl || getCategorySlug(detailedProduct.category);
+  // Get category slug for navigation - prefer URL param, then product's category_slug, fallback to mapping
+  const categorySlug = categorySlugFromUrl || (product as any).category_slug || getCategorySlug(detailedProduct.category);
+  const brandSlug = brandSlugFromUrl || (product as any).brand;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -629,7 +769,24 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 Home
               </Link>
               <span className="text-gray-400">/</span>
-              {categorySlug ? (
+              {from === 'brand' && brandSlug ? (
+                <>
+                  <Link
+                    href="/popular-brands"
+                    className="text-gray-600 hover:text-[#A7E059] transition-colors truncate"
+                  >
+                    Brands
+                  </Link>
+                  <span className="text-gray-400">/</span>
+                  <Link
+                    href={`/brands/${brandSlug}`}
+                    className="text-gray-600 hover:text-[#A7E059] transition-colors truncate"
+                  >
+                    {detailedProduct.brand || brandSlug}
+                  </Link>
+                  <span className="text-gray-400">/</span>
+                </>
+              ) : categorySlug ? (
                 <>
                   <Link
                     href={`/category/${categorySlug}`}
@@ -967,21 +1124,6 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             {/* Right: Add-ons / accessories */}
             <aside className="space-y-4">
               {(() => {
-                const explicitAddons = (product as any).addons || [];
-                const computedAddonsRaw =
-                  explicitAddons.length > 0
-                    ? explicitAddons
-                    : getFallbackAddons(product as Product);
-
-                // Map addon images to local paths
-                const computedAddons = computedAddonsRaw.map((addon) => {
-                  const localImage = getProductImage(addon.name, addon.image);
-                  return {
-                    ...addon,
-                    image: localImage,
-                  };
-                });
-
                 if (!computedAddons.length) return null;
 
                 return (

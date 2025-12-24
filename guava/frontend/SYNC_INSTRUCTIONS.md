@@ -46,3 +46,4 @@ If sections are not showing all products:
 - All product images are automatically mapped using the image mapper utility
 - The sync happens in-memory and persists until the server restarts
 
+

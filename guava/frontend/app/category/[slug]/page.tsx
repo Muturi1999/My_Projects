@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { notFound, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,13 +22,9 @@ import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
 import { useRouter } from "next/navigation";
 import { mapProductsToLocalImages } from "@/lib/utils/imageMapper";
+import { isDjangoProduct, transformDjangoProduct } from "@/lib/utils/productTransformer";
 
-// Combine all laptop products from static datasets so product IDs
-// always resolve correctly on the product detail page.
-const allLaptopProducts = [
-  ...laptopDeals,
-  ...(categoryProducts["laptops-computers"] || []),
-];
+// Products are now fetched from Django API only - no static data
 
 const sortOptions = [
   "Most Popular",
@@ -58,22 +54,30 @@ function ProductCard({
   categorySlug: string;
 }) {
   const router = useRouter();
-  const discountPercentage = Math.round(
-    ((product.originalPrice - product.price) / product.originalPrice) * 100
-  );
+  
+  const discountPercentage = product.originalPrice > 0 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
 
   if (viewMode === "list") {
     return (
       <Card className="group p-4 hover:shadow-lg transition-all border border-gray-200 rounded-none">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative w-full md:w-48 h-40 sm:h-48 bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 200px, 200px"
-              className="object-contain p-3 sm:p-4"
-            />
+            {product.image && product.image.trim() !== "" ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 200px, 200px"
+                className="object-contain p-3 sm:p-4"
+                unoptimized={isDjangoProduct(product) && (product.image?.startsWith('http://') || product.image?.startsWith('https://'))}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-xs text-center px-4">
+                No Image Available
+              </div>
+            )}
             {/* Wishlist Hover Icon */}
             <WishlistIcon
               isActive={isInWishlist}
@@ -115,16 +119,22 @@ function ProductCard({
                   </div>
                 )}
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <span className="text-xs sm:text-sm text-gray-500 line-through">
-                    Ksh {product.originalPrice.toLocaleString()}
-                  </span>
+                  {product.originalPrice && (
+                    <span className="text-xs sm:text-sm text-gray-500 line-through">
+                      Ksh {product.originalPrice.toLocaleString()}
+                    </span>
+                  )}
                   <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    Ksh {product.price.toLocaleString()}
+                    Ksh {product.price?.toLocaleString() || '0'}
                   </span>
                 </div>
               </div>
               <AddToCartButton
-                onClick={() => router.push(`/product/${product.id}?category=${categorySlug}`)}
+                onClick={() => {
+        // Use product slug for better URLs, fallback to ID if slug not available
+        const productPath = product.slug || product.id;
+        router.push(`/product/${productPath}?category=${categorySlug}`);
+      }}
                 className="w-full sm:w-auto"
               />
             </div>
@@ -137,7 +147,11 @@ function ProductCard({
   return (
     <Card
       className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all border border-gray-200 cursor-pointer rounded-none"
-      onClick={() => router.push(`/product/${product.id}?category=${categorySlug}`)}
+      onClick={() => {
+        // Use product slug for better URLs, fallback to ID if slug not available
+        const productPath = product.slug || product.id;
+        router.push(`/product/${productPath}?category=${categorySlug}`);
+      }}
     >
       <div className="px-4 pt-4 flex flex-col gap-2 items-start">
         <span className="inline-flex items-center bg-[#A7E059] text-black px-2.5 py-1 rounded-full text-xs font-semibold">
@@ -151,13 +165,20 @@ function ProductCard({
       </div>
       <div className="relative p-4 border-b border-gray-200">
         <div className="relative bg-white w-full h-48 md:h-52 overflow-hidden border border-gray-200">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="object-contain p-4"
-          />
+          {product.image && product.image.trim() !== "" ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              className="object-contain p-4"
+              unoptimized={isDjangoProduct(product) && (product.image?.startsWith('http://') || product.image?.startsWith('https://'))}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400 text-xs text-center px-4">
+              No Image Available
+            </div>
+          )}
            {/* Wishlist Hover Icon */}
            <WishlistIcon
              isActive={isInWishlist}
@@ -220,11 +241,13 @@ function ProductCard({
         )}
         <div className="mb-3 sm:mb-4">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <span className="text-xs sm:text-sm text-gray-500 line-through">
-            Ksh {product.originalPrice.toLocaleString()}
-          </span>
+          {product.originalPrice && (
+            <span className="text-xs sm:text-sm text-gray-500 line-through">
+              Ksh {product.originalPrice.toLocaleString()}
+            </span>
+          )}
           <span className="text-lg sm:text-xl font-bold text-gray-900">
-            Ksh {product.price.toLocaleString()}
+            Ksh {product.price?.toLocaleString() || '0'}
           </span>
           </div>
         </div>
@@ -258,23 +281,74 @@ export default function CategoryPage() {
   const [showFilters, setShowFilters] = useState(false);
   const { ids: wishlistIds, toggle } = useWishlist();
   const toast = useToast();
+  const [djangoProducts, setDjangoProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   const productsPerPage = 12;
 
-  // Generate products for each category (using only real catalog data
-  // so that every product ID links correctly to the product detail page)
-  const generateCategoryProducts = useMemo(() => {
-    const baseProducts = categoryProducts[slug] || [];
+  // Fetch products from Django API (directly, not via Next.js proxy)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000/api";
 
-    if (slug === "laptops-computers") {
-      // Laptops: use all known laptop products from our catalog data
-      return allLaptopProducts;
+        const response = await fetch(
+          `${baseUrl}/products/queries/?category_slug=${slug}&page_size=1000`,
+          {
+            cache: 'no-store', // Always fetch fresh data
+          }
+        );
+
+        if (!response.ok) {
+          console.error(
+            "[Category Page] Failed to fetch products from Django. Status:",
+            response.status
+          );
+          setDjangoProducts([]);
+          return;
+        }
+
+        const data = await response.json();
+        const djangoRawProducts = data.results || data || [];
+
+        console.log(`[Category Page] Fetched ${djangoRawProducts.length} products for category: ${slug}`);
+
+        // Transform raw Django products into frontend Product format
+        const transformed = Array.isArray(djangoRawProducts)
+          ? djangoRawProducts.map((p: any) => {
+              const transformedProduct = transformDjangoProduct(p);
+              console.log(`[Category Page] Transformed product: ${transformedProduct.name}, category_slug: ${(transformedProduct as any).category_slug}`);
+              return transformedProduct;
+            })
+          : [];
+
+        console.log(`[Category Page] Transformed ${transformed.length} products`);
+        setDjangoProducts(transformed);
+      } catch (error) {
+        console.error("[Category Page] Failed to fetch products from Django:", error);
+        setDjangoProducts([]);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    if (slug) {
+      fetchProducts();
     }
-
-    // Other categories: use only the configured categoryProducts
-    // so product IDs match the shared catalog and product detail page.
-    return baseProducts;
   }, [slug]);
+
+  // Generate products for each category - ONLY from database
+  // Since API already filters by category_slug, we just use all fetched products
+  const generateCategoryProducts = useMemo(() => {
+    console.log(`[Category Page] Using Django products for category "${slug}"`);
+    console.log(`[Category Page] Total Django products: ${djangoProducts.length}`);
+    
+    // API already filtered by category_slug, so just return all fetched products
+    // No need to filter again unless category_slug somehow doesn't match
+    return djangoProducts;
+  }, [slug, djangoProducts]);
 
   // Get products for this category
   const categoryProductsList = useMemo(() => {
@@ -299,27 +373,51 @@ export default function CategoryPage() {
       });
     }
 
-    // Apply filters
-    if (filters.availability?.inStock) {
-      filtered = filtered.filter((p) => (p as any).stock !== undefined && (p as any).stock > 0);
-    }
-    if (filters.availability?.outOfStock) {
-      filtered = filtered.filter((p) => (p as any).stock === undefined || (p as any).stock === 0);
-    }
-    if (filters.priceRange && filters.priceRange.length === 2) {
-      const minPrice = filters.priceRange[0] * 1000;
-      const maxPrice = filters.priceRange[1] === 500 ? Infinity : filters.priceRange[1] * 1000;
-      filtered = filtered.filter(
-        (p) => p.price >= minPrice && p.price <= maxPrice
-      );
-    }
-    if (filters.brands?.length > 0) {
+    // Apply filters - ONLY if explicitly selected by user
+    // Availability filters
+    if (filters.availability?.inStock === true) {
       filtered = filtered.filter((p) => {
-        const productBrand = (p as any).brand;
+        const availability = (p as any).availability || 'in_stock';
+        const stock = (p as any).stock_quantity ?? (p as any).stock ?? 0;
+        // Consider in_stock, special_offer, clearance as "in stock"
+        return ['in_stock', 'special_offer', 'clearance'].includes(availability) || stock > 0;
+      });
+      console.log(`[Category Page] Applied inStock filter: ${filtered.length} products`);
+    }
+    if (filters.availability?.outOfStock === true) {
+      filtered = filtered.filter((p) => {
+        const availability = (p as any).availability || 'in_stock';
+        const stock = (p as any).stock_quantity ?? (p as any).stock ?? 0;
+        // Consider out_of_stock, check_availability, expecting as "out of stock" if stock is 0
+        return !['in_stock', 'special_offer', 'clearance'].includes(availability) && stock === 0;
+      });
+      console.log(`[Category Page] Applied outOfStock filter: ${filtered.length} products`);
+    }
+    
+    // Price range filter - ONLY apply if user changed it from default [0, 500]
+    if (filters.priceRange && filters.priceRange.length === 2) {
+      const [min, max] = filters.priceRange;
+      // Only apply if it's different from default [0, 500]
+      if (min !== 0 || max !== 500) {
+        const minPrice = min * 1000;
+        const maxPrice = max === 500 ? Infinity : max * 1000;
+        filtered = filtered.filter(
+          (p) => p.price >= minPrice && p.price <= maxPrice
+        );
+        console.log(`[Category Page] Applied price range filter [${minPrice}, ${maxPrice === Infinity ? 'Infinity' : maxPrice}]: ${filtered.length} products`);
+      }
+    }
+    // Brand filter - ONLY apply if user selected brands
+    if (filters.brands && Array.isArray(filters.brands) && filters.brands.length > 0) {
+      filtered = filtered.filter((p) => {
+        // Check both brand name and brand_slug
+        const productBrand = (p as any).brand || (p as any).brand_slug || "";
         return filters.brands.some((b: string) => 
-          productBrand?.toLowerCase() === b.toLowerCase()
+          productBrand?.toLowerCase() === b.toLowerCase() ||
+          productBrand?.toLowerCase() === b.toLowerCase().replace(/\s+/g, "-")
         );
       });
+      console.log(`[Category Page] Applied brand filter [${filters.brands.join(', ')}]: ${filtered.length} products`);
     }
     if (filters.types?.length > 0) {
       filtered = filtered.filter((p) => filters.types.includes((p as any).type));
@@ -460,6 +558,7 @@ export default function CategoryPage() {
         break;
     }
 
+    console.log(`[Category Page] Final filtered products: ${filtered.length}`);
     return filtered;
   }, [categoryProductsList, filters, sortBy, searchQuery]);
 
@@ -468,8 +567,21 @@ export default function CategoryPage() {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+  
+  console.log(`[Category Page] Pagination: total=${filteredAndSortedProducts.length}, page=${currentPage}, perPage=${productsPerPage}, raw=${paginatedProductsRaw.length}`);
+  
   // Map products to use local images
-  const paginatedProducts = mapProductsToLocalImages(paginatedProductsRaw);
+  // Only map local images for static products, not Django products
+  // Show all products from database (even without images) - they'll display with a "no image" state
+  const paginatedProducts = paginatedProductsRaw.map((p) => {
+    // Only apply image mapper to static products
+    if (isDjangoProduct(p)) {
+      return p; // Django products already have their images from database (or empty string if none)
+    }
+    return mapProductsToLocalImages([p])[0];
+  });
+  
+  console.log(`[Category Page] Final paginated products: ${paginatedProducts.length}`);
 
   const handleFilterChange = useCallback((newFilters: any) => {
       setFilters(newFilters);
@@ -580,7 +692,11 @@ export default function CategoryPage() {
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
               {/* Left Sidebar - Filters (Desktop) */}
               <aside className="hidden lg:block lg:w-64 flex-shrink-0">
-                <CategoryFilters categorySlug={slug} onFilterChange={handleFilterChange} />
+                <CategoryFilters 
+                  categorySlug={slug} 
+                  onFilterChange={handleFilterChange} 
+                  products={djangoProducts}
+                />
               </aside>
 
               {/* Mobile Filter Button */}
@@ -613,7 +729,11 @@ export default function CategoryPage() {
                       </button>
                     </div>
                     <div className="p-4">
-                      <CategoryFilters categorySlug={slug} onFilterChange={handleFilterChange} />
+                      <CategoryFilters 
+                        categorySlug={slug} 
+                        onFilterChange={handleFilterChange} 
+                        products={djangoProducts}
+                      />
                     </div>
                   </div>
                 </div>
@@ -684,12 +804,16 @@ export default function CategoryPage() {
                 )}
 
                 {/* Products Grid/List */}
-                {paginatedProducts.length > 0 ? (
+                {loadingProducts ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">Loading products...</p>
+                  </div>
+                ) : paginatedProducts.length > 0 ? (
                   <>
                     <div
                       className={
                         viewMode === "grid"
-                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8"
+                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8"
                           : "space-y-3 sm:space-y-4 mb-6 sm:mb-8"
                       }
                     >

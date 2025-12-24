@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -9,10 +9,118 @@ import { categoryFilterConfigs } from "@/lib/data/categoryFilters";
 interface CategoryFiltersProps {
   categorySlug: string;
   onFilterChange: (filters: any) => void;
+  products?: any[]; // Products from database to calculate real counts
 }
 
-export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFiltersProps) {
+export function CategoryFilters({ categorySlug, onFilterChange, products = [] }: CategoryFiltersProps) {
   const config = categoryFilterConfigs[categorySlug] || categoryFilterConfigs["laptops-computers"];
+  const [allBrands, setAllBrands] = useState<string[]>([]);
+
+  // Fetch all brands from the database
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000/api";
+        const response = await fetch(`${baseUrl}/brands/`);
+        if (response.ok) {
+          const data = await response.json();
+          const brands = (data.results || data || []).map((brand: any) => brand.name);
+          setAllBrands(brands);
+        }
+      } catch (error) {
+        console.error("Failed to fetch brands:", error);
+      }
+    };
+    fetchBrands();
+  }, []);
+
+  // Calculate dynamic brand counts from actual products
+  const brandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((product) => {
+      const brand = product.brand || product.brand_name || '';
+      if (brand) {
+        const brandName = brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase();
+        counts[brandName] = (counts[brandName] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [products]);
+
+  // Calculate availability counts from actual products
+  const availabilityCounts = useMemo(() => {
+    let inStock = 0;
+    let outOfStock = 0;
+    products.forEach((product) => {
+      const availability = product.availability || 'in_stock';
+      const stockQty = product.stock_quantity ?? product.stock ?? 0;
+      
+      // Consider in_stock, special_offer, clearance as "in stock"
+      if (['in_stock', 'special_offer', 'clearance'].includes(availability) || stockQty > 0) {
+        inStock++;
+      } else {
+        outOfStock++;
+      }
+    });
+    return { inStock, outOfStock };
+  }, [products]);
+
+  // Generate dynamic brand list from database + config
+  const dynamicBrands = useMemo(() => {
+    const brandList: { name: string; count: number }[] = [];
+    const brandSet = new Set<string>();
+    
+    // Add all brands from API
+    allBrands.forEach((brandName) => {
+      const capitalizedBrand = brandName.charAt(0).toUpperCase() + brandName.slice(1).toLowerCase();
+      brandSet.add(capitalizedBrand);
+    });
+    
+    // Add all brands from static config (ensures visibility even when API returns none)
+    (config.brands || []).forEach((b: any) => {
+      const name = typeof b === "string" ? b : b.name;
+      if (name) {
+        const capitalizedBrand = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        brandSet.add(capitalizedBrand);
+      }
+    });
+
+    // Add brands from products (in case API didn't return all)
+    Object.keys(brandCounts).forEach((brandName) => {
+      brandSet.add(brandName);
+    });
+    
+    // Convert to array with counts
+    Array.from(brandSet)
+      .sort()
+      .forEach((brandName) => {
+        brandList.push({ 
+          name: brandName, 
+          count: brandCounts[brandName] || 0 
+        });
+      });
+    
+    return brandList.length > 0 ? brandList : (config.brands || []).map((b: any) => ({ name: typeof b === "string" ? b : b.name, count: 0 }));
+  }, [brandCounts, allBrands, config.brands]);
+
+  // Generate dynamic type list (for categories that use "types")
+  const dynamicTypes = useMemo(() => {
+    const typeCounts: Record<string, number> = {};
+    products.forEach((product) => {
+      const typeVal = (product as any).type;
+      if (typeVal) {
+        const normalized = String(typeVal).trim();
+        typeCounts[normalized] = (typeCounts[normalized] || 0) + 1;
+      }
+    });
+
+    const baseTypes = config.types || [];
+    return baseTypes.map((t: any) => {
+      const name = typeof t === "string" ? t : t.name;
+      const count = typeCounts[name] || 0; // show zero instead of dummy count
+      return { name, count };
+    });
+  }, [config.types, products]);
 
   // Start with NO availability filter applied by default so that
   // the category page initially shows all products unfiltered.
@@ -185,7 +293,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
                 }
               />
               <Label htmlFor="in-stock" className="text-xs sm:text-sm font-normal cursor-pointer">
-                In stock <span className="text-gray-500">(1,200)</span>
+                In stock <span className="text-gray-500">({availabilityCounts.inStock})</span>
               </Label>
             </div>
             <div className="flex items-center space-x-2">
@@ -197,7 +305,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
                 }
               />
               <Label htmlFor="out-of-stock" className="text-xs sm:text-sm font-normal cursor-pointer">
-                Out of stock <span className="text-gray-500">(25)</span>
+                Out of stock <span className="text-gray-500">({availabilityCounts.outOfStock})</span>
               </Label>
             </div>
           </div>
@@ -232,9 +340,9 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
       )}
 
       {/* Brand */}
-      {config.brands && renderCheckboxGroup(
+      {(config.brands || dynamicBrands.length > 0) && renderCheckboxGroup(
         "BRAND",
-        config.brands,
+        dynamicBrands,
         selectedBrands,
         (brand) =>
           setSelectedBrands((prev) =>
@@ -246,7 +354,7 @@ export function CategoryFilters({ categorySlug, onFilterChange }: CategoryFilter
       {/* Types */}
       {config.types && renderCheckboxGroup(
         "BY TYPE",
-        config.types,
+        dynamicTypes,
         selectedTypes,
         (type) =>
           setSelectedTypes((prev) =>

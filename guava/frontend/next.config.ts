@@ -19,7 +19,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "upload.wikimedia.org",
       },
+      {
+        protocol: "https",
+        hostname: "www.macworld.com",
+      },
     ],
+    unoptimized: process.env.NODE_ENV === 'development', // Disable optimization in dev to allow local images
   },
 };
 

@@ -3,10 +3,12 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BrandLaptopCard } from "@/components/BrandLaptopCard";
 import { popularBrands } from "@/lib/data/categories";
-import { getProductsByBrand } from "@/lib/data/products";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { transformDjangoProduct } from "@/lib/utils/productTransformer";
+import { env } from "@/lib/config/env";
+import type { Product } from "@/lib/data/products";
 
 interface BrandPageProps {
   params: Promise<{ brandSlug: string }>;
@@ -15,10 +17,44 @@ interface BrandPageProps {
 export default async function BrandPage({ params }: BrandPageProps) {
   const { brandSlug } = await params;
   const brand = popularBrands.find((b) => b.slug === brandSlug);
-  const products = getProductsByBrand(brandSlug);
 
   if (!brand) {
     notFound();
+  }
+
+  // Fetch products from Django API by brand_slug
+  let products: Product[] = [];
+  try {
+    // For server-side, use the full URL. For client-side, use relative URL
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000/api";
+    
+    const response = await fetch(
+      `${API_BASE_URL}/products/queries/?brand_slug=${brandSlug}&page_size=1000`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: 'no-store', // Always fetch fresh data
+        next: { revalidate: 0 },
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      const djangoProducts = data.results || [];
+      
+      // Transform Django products to frontend format
+      // Show all products from database (even without images)
+      products = djangoProducts.map((p: any) => transformDjangoProduct(p));
+      
+      console.log(`[Brand Page] Fetched ${products.length} products for brand: ${brandSlug}`);
+    } else {
+      console.error(`[Brand Page] API returned status ${response.status}`);
+    }
+  } catch (error) {
+    console.error("[Brand Page] Failed to fetch products from Django:", error);
+    // Don't throw - just show empty list
+    products = [];
   }
 
   return (

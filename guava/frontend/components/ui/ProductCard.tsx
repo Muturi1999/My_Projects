@@ -133,17 +133,23 @@ export function ProductCard({
               variant === "hot-deal" && "h-[200px]"
             )}
           >
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              className={cn(
-                "object-contain",
-                variant === "hot-deal" ? "p-4" : "p-4",
-                variant === "detailed" && "group-hover:scale-105 transition-transform duration-300"
-              )}
-            />
+            {product.image && product.image.trim() !== "" ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className={cn(
+                  "object-contain",
+                  variant === "hot-deal" ? "p-4" : "p-4",
+                  variant === "detailed" && "group-hover:scale-105 transition-transform duration-300"
+                )}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-xs text-center px-4">
+                No Image Available
+              </div>
+            )}
 
             {/* Badges - unified style like Today's Hot Deals */}
             {badgePosition === "top-left" && (

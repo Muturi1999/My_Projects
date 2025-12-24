@@ -4,15 +4,17 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FunnelIcon, ArrowDownTrayIcon, CloudArrowUpIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { FunnelIcon, ArrowDownTrayIcon, CloudArrowUpIcon, XMarkIcon, EyeIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { AddProductWizard } from "@/components/admin/products/AddProductWizard";
 import { ProductFilters } from "@/components/admin/products/ProductFilters";
 import { useToast } from "@/lib/hooks/useToast";
 import { ToastContainer } from "@/components/admin/ToastContainer";
 import { formatKES } from "@/lib/utils/format";
+import { Modal } from "@/components/ui/modal";
 
 interface ProductRow {
   id: string;
+  slug?: string;
   name: string;
   category?: string;
   category_slug?: string;
@@ -32,9 +34,9 @@ interface FilterOptions {
 }
 
 const statusStyles: Record<string, string> = {
-  Active: "bg-emerald-100 text-emerald-800",
+  "In Stock": "bg-emerald-100 text-emerald-800",
   "Out of Stock": "bg-red-100 text-red-800",
-  "Low Stock": "bg-amber-100 text-amber-800",
+  "Running Low": "bg-amber-100 text-amber-800",
 };
 
 export default function AdminProductsPage() {
@@ -44,6 +46,10 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isWizardOpen, setWizardOpen] = useState(false);
   const [isFilterOpen, setFilterOpen] = useState(false);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<ProductRow | null>(null);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     brand: "",
     category: "",
@@ -120,9 +126,9 @@ export default function AdminProductsPage() {
     if (filters.status) {
       filtered = filtered.filter((product) => {
         const qty = product.stock_quantity ?? product.stock ?? 0;
-        if (filters.status === "active") return qty >= 10;
-        if (filters.status === "low_stock") return qty > 0 && qty < 10;
-        if (filters.status === "out_of_stock") return qty <= 0;
+        if (filters.status === "active" || filters.status === "in_stock") return qty >= 5;
+        if (filters.status === "low_stock" || filters.status === "running_low") return qty > 0 && qty < 5;
+        if (filters.status === "out_of_stock") return qty === 0;
         return true;
       });
     }
@@ -145,16 +151,68 @@ export default function AdminProductsPage() {
   }, [products, search, filters]);
 
   const getStatusLabel = (product: ProductRow) => {
-    const qty = product.stock_quantity ?? 0;
-    if (qty <= 0) return "Out of Stock";
-    if (qty < 10) return "Low Stock";
-    return "Active";
+    const qty = product.stock_quantity ?? product.stock ?? 0;
+    if (qty === 0) return "Out of Stock";
+    if (qty < 5) return "Running Low";
+    return "In Stock";
   };
 
   const handleAddSuccess = () => {
     toast.success("Product added");
     setWizardOpen(false);
     loadProducts();
+  };
+
+  const handleUpdateSuccess = () => {
+    toast.success("Product updated");
+    setWizardOpen(false);
+    setEditingProduct(null);
+    loadProducts();
+  };
+
+  const handleView = (product: ProductRow) => {
+    setPreviewProduct(product);
+    setPreviewOpen(true);
+  };
+
+  const handleEdit = async (product: any) => {
+    try {
+      setActionLoadingId(product.id);
+      const slug = (product as any).slug || product.id;
+      const res = await fetch(`/api/admin/products?${product.slug ? `slug=${product.slug}` : `id=${product.id}`}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch product details (${res.status})`);
+      }
+      const data = await res.json();
+      setEditingProduct(data);
+      setWizardOpen(true);
+    } catch (err: any) {
+      console.error("Failed to load product for edit", err);
+      toast.error(err?.message || "Failed to load product for editing");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDelete = async (product: any) => {
+    const confirmed = window.confirm(`Delete ${product.name}? This cannot be undone.`);
+    if (!confirmed) return;
+    try {
+      setActionLoadingId(product.id);
+      const url = product.slug ? `/api/admin/products?slug=${product.slug}` : `/api/admin/products?id=${product.id}`;
+      const res = await fetch(url, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || `Failed to delete (${res.status})`);
+      }
+      toast.success("Product deleted");
+      loadProducts();
+    } catch (err: any) {
+      console.error("Delete failed", err);
+      toast.error(err?.message || "Failed to delete product");
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
   return (
@@ -257,7 +315,12 @@ export default function AdminProductsPage() {
                   <div className="col-span-2 font-medium">
                     {formatKES(product.price)}
                   </div>
-                  <div className="col-span-2">{product.stock_quantity ?? "—"}</div>
+                  <div className="col-span-2">
+                    <span className="font-medium">{product.stock_quantity ?? product.stock ?? 0}</span>
+                    {((product.stock_quantity ?? product.stock ?? 0) < 5 && (product.stock_quantity ?? product.stock ?? 0) > 0) && (
+                      <span className="ml-2 text-xs text-amber-600">⚠️</span>
+                    )}
+                  </div>
                   <div className="col-span-1">
                     <span
                       className={`inline-flex items-center px-2 py-1 text-xs font-semibold uppercase tracking-wide rounded-full ${
@@ -268,7 +331,31 @@ export default function AdminProductsPage() {
                     </span>
                   </div>
                   <div className="col-span-1 text-right">
-                    <button className="text-gray-400 hover:text-gray-600">•••</button>
+                    <div className="flex items-center justify-end gap-3 text-gray-500">
+                      <button
+                        aria-label="View product"
+                        onClick={() => handleView(product)}
+                        className="hover:text-gray-800"
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        aria-label="Edit product"
+                        onClick={() => handleEdit(product)}
+                        className="hover:text-gray-800"
+                        disabled={actionLoadingId === product.id}
+                      >
+                        <PencilSquareIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        aria-label="Delete product"
+                        onClick={() => handleDelete(product)}
+                        className="hover:text-red-600"
+                        disabled={actionLoadingId === product.id}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -278,7 +365,15 @@ export default function AdminProductsPage() {
       </div>
 
       {isWizardOpen && (
-        <AddProductWizard open={isWizardOpen} onClose={() => setWizardOpen(false)} onSuccess={handleAddSuccess} />
+        <AddProductWizard
+          open={isWizardOpen}
+          onClose={() => {
+            setWizardOpen(false);
+            setEditingProduct(null);
+          }}
+          onSuccess={editingProduct ? handleUpdateSuccess : handleAddSuccess}
+          editingProduct={editingProduct || undefined}
+        />
       )}
 
       <ProductFilters
@@ -297,6 +392,46 @@ export default function AdminProductsPage() {
           });
         }}
       />
+
+      {isPreviewOpen && previewProduct && (
+        <Modal open={isPreviewOpen} onClose={() => setPreviewOpen(false)} title="Product Preview">
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="text-xs uppercase text-gray-500">Name</p>
+              <p className="font-semibold text-gray-900">{previewProduct.name}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs uppercase text-gray-500">Category</p>
+                <p className="text-gray-800">{previewProduct.category || previewProduct.category_slug || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-gray-500">Brand</p>
+                <p className="text-gray-800">{previewProduct.brand || previewProduct.brand_slug || "—"}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs uppercase text-gray-500">Price</p>
+                <p className="text-gray-800">{formatKES(previewProduct.price)}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-gray-500">Stock</p>
+                <p className="text-gray-800">{previewProduct.stock_quantity ?? previewProduct.stock ?? 0}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs uppercase text-gray-500">Status</p>
+              <p className="text-gray-800">{getStatusLabel(previewProduct)}</p>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="outline" className="rounded-none" onClick={() => setPreviewOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
     </>

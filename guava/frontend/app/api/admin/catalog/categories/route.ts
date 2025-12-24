@@ -1,11 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
 import { shopCategories } from "@/lib/data/categories";
+import { env } from "@/lib/config/env";
+
+const API_BASE_URL = env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000/api";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
     
+    // Try to fetch from Django backend first
+    try {
+      const djangoUrl = id 
+        ? `${API_BASE_URL}/products/categories/${id}/`
+        : `${API_BASE_URL}/products/categories/?page=${searchParams.get('page') || '1'}&page_size=${searchParams.get('pageSize') || '20'}`;
+      
+      const response = await fetch(djangoUrl, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Handle single category response
+        if (id) {
+          const category = {
+            id: data.id?.toString(),
+            name: data.name,
+            slug: data.slug,
+            description: data.description,
+            image: data.image_url || data.image,
+          };
+          // Only return Django data if it's valid
+          if (category.id && category.name) {
+            return NextResponse.json(category);
+          }
+        } else {
+          // Handle paginated response
+          const djangoResults = (data.results || []).map((cat: any) => ({
+            id: cat.id?.toString(),
+            name: cat.name,
+            slug: cat.slug,
+            description: cat.description,
+            image: cat.image_url || cat.image,
+          }));
+          
+          // Use Django data if there are results
+          if (djangoResults.length > 0) {
+            return NextResponse.json({
+              results: djangoResults,
+              count: data.count || 0,
+              page: data.current_page || parseInt(searchParams.get('page') || '1'),
+              pageSize: data.page_size || parseInt(searchParams.get('pageSize') || '20'),
+              totalPages: data.total_pages || Math.ceil((data.count || 0) / parseInt(searchParams.get('pageSize') || '20')),
+              hasNext: !!data.next,
+              hasPrevious: !!data.previous,
+            });
+          }
+          // If Django returns empty, fall through to static data
+        }
+      }
+    } catch (djangoError) {
+      console.warn("Failed to fetch categories from Django, falling back to static data:", djangoError);
+    }
+    
+    // Fallback to static data if Django is unavailable
     // Get single category
     if (id) {
       const category = shopCategories.find((cat) => 

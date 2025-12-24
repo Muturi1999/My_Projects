@@ -16,7 +16,7 @@ import {
   UserIcon, HomeIcon,
 } from "@heroicons/react/24/outline";
 import { CategoryNav } from "./CategoryNav";
-import { shopCategories, popularBrands } from "@/lib/data/categories";
+import { shopCategories } from "@/lib/data/categories";
 import { useWishlist } from "@/lib/hooks/use-wishlist";
 import { useCart } from "@/lib/hooks/use-cart";
 import { useCompare } from "@/lib/hooks/use-compare";
@@ -306,50 +306,30 @@ export function Header() {
                   <ChevronDownIcon className="h-3 w-3" />
                 </button>
                 {showMobileScopeDropdown && (
-                  <div className="absolute left-0 mt-1 w-56 bg-white text-gray-800 rounded-md shadow-lg border border-gray-200 z-50 p-2">
-                    <div className="space-y-1">
+                  <div className="absolute left-0 mt-1 w-40 bg-white text-gray-800 rounded-md shadow-lg border border-gray-200 z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchScope("all");
+                        setShowMobileScopeDropdown(false);
+                      }}
+                      className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                    >
+                      All
+                    </button>
+                    {shopCategories.map((category) => (
                       <button
+                        key={category.id}
                         type="button"
                         onClick={() => {
-                          setSearchScope("all");
+                          if (category.slug) setSearchScope(category.slug);
                           setShowMobileScopeDropdown(false);
                         }}
                         className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
                       >
-                        All
+                        {category.name}
                       </button>
-                      {shopCategories.map((category) => (
-                        <button
-                          key={category.id}
-                          type="button"
-                          onClick={() => {
-                            if (category.slug) setSearchScope(category.slug);
-                            setShowMobileScopeDropdown(false);
-                          }}
-                          className="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
-                        >
-                          {category.name}
-                        </button>
-                      ))}
-
-                      <div className="pt-2 border-t border-gray-100">
-                        <h4 className="text-xs text-gray-500 px-3 py-1">Brands</h4>
-                        <div className="grid grid-cols-2 gap-1 px-2">
-                          {popularBrands.slice(0, 8).map((b) => (
-                            <button
-                              key={b.id}
-                              onClick={() => {
-                                setShowMobileScopeDropdown(false);
-                                router.push(`/search?brand=${b.slug}`);
-                              }}
-                              className="text-xs text-left px-2 py-1 hover:text-[#A7E059]"
-                            >
-                              {b.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -412,8 +392,6 @@ export function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setShowCategoryDropdown((prev) => !prev)}
-                    aria-expanded={showCategoryDropdown}
-                    aria-controls="search-categories-dropdown"
                     className="flex items-center gap-1 px-2 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 border-r border-gray-300 hover:bg-gray-50 transition-colors"
                   >
                     <span className="hidden sm:inline">
@@ -425,56 +403,32 @@ export function Header() {
                     <ChevronDownIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                   {showCategoryDropdown && (
-                    <div id="search-categories-dropdown" className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-72 overflow-y-auto min-w-[320px]">
-                      <div className="p-2">
-                        <div className="flex gap-4">
-                          <div className="min-w-[200px]">
-                            <button
-                              onClick={() => {
-                                setSelectedCategory("All");
-                                setSearchScope("all");
-                                setShowCategoryDropdown(false);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            >
-                              All
-                            </button>
-                            {shopCategories.map((category) => (
-                              <button
-                                key={category.id}
-                                onClick={() => {
-                                  setSelectedCategory(category.name);
-                                  if (category.slug) {
-                                    setSearchScope(category.slug);
-                                  }
-                                  setShowCategoryDropdown(false);
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                              >
-                                {category.name}
-                              </button>
-                            ))}
-                          </div>
-
-                          <div className="flex-1 border-l border-gray-100 pl-4">
-                            <h4 className="text-xs text-gray-500 mb-2 font-semibold">Brands</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              {popularBrands.slice(0, 12).map((b) => (
-                                <button
-                                  key={b.id}
-                                  onClick={() => {
-                                    setShowCategoryDropdown(false);
-                                    router.push(`/search?brand=${b.slug}`);
-                                  }}
-                                  className="text-sm text-gray-700 hover:text-[#A7E059] text-left px-2 py-1"
-                                >
-                                  {b.name}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto min-w-[200px]">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory("All");
+                          setSearchScope("all");
+                          setShowCategoryDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        All
+                      </button>
+                      {shopCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => {
+                            setSelectedCategory(category.name);
+                            if (category.slug) {
+                              setSearchScope(category.slug);
+                            }
+                            setShowCategoryDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          {category.name}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
