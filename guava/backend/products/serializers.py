@@ -94,15 +94,15 @@ class ProductSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, write_only=True)
     
     # Write fields for category/brand slugs
-    category_slug_write = serializers.CharField(write_only=True, required=True, allow_blank=False)
-    brand_slug_write = serializers.CharField(write_only=True, required=True, allow_blank=False)  # Made mandatory
+    category_slug_write = serializers.CharField(write_only=True, required=False, allow_blank=False, allow_null=True)
+    brand_slug_write = serializers.CharField(write_only=True, required=False, allow_blank=False, allow_null=True)
     subcategory_slug = serializers.CharField(write_only=True, required=False, allow_null=True, allow_blank=True)
     
     # Mandatory fields for product creation
-    stock_quantity_write = serializers.IntegerField(write_only=True, required=True, min_value=0, help_text='Stock quantity is mandatory')
-    image_url_write = serializers.URLField(write_only=True, required=True, allow_blank=False, help_text='Product image URL is mandatory')
+    stock_quantity_write = serializers.IntegerField(write_only=True, required=False, min_value=0, allow_null=True, help_text='Stock quantity')
+    image_url_write = serializers.URLField(write_only=True, required=False, allow_blank=True, allow_null=True, help_text='Product image URL')
     part_number_write = serializers.CharField(write_only=True, required=False, allow_blank=True, allow_null=True, help_text='Manufacturer part number')
-    availability_write = serializers.CharField(write_only=True, required=False, allow_blank=True, help_text='Availability status')
+    availability_write = serializers.CharField(write_only=True, required=False, allow_blank=True, allow_null=True, help_text='Availability status')
     
     class Meta:
         model = Product

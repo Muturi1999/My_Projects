@@ -11,13 +11,19 @@ import {
 } from "@/lib/data/categories";
 
 const categories = [
-  "Laptops & Computers",
-  "Accessories",
-  "Monitors & TVs",
-  "Smartphones",
+  "Desktops",
+  "Laptops",
+  "Phones",
+  "TVs",
+  "Sound Bars",
   "Printers",
-  "Drives & Storage",
-  "Gaming",
+  "Toners",
+  "UPS",
+  "Hard Disks",
+  "Network",
+  "Softwares",
+  "Accessories",
+  "Security",
 ];
 
 export function CategoryNav() {
@@ -39,12 +45,12 @@ export function CategoryNav() {
 
   return (
     <nav
-      className="sticky top-[80px] bg-white border-b border-gray-200 z-40"
+      className="sticky top-[80px] bg-white border-b border-gray-200 z-40 shadow-sm"
       onMouseLeave={handleMouseLeave}
     >
       <div className="section-wrapper">
         <div className="flex items-center justify-between h-14">
-          <div className="flex items-center space-x-4 md:space-x-6 overflow-x-auto pb-2 md:pb-0">
+          <div className="flex items-center space-x-2 md:space-x-4 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
             {/* All Categories with Dropdown */}
             <div
               className="relative"
@@ -53,13 +59,11 @@ export function CategoryNav() {
             >
               <button
                 type="button"
-                onClick={() =>
-                  setShowAllCategoriesDropdown((prev) => !prev)
-                }
-                className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap border border-gray-200 rounded-none ${
+                onClick={() => window.location.href = '/popular-categories'}
+                className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap border border-gray-200 rounded-none cursor-pointer ${
                   showAllCategoriesDropdown
                     ? "bg-gray-100 text-[#A7E059]"
-                    : "bg-white text-gray-700 hover:text-[#A7E059]"
+                    : "bg-white text-gray-700 hover:text-[#A7E059] hover:bg-gray-50"
                 }`}
               >
                 <Bars3Icon className="h-4 w-4" />
@@ -77,34 +81,34 @@ export function CategoryNav() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[800px] max-h-[600px] overflow-y-auto"
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 min-w-[800px] max-h-[600px] overflow-hidden"
                   >
                     <div className="flex">
                       {/* Left rail: main categories (dynamic) */}
-                      <div className="w-56 border-r border-gray-200 bg-gray-50">
+                      <div className="w-56 border-r border-gray-200 bg-gray-50 overflow-y-auto max-h-[600px]">
                         {shopCategories.map((cat) => {
                           if (!cat.slug) return null;
                           const isActive = cat.slug === activeAllCategorySlug;
                           return (
-                            <button
+                            <Link
                               key={cat.id}
-                              type="button"
-                              onClick={() => setActiveAllCategorySlug(cat.slug)}
-                              className={`w-full text-left px-4 py-2 text-sm ${
+                              href={`/category/${cat.slug}`}
+                              onMouseEnter={() => setActiveAllCategorySlug(cat.slug)}
+                              className={`block w-full text-left px-4 py-3 text-sm transition-all ${
                                 isActive
-                                  ? "bg-white text-gray-900 font-semibold"
-                                  : "text-gray-700 hover:bg-white"
+                                  ? "bg-white text-gray-900 font-semibold border-l-4 border-[#A7E059]"
+                                  : "text-gray-700 hover:bg-white hover:border-l-4 hover:border-gray-300"
                               }`}
                             >
                               {cat.name}
-                            </button>
+                            </Link>
                           );
                         })}
                       </div>
 
                       {/* Middle: subcategories or info for active category */}
-                      <div className="flex-1 p-5">
+                      <div className="flex-1 p-5 overflow-y-auto max-h-[600px]">
                         {(() => {
                           const activeShop =
                             shopCategories.find(
@@ -177,6 +181,24 @@ export function CategoryNav() {
             {categories.map((category) => {
               const hasDropdown = categoryDropdowns[category];
               const isActive = activeDropdown === category;
+              
+              const categorySlug = (() => {
+                switch(category) {
+                  case "Desktops": return "desktops";
+                  case "Laptops": return "laptops-computers";
+                  case "TVs": return "monitors";
+                  case "Sound Bars": return "audio-headphones";
+                  case "Printers": return "printers-scanners";
+                  case "Toners": return "printers-scanners";
+                  case "UPS": return "computer-accessories";
+                  case "Hard Disks": return "drives-storage";
+                  case "Network": return "wifi-networking";
+                  case "Softwares": return "software";
+                  case "Accessories": return "computer-accessories";
+                  case "Security": return "cctv-security";
+                  default: return "";
+                }
+              })();
 
               return (
                 <div
@@ -185,11 +207,11 @@ export function CategoryNav() {
                   onMouseEnter={() => hasDropdown && handleMouseEnter(category)}
                 >
                   <Link
-                    href="#"
-                    className={`flex items-center gap-1 text-sm font-medium transition-colors whitespace-nowrap ${
+                    href={categorySlug ? `/category/${categorySlug}` : "#"}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
                       isActive
-                        ? "text-[#A7E059]"
-                        : "text-gray-700 hover:text-[#A7E059]"
+                        ? "text-[#A7E059] bg-gray-50"
+                        : "text-gray-700 hover:text-[#A7E059] hover:bg-gray-50"
                     }`}
                   >
                     {category}
@@ -205,31 +227,6 @@ export function CategoryNav() {
               );
             })}
           </div>
-          
-          {/* WhatsApp and Phone on the right */}
-          <div className="flex items-center gap-4 text-sm font-medium whitespace-nowrap hidden md:flex">
-            <a
-              href="https://wa.me/254710599234"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-green-500 hover:text-green-600 transition-colors"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
-            </a>
-            <a
-              href="tel:+254710599234"
-              className="text-gray-700 hover:text-[#A7E059] transition-colors"
-            >
-              +254 710 599234
-            </a>
-          </div>
         </div>
       </div>
 
@@ -240,38 +237,51 @@ export function CategoryNav() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-0 right-0 bg-white shadow-lg border-t border-gray-200"
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute left-0 right-0 bg-white shadow-2xl border-t border-gray-200"
             onMouseEnter={() => setActiveDropdown(activeDropdown)}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="section-wrapper py-6">
+            <div className="px-4 sm:px-6 md:px-[60px] lg:px-[100px] xl:px-[120px] py-3">
               <div
-                className={`grid gap-8 ${
-                  categoryDropdowns[activeDropdown].columns.length === 4
+                className={`grid gap-2 ${
+                  categoryDropdowns[activeDropdown].columns.length >= 10
+                    ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11"
+                    : categoryDropdowns[activeDropdown].columns.length >= 6
+                    ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+                    : categoryDropdowns[activeDropdown].columns.length === 5
+                    ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-5"
+                    : categoryDropdowns[activeDropdown].columns.length === 4
                     ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
                     : categoryDropdowns[activeDropdown].columns.length === 3
                     ? "grid-cols-1 md:grid-cols-3"
-                    : "grid-cols-1 md:grid-cols-2"
+                    : categoryDropdowns[activeDropdown].columns.length >= 2
+                    ? "grid-cols-1 md:grid-cols-2"
+                    : "grid-cols-1"
                 }`}
               >
                 {categoryDropdowns[activeDropdown].columns.map(
                   (column, index) => (
-                    <div key={index} className="space-y-4">
-                      <h3 className="font-bold text-gray-900 text-base">
+                    <div key={index} className="space-y-1">
+                      <h3 className="font-semibold text-gray-900 text-sm mb-1">
                         {column.title}
                       </h3>
-                      <ul className="space-y-2">
-                        {column.links.map((link, linkIndex) => (
-                          <li key={linkIndex}>
-                            <Link
-                              href="#"
-                              className="text-sm text-gray-600 hover:text-[#A7E059] transition-colors"
-                            >
-                              {link}
-                            </Link>
-                          </li>
-                        ))}
+                      <ul className="space-y-0.5">
+                        {column.links.map((link, linkIndex) => {
+                          const linkSlug = link.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and");
+                          const parentSlug = activeDropdown.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and");
+                          return (
+                            <li key={linkIndex}>
+                              <Link
+                                href={`/category/${parentSlug}?subcategory=${linkSlug}`}
+                                className="text-xs text-gray-600 hover:text-[#A7E059] hover:translate-x-1 transition-all inline-block leading-tight"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                {link}
+                              </Link>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )

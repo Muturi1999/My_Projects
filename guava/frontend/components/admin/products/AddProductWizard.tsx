@@ -194,6 +194,7 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
     setFormData({
       name: editingProduct.name || "",
       sku: editingProduct.sku || "",
+      part_number: editingProduct.part_number || "",
       description: editingProduct.description || "",
       tags: editingProduct.tags || [],
       features: featureList.length ? featureList : [""],
@@ -213,11 +214,12 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
         editingProduct.low_stock_threshold !== undefined && editingProduct.low_stock_threshold !== null
           ? String(editingProduct.low_stock_threshold)
           : "5",
+      availability: editingProduct.availability || "in_stock",
       campaigns: editingProduct.campaigns || initialData.campaigns,
       sections: editingProduct.sections || initialData.sections,
       primary_image: primaryImage,
       gallery: imagesList.length ? imagesList : [""],
-      gallery_previews: imagesList.length ? imagesList : [primaryImage].filter(Boolean),
+      gallery_previews: imagesList.length ? imagesList : (primaryImage ? [primaryImage] : []),
       supplier_id: editingProduct.supplier_id || "",
       supplier_name: editingProduct.supplier_name || "",
     });
@@ -359,9 +361,13 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
 
   const ensureAbsoluteUrl = (url?: string | null) => {
     if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    // For relative paths, just return them as-is - Next.js will serve from public folder
-    return url;
+    const trimmed = String(url).trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+    // For relative paths like /images/filename.jpg, prepend the domain
+    if (trimmed.startsWith("/")) return `http://localhost:3000${trimmed}`;
+    // If it's just a path without /, prepend /images/
+    return `http://localhost:3000/images/${trimmed}`;
   };
 
   const handleSubmit = async () => {
@@ -450,11 +456,12 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
 
       let response: Response;
       try {
-        console.log("[AddProductWizard] Sending product creation request:", payload);
+        console.log("[AddProductWizard] Sending product " + (editingProduct ? "UPDATE" : "CREATE") + " request:", payload);
         const method = editingProduct ? "PUT" : "POST";
         const body = editingProduct
           ? { ...payload, id: editingProduct.id, slug: editingProduct.slug }
           : payload;
+        console.log("[AddProductWizard] Full request body:", JSON.stringify(body, null, 2));
         response = await fetch("/api/admin/products", {
           method,
           headers: { "Content-Type": "application/json" },
@@ -468,7 +475,7 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
         });
       } catch (fetchError: any) {
         // Handle network errors (fetch failed, CORS, etc.)
-        console.error("[AddProductWizard] Network error during product creation:", fetchError);
+        console.error("[AddProductWizard] Network error during product " + (editingProduct ? "update" : "creation") + ":", fetchError);
         const networkError = fetchError.message || fetchError.toString() || "Network error";
         const errorMsg = `Failed to connect to server: ${networkError}. Please check if the backend is running.`;
         setError(errorMsg);
@@ -570,6 +577,13 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
 
       const product = await response.json();
       console.log("Product saved successfully:", product);
+      console.log("[AddProductWizard] Updated product data:", {
+        id: product.id,
+        name: product.name,
+        stock_quantity: product.stock_quantity,
+        availability: product.availability,
+        part_number: product.part_number,
+      });
       
       onSuccess();
       resetState();
@@ -784,10 +798,12 @@ export function AddProductWizard({ open, onClose, onSuccess, editingProduct }: A
           </div>
           {formData.gallery_previews?.length ? (
             <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
-              {formData.gallery_previews.map((img, idx) => (
+              {formData.gallery_previews.filter(Boolean).map((img, idx) => (
                 <div key={idx} className="relative w-full h-28 border border-gray-200 bg-gray-50 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt={`Preview ${idx + 1}`} className="object-cover w-full h-full" />
+                  {img && img.trim() && (
+                    <img src={img} alt={`Preview ${idx + 1}`} className="object-cover w-full h-full" />
+                  )}
                 </div>
               ))}
             </div>
