@@ -10,12 +10,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Server via SSH
+      - name: Deploy to Server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -23,54 +23,24 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          set -e
-
-          echo "Setting up SSH..."
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
-
-          echo "Connecting to server..."
-          ssh -i ~/.ssh/id_rsa -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << EOF
-            set -e
-
-            echo "========================================="
-            echo "Starting deployment..."
-            echo "========================================="
-
-            cd "$DEPLOY_PATH"
-
-            echo "Pulling latest code..."
-            git pull origin \$(git rev-parse --abbrev-ref HEAD)
-
-            echo "Building Docker images..."
-            docker compose build --no-cache
-
-            echo "Stopping services..."
-            docker compose down
-
-            echo "Starting services..."
-            docker compose up -d
-
-            echo "Waiting for containers..."
-            sleep 10
-
-            echo "Running migrations..."
-            docker compose exec -T backend python manage.py migrate || true
-
-            echo "Collecting static files..."
-            docker compose exec -T backend python manage.py collectstatic --noinput || true
-
-            echo "Deployment completed!"
-            docker compose ps
-          EOF
-
-      - name: Deployment Success
-        if: success()
-        run: echo "✅ Deployment successful!"
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          
+          ssh -i ~/.ssh/deploy_key -p $SSH_PORT $SSH_USER@$SSH_HOST << 'DEPLOY'
+          set -e
+          cd ${{ env.DEPLOY_PATH }}
+          git pull origin main
+          docker-compose build --no-cache
+          docker-compose down
+          docker-compose up -d
+          sleep 10
+          docker-compose exec -T backend python manage.py migrate || true
+          docker-compose exec -T backend python manage.py collectstatic --noinput || true
+          echo "✅ Deployment completed!"
+          DEPLOY
 
       - name: Deployment Failed
         if: failure()
         run: echo "❌ Deployment failed!"
-
