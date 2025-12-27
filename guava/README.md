@@ -138,3 +138,4 @@ Copy `.env.example` to `.env` and configure:
 Private project - All rights reserved
 # Test deployment
 # Testing deployment workflow
+# Test deployment workflow
