@@ -78,7 +78,7 @@ export default function DashboardPage() {
                       <div>
                         <p className="font-semibold text-gray-900">Order #{order.id}</p>
                         <p className="text-sm text-gray-600">
-                          {new Date(order.createdAt).toLocaleDateString()}
+                          {new Date(order.placedAt).toLocaleDateString()}
                         </p>
                         <p className="text-sm text-gray-600">
                           {order.items.length} item(s) • KSh {order.total.toLocaleString()}

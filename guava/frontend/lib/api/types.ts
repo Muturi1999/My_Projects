@@ -68,6 +68,15 @@ export interface Category {
   order: number;
   created_at: string;
 }
+export interface DetailedProduct extends Product {
+  warrantyNote?: string;
+  descriptionList?: any;
+  features?: string[];
+  specGroups?: any;
+  addons?: any;
+  _isDjangoProduct?: boolean;
+  // Add any other optional fields you know exist in the API response
+}
 
 export interface CategoryListResponse {
   count: number;

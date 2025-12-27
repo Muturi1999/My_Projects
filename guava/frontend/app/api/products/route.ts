@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
 
             // Get category name from slug
             const categorySlug = product.category_slug || "";
-            const category = categorySlug ? shopCategories.find(cat => cat.slug === categorySlug) : null;
+            const category = categorySlug; // Use slug directly as category name
             
             const transformed = {
               id: product.id?.toString(),
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
               originalPrice: parseFloat(product.original_price) || null,
               image: primaryImage,
               images: allImages,
-              category: category ? category.name : categorySlug,
+              category: category || categorySlug,
               category_slug: categorySlug,
               brand: product.brand_slug,
               rating: parseFloat(product.rating) || 0,
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
 
           // Get category name from slug
           const categorySlug = product.category_slug || "";
-          const category = categorySlug ? shopCategories.find(cat => cat.slug === categorySlug) : null;
+          const category = categorySlug; // Use slug directly as category name
           
           const transformed = {
             id: product.id?.toString(),
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
             originalPrice: parseFloat(product.original_price) || null,
             image: primaryImage,
             images: allImages,
-            category: category ? category.name : categorySlug,
+            category: category || categorySlug,
             category_slug: categorySlug,
             brand: product.brand_slug,
             rating: parseFloat(product.rating) || 0,
@@ -255,7 +255,7 @@ export async function GET(request: NextRequest) {
 
         // Get category name from slug
         const categorySlug = product.category_slug || "";
-        const category = categorySlug ? shopCategories.find(cat => cat.slug === categorySlug) : null;
+        const category = categorySlug; // Use slug directly as category name
         
         return {
           id: product.id?.toString(),
@@ -266,7 +266,7 @@ export async function GET(request: NextRequest) {
           originalPrice: parseFloat(product.original_price) || null,
           image: primaryImage,
           images: allImages,
-          category: category ? category.name : categorySlug,
+          category: category || categorySlug,
           category_slug: categorySlug,
           brand: product.brand_slug,
           rating: parseFloat(product.rating) || 0,

@@ -354,6 +354,7 @@ function getFeaturedProduct(id: string) {
   if (!deal) return null;
   return {
     id: deal.id,
+    slug: deal.id,
     name: `${deal.name} - ${deal.model}`,
     price: deal.price,
     originalPrice: deal.originalPrice,
@@ -429,13 +430,22 @@ export default async function HomeProductPage({ params }: HomeProductPageProps) 
       : getFallbackAddons(product as Product);
   
   // Map addon images to local paths
-  const computedAddons = computedAddonsRaw.map((addon) => {
-    const localImage = getProductImage(addon.name, addon.image);
-    return {
+  // const computedAddons = computedAddonsRaw.map((addon) => {
+  //  const localImage = getProductImage(addon.name, addon.image);
+   // return {
+     // ...addon,
+      //image: localImage,
+   // };
+ // });
+ // // Map addon images to local paths
+  const computedAddons = computedAddonsRaw.map((addon: any) => {
+   const localImage = getProductImage(addon.name, addon.image);
+   return {
       ...addon,
       image: localImage,
-    };
-  });
+     };
+   });
+ 
 
   // Get related products from related categories
   const relatedProducts = getRelatedProducts(product as Product, 8);
@@ -708,7 +718,7 @@ export default async function HomeProductPage({ params }: HomeProductPageProps) 
                 {detailedProduct.name}
               </h2>
               <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
-                {detailedProduct.longDescription ||
+                {(detailedProduct as any).longDescription ||
                   detailedProduct.description ||
                   detailedProduct.descriptionList?.join(" ") ||
                   "This product combines reliable performance, modern design and everyday practicality – ideal for work, study and entertainment."}
@@ -733,7 +743,7 @@ export default async function HomeProductPage({ params }: HomeProductPageProps) 
                     </h2>
                   </div>
                   <div className="divide-y divide-gray-200">
-                    {computedAddons.slice(0, 4).map((addon, index) => (
+                    {computedAddons.slice(0, 4).map((addon: any, index: number) => (
                       <AddonCard key={`${addon.id}-${index}`} addon={addon} index={index} />
                     ))}
                   </div>

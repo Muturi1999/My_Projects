@@ -17,8 +17,8 @@ const STATUS_STEPS = [
   { id: "delivered", label: "Delivered" },
 ] as const;
 
-export default function OrderDetailPage(props: OrderDetailPageProps) {
-  const params = props.params as { id: string };
+export default async function OrderDetailPage(props: OrderDetailPageProps) {
+  const params = await props.params;
   const { orders } = useOrders();
 
   const order = orders.find((o) => o.id === params.id);

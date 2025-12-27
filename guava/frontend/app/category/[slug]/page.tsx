@@ -132,7 +132,8 @@ function ProductCard({
               <AddToCartButton
                 onClick={() => {
         // Use product slug for better URLs, fallback to ID if slug not available
-        const productPath = product.slug || product.id;
+      //  const productPath = product.slug || product.id;
+        const productPath = (product as any).slug || product.id;
         router.push(`/product/${productPath}?category=${categorySlug}`);
       }}
                 className="w-full sm:w-auto"

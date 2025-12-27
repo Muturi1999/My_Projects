@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   price: number;
   originalPrice: number;
   discount: number;
@@ -2534,6 +2535,7 @@ export function getProductsByBrand(brandSlug: string): Product[] {
 export interface FeaturedDeal {
   id: string;
   name: string;
+  slug: string;
   model: string;
   description: string[];
   price: number;

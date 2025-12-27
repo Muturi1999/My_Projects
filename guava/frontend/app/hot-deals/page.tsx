@@ -33,7 +33,7 @@ export default function HotDealsPage() {
     // Use CMS data if available, otherwise fallback to mock data
     if (!loading && homepage?.hot_deals?.items?.length) {
       return mapApiProductsToComponents(
-        homepage.hot_deals.items.map((item) => ({
+       homepage.hot_deals.items.map((item) => ({
           id: item.id,
           name: item.name,
           image: item.image,
@@ -51,7 +51,7 @@ export default function HotDealsPage() {
           brand: "",
           description: "",
           images: [item.image],
-        }))
+        })) as any
       );
     }
     

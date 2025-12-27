@@ -607,8 +607,7 @@ export async function generateStaticParams() {
 export default async function ProductPage({ params, searchParams }: ProductPageProps) {
   // Await params and searchParams (Next.js 15+ requirement)
   const { id } = await params;
-  const { category: categorySlugFromUrl, brand: brandSlugFromUrl, from } = await searchParams;
-  
+  const { category: categorySlugFromUrl,  brand: brandSlugFromUrl, from } = (await searchParams) as {  category?: string;  brand?: string;  from?: string;};  
   let product =
     catalogProducts.find((item) => item.id === id) || getFeaturedProduct(id);
 
@@ -666,7 +665,15 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
     ? product
     : mapProductsToLocalImages([product])[0];
   
-  const detailedProduct = buildProductDetail(productWithLocalImages);
+  const productWithLocalImagesComplete = {
+   ...productWithLocalImages,
+   slug: (productWithLocalImages as any).slug ?? productWithLocalImages.name.toLowerCase().replace(/\s+/g, '-'),
+   features: (productWithLocalImages as any).features ?? [],
+   _isDjangoProduct: true,
+  };
+
+ const detailedProduct = buildProductDetail(productWithLocalImagesComplete);
+
   const saving = detailedProduct.originalPrice - detailedProduct.price;
   
   // Fetch similar products and addons from Django API - related to this product's category
@@ -1036,8 +1043,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                         </span>
                       </div>
                       <span className="text-gray-600 text-left sm:text-right text-xs sm:text-sm">
-                        {detailedProduct.deliveryTime ??
-                          "Same day delivery (within Nairobi)"}
+                        {(detailedProduct as any).deliveryTime ?? "Same day delivery (within Nairobi)"}
                       </span>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
@@ -1048,8 +1054,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                         </span>
                       </div>
                       <span className="text-gray-600 text-left sm:text-right text-xs sm:text-sm">
-                        {detailedProduct.returnPolicyNote ??
-                          "Easy returns within 7 days"}
+                         {(detailedProduct as any).returnPolicyNote ?? "Easy returns within 7 days"}
                       </span>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
